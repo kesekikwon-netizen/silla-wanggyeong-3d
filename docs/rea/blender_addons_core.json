@@ -1,0 +1,41 @@
+﻿[
+    {
+        "Name":  "bl_pkg"
+    },
+    {
+        "Name":  "cycles"
+    },
+    {
+        "Name":  "hydra_storm"
+    },
+    {
+        "Name":  "io_anim_bvh"
+    },
+    {
+        "Name":  "io_curve_svg"
+    },
+    {
+        "Name":  "io_mesh_uv_layout"
+    },
+    {
+        "Name":  "io_scene_fbx"
+    },
+    {
+        "Name":  "io_scene_gltf2"
+    },
+    {
+        "Name":  "node_wrangler"
+    },
+    {
+        "Name":  "pose_library"
+    },
+    {
+        "Name":  "rigify"
+    },
+    {
+        "Name":  "ui_translate"
+    },
+    {
+        "Name":  "viewport_vr_preview"
+    }
+]

@@ -1,0 +1,1227 @@
+﻿[
+    {
+        "RelativePath":  "cycles_kernel_oneapi_aot.dll",
+        "Length":  139144320,
+        "SHA256":  "f4edb0a9f7689a2704752425049d51d7f892f76627ee2a1f98d42085f425e715"
+    },
+    {
+        "RelativePath":  "blender.exe",
+        "Length":  82756224,
+        "SHA256":  "ca6c421d16a3e7716e2700d8e8c468205c17f8c023e00748f7b55196c3f128d1"
+    },
+    {
+        "RelativePath":  "blender.shared\\oslexec.dll",
+        "Length":  57560064,
+        "SHA256":  "0cb9429bab910da6e929abd96e4f5b3ac250de66a303c7b80484eab159b4b4dc"
+    },
+    {
+        "RelativePath":  "blender.shared\\avcodec-60.dll",
+        "Length":  48162816,
+        "SHA256":  "b7c21305ca1c26c633196dc27044c16824239b0ef491afc9a84272005e5d6e69"
+    },
+    {
+        "RelativePath":  "blender.shared\\OpenImageDenoise_core.dll",
+        "Length":  46937088,
+        "SHA256":  "961f0ac1c32039182e0373ee52f0c83c2431add2665abd8f65cd4548104f3ea8"
+    },
+    {
+        "RelativePath":  "blender.shared\\usd_ms.dll",
+        "Length":  31522816,
+        "SHA256":  "eab0d547bab8c1efc61e181f6a8662482dc3ee1a40d5f98c8a6b310e02eb3b7c"
+    },
+    {
+        "RelativePath":  "blender.shared\\embree4.dll",
+        "Length":  26682880,
+        "SHA256":  "4bebd29ca111987fc6c9de52ae9365b72a3d8c1929ea720d7f745707ba9e5dff"
+    },
+    {
+        "RelativePath":  "blender.shared\\openvdb.dll",
+        "Length":  24628736,
+        "SHA256":  "232f183c018450ef531a041ac22290d6b39dd6545032aedd2bf731aae26210b4"
+    },
+    {
+        "RelativePath":  "blender.shared\\oslcomp.dll",
+        "Length":  22615040,
+        "SHA256":  "9a42e36a09ae2315b30bcf61db00d7d8a49ec5cc6206c4440f649621b7ced544"
+    },
+    {
+        "RelativePath":  "blender.shared\\openimageio.dll",
+        "Length":  9396736,
+        "SHA256":  "d2d2fc31dafb093426487e41d2b1e6d770e51bc9b3a4bbba9cc912a28125a825"
+    },
+    {
+        "RelativePath":  "python311.dll",
+        "Length":  6296704,
+        "SHA256":  "825076649698f9d3dbc54887e2be6b85071af427e925c8a9061772723a421c78"
+    },
+    {
+        "RelativePath":  "4.2\\python\\bin\\python311.dll",
+        "Length":  6290432,
+        "SHA256":  "5b12402c69ca7346fff52b2d505f617b6252176b5c84b4d88d2553fa60cb1b7f"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pyopenvdb.cp311-win_amd64.pyd",
+        "Length":  5799936,
+        "SHA256":  "f48842eaf96865ad2c18a4c9a542f1f43a8d4a82f4c682df9c246564b9350027"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\libcrypto-3.dll",
+        "Length":  5472768,
+        "SHA256":  "c62f24597627c88073fb4a7cb8a4abc74e1f35eafc77752976fed6c82c344ceb"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Vt\\_vt.pyd",
+        "Length":  4971008,
+        "SHA256":  "559468d7aa31e96f411f55eef2bb2287f12dc9e8220ac8569c92cd59d7b46b92"
+    },
+    {
+        "RelativePath":  "blender.shared\\sycl7.dll",
+        "Length":  4832256,
+        "SHA256":  "b61ddeb950b71ee89cbf261a78c6fd63b331c63758dfcc83c4898b36d179cf6c"
+    },
+    {
+        "RelativePath":  "blender.shared\\shaderc_shared.dll",
+        "Length":  4513280,
+        "SHA256":  "f71e75b83cc2d936ffef5b3de5a415b1556eafbc74e7b11701d1ff28a2071a52"
+    },
+    {
+        "RelativePath":  "blender.shared\\opencolorio_2_3.dll",
+        "Length":  4328448,
+        "SHA256":  "98ac33134af7792227615d0793efb9c7f8c0d7212e40bb1f8009554d75b4173c"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Sdf\\_sdf.pyd",
+        "Length":  4104704,
+        "SHA256":  "9e4c3c5fa1e39b2af8491efa9caa849538fa1acce38c91fa00b4c8cbb5c81377"
+    },
+    {
+        "RelativePath":  "blender.shared\\OpenImageDenoise_device_hip.dll",
+        "Length":  4023808,
+        "SHA256":  "3b9e84ccec06ad048e09e53b0be55c020528ac35eda5dc1c9c2d8404ba2d995d"
+    },
+    {
+        "RelativePath":  "blender.shared\\OpenEXR.dll",
+        "Length":  2896384,
+        "SHA256":  "68fa0fade74483ace94cebc339c1f9dd2ae0b83af4114cb9c18f2f28438d6f5c"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\core\\_multiarray_umath.cp311-win_amd64.pyd",
+        "Length":  2754048,
+        "SHA256":  "ebd00ec8a6debd9ed473cd5ec1bce6dad8a2fcc80a8d43f5a7f04d732beca5b2"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Gf\\_gf.pyd",
+        "Length":  2599424,
+        "SHA256":  "ebcd965df531c5a999bfb3f35e04d4f300d4a98ac0b2041b14f0906e36d24f9c"
+    },
+    {
+        "RelativePath":  "blender.shared\\OpenImageDenoise_device_cuda.dll",
+        "Length":  2501632,
+        "SHA256":  "73f9b1c7d816498315a06b6e580f6d4bbe8294e67dcbc6250407630a2c660de2"
+    },
+    {
+        "RelativePath":  "blender.shared\\avformat-60.dll",
+        "Length":  2355200,
+        "SHA256":  "3d332b94f66bd1bfc49f4d00611e567fa55d9003ec4f4c8f2225b56bd911a820"
+    },
+    {
+        "RelativePath":  "blender.shared\\OpenEXRCore.dll",
+        "Length":  2284032,
+        "SHA256":  "ade9dc3d7fcc9887faa1578fadffea1052295d20c7a145abac3ad5fbc2833c7c"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\PyOpenColorIO\\PyOpenColorIO.pyd",
+        "Length":  2169344,
+        "SHA256":  "6e1b391c5cb06406515a6099a7e3abd85e5448c6f537e5a413aebb86852f38e6"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Usd\\_usd.pyd",
+        "Length":  1970688,
+        "SHA256":  "d475662f4727df7fc08c1b31fb4d0fbd8f83d197e7322c4ef7196521a9a32cd3"
+    },
+    {
+        "RelativePath":  "blender.shared\\sndfile.dll",
+        "Length":  1821696,
+        "SHA256":  "302e42d7bfd03f5d678a7b840b1d1e638d236c81ced096168360ebc1e4eaa545"
+    },
+    {
+        "RelativePath":  "blender.shared\\SDL2.dll",
+        "Length":  1643520,
+        "SHA256":  "2bb6bf95076c2e41ea9d496212e3cb4a04ee6799f72a7d0bc0cec6f127970f26"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\sqlite3.dll",
+        "Length":  1511424,
+        "SHA256":  "c950027de1d73f37ce112406c438cfe0404ecb7daa7ae8db50f472879df30299"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\OpenImageIO\\OpenImageIO.pyd",
+        "Length":  1423872,
+        "SHA256":  "80ac942c63bd0190578a713b008504f7d82b2a52adbd2db49618a0f275b2bb74"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\linalg\\_umath_linalg.cp311-win_amd64.pyd",
+        "Length":  1411584,
+        "SHA256":  "866960e57e6716b4c018b78fd30f3682269d9357501a1f36e4a0f2c7086e1174"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\MaterialX\\PyMaterialXCore.pyd",
+        "Length":  1358848,
+        "SHA256":  "89e12ab6f565b62994fc9a725223611138b4ab6297c41c2083b336e459cc5dc8"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\core\\_simd.cp311-win_amd64.pyd",
+        "Length":  1327104,
+        "SHA256":  "02794f5962d3dc0b4cc4e643d11436c11a6f2c61b767a57d7a96677074267800"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdGeom\\_usdGeom.pyd",
+        "Length":  1302528,
+        "SHA256":  "cbb578a5815a541e8fff3ece0a554ea7b4430df405afe40d9693e65d0189bca7"
+    },
+    {
+        "RelativePath":  "blender.shared\\gmp-10.dll",
+        "Length":  1152000,
+        "SHA256":  "de9b1dff9a77e5db217a73e5de239dfe42e35d2f580203d6f45f9ba0e675f610"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\unicodedata.pyd",
+        "Length":  1126912,
+        "SHA256":  "1166a610424cb8d3502bf465cbc353d5dcac2447f55c7f45ab9fd239fc55d922"
+    },
+    {
+        "RelativePath":  "blender.shared\\OpenAL32.dll",
+        "Length":  1097216,
+        "SHA256":  "6bc2e604be65d51405d883c7dec8a3ed5718acb21fd0ce128a36b6c7b9d3a7d7"
+    },
+    {
+        "RelativePath":  "blender-launcher.exe",
+        "Length":  1074808,
+        "SHA256":  "d6683ecba9c319b2b1943d9b8f167b21901bba44cc233034cf105da08735a6e1"
+    },
+    {
+        "RelativePath":  "ucrtbase.dll",
+        "Length":  1033344,
+        "SHA256":  "4e284ab2b6e3dd8a9f3fd81029a3eb742bf59445b0585212c99b2154112f791b"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\libssl-3.dll",
+        "Length":  929792,
+        "SHA256":  "3960ebe9a3a4e1e2df06275dbe4391197207078f188cc69eac317498817c0842"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Tf\\_tf.pyd",
+        "Length":  915968,
+        "SHA256":  "7966cc5a85c0a5c509663fb04aa2b22428042a4d45cbbb56872d00fe1cabf89b"
+    },
+    {
+        "RelativePath":  "blender.shared\\MaterialXCore.dll",
+        "Length":  852480,
+        "SHA256":  "3a04151e261523a98468f5621639eb7eee759aabcadaef2e4456c181c02b5385"
+    },
+    {
+        "RelativePath":  "blender.shared\\OpenImageDenoise_device_sycl.dll",
+        "Length":  836608,
+        "SHA256":  "a37fa15a6dfcfd18777aa3acaa3a0e4d39fef708e73403e34f7323b62454abc3"
+    },
+    {
+        "RelativePath":  "blender.shared\\pi_level_zero.dll",
+        "Length":  828928,
+        "SHA256":  "9a026963e8a8541ee2b77334fce625cf60074dc8e2b66411e211f5e4a7f51838"
+    },
+    {
+        "RelativePath":  "blender.shared\\boost_wave-vc142-mt-x64-1_82.dll",
+        "Length":  826880,
+        "SHA256":  "1bf3c3721058c6cc229a4ae7deefcec4c1474848f11305f1fe963cdc5044443b"
+    },
+    {
+        "RelativePath":  "blender.shared\\openimageio_util.dll",
+        "Length":  771584,
+        "SHA256":  "3f10e9b96edd550769e188e04d483a0c22d5071c9271cd36647e3983ddb23104"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdShade\\_usdShade.pyd",
+        "Length":  737792,
+        "SHA256":  "3183bf760bdbf108753d9535f1930eaf87e1119cc0db76a64184000a5afc300d"
+    },
+    {
+        "RelativePath":  "blender.shared\\avutil-58.dll",
+        "Length":  709632,
+        "SHA256":  "eec1ac64b2ebf9cea75fba3fa5d0a7b24716bf0fd6dbfcb64590b34d17073a20"
+    },
+    {
+        "RelativePath":  "blender.shared\\MaterialXGenShader.dll",
+        "Length":  705024,
+        "SHA256":  "07638b961e561a6b8183ff4a9067e53c0e7f712b3fffd9c23ab5da8310464579"
+    },
+    {
+        "RelativePath":  "blender.shared\\epoxy-0.dll",
+        "Length":  698368,
+        "SHA256":  "ab186fcf92e1c47108dc301fbf819bf02ebd2d2693c6b8ebf44a2f6bef2490d2"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\zstandard\\backend_c.cp311-win_amd64.pyd",
+        "Length":  649728,
+        "SHA256":  "4fb07c1fa24c9f2074117756ee69cb56851154042b47653a57b76db8a04d715a"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\random\\_generator.cp311-win_amd64.pyd",
+        "Length":  634880,
+        "SHA256":  "e2ee85f39dee6c16e279121b70d52ba0fdbb00d1c741d7cca2b753f3db68742f"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdLux\\_usdLux.pyd",
+        "Length":  629760,
+        "SHA256":  "ae8126729c436a7ab958cfb35af58ffdf03ae3e4aace0e4120850988597861f8"
+    },
+    {
+        "RelativePath":  "BlendThumb.dll",
+        "Length":  621184,
+        "SHA256":  "a612cd88768472f57e95bc6e101fca88f4203afc917b8775a3eac58d971c9223"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Pcp\\_pcp.pyd",
+        "Length":  612352,
+        "SHA256":  "b835beb1f5c55bbf23ab2688dfcb9566710d856b89d01a03766a83a8c1a585cc"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdSkel\\_usdSkel.pyd",
+        "Length":  602112,
+        "SHA256":  "9680b07c6451c129a66eb5b8a54dbf37a97509e4d2011908268ed85ada38ad9e"
+    },
+    {
+        "RelativePath":  "blender.crt\\msvcp140.dll",
+        "Length":  566704,
+        "SHA256":  "9fee6f36547d6f6ea7ca0338655555dba6bb0f798bc60334d29b94d1547da4da"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdPhysics\\_usdPhysics.pyd",
+        "Length":  552960,
+        "SHA256":  "580993f9372e26c5ee8e5be0da105f9afd3e18dd2b60d964d32aa8dccc7803a8"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\random\\mtrand.cp311-win_amd64.pyd",
+        "Length":  552960,
+        "SHA256":  "205a514ac12cf7643f2ded2863d0d97c7fa24be56c1d0f6a155745519a828485"
+    },
+    {
+        "RelativePath":  "blender.shared\\MaterialXRender.dll",
+        "Length":  550912,
+        "SHA256":  "4c202fe8f1c0e879658a34a64357fb5c1140335a06db140e22473bc1faa4376c"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Ts\\_ts.pyd",
+        "Length":  537600,
+        "SHA256":  "f48db7d19fd26abd4a87b81c51bf073aa1d2c839d79e929a3d90aba19c14631c"
+    },
+    {
+        "RelativePath":  "blender.shared\\OpenImageDenoise_device_cpu.dll",
+        "Length":  497152,
+        "SHA256":  "f111b940c507f7215f791ae98e97d2a732cccaf54b8fae0f26774f73ab79e6d7"
+    },
+    {
+        "RelativePath":  "blender.shared\\boost_locale-vc142-mt-x64-1_82.dll",
+        "Length":  462336,
+        "SHA256":  "e4c3d7763e72ff912128a9c6bbdeae526a0937767f55437bf43f5460b56d9d6f"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\MaterialX\\PyMaterialXRender.pyd",
+        "Length":  445440,
+        "SHA256":  "f0c1668dec181b8bce04f3dbc57afba404636b069e6940e8ba3834a71eb3d6ba"
+    },
+    {
+        "RelativePath":  "blender.shared\\swscale-7.dll",
+        "Length":  431616,
+        "SHA256":  "548ff4e62697201d24381592347fea7955fd327b1a0f57f010626cfa454cd830"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\MaterialX\\PyMaterialXGenShader.pyd",
+        "Length":  407552,
+        "SHA256":  "e8b00ad7e8ce8573611344620aee320c8994310fde718df5119598b7de023465"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\extern_draco.dll",
+        "Length":  407040,
+        "SHA256":  "a451bdbbe5f9450e3b3ef0fc84d9aa3e8578558f5fb91e87c763d2c1a97929d0"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Ndr\\_ndr.pyd",
+        "Length":  401408,
+        "SHA256":  "c4e3d333a37ac08c83556e50fd824ff2f739cc44fb0a8c568857fa48ea76d199"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\Cython\\Compiler\\FlowControl.cp311-win_amd64.pyd",
+        "Length":  377856,
+        "SHA256":  "ce068cc1de7cb973db05f12ee51b154207e05f7164a9b99f72a817c2e10d72ec"
+    },
+    {
+        "RelativePath":  "blender.shared\\MaterialXGenGlsl.dll",
+        "Length":  371712,
+        "SHA256":  "1c6b6bdaa789f8e78d51ea46b0bccc21cb8fc33a10c6b42e6c0bf5f4b4579964"
+    },
+    {
+        "RelativePath":  "blender.shared\\MaterialXRenderGlsl.dll",
+        "Length":  369664,
+        "SHA256":  "b17851a66b977b873782b66af00f99798b6248553fa92d53360210635b0ce3a8"
+    },
+    {
+        "RelativePath":  "blender.shared\\MaterialXGenMsl.dll",
+        "Length":  355840,
+        "SHA256":  "a51a9800a0a1cc986990f783a7f1b3fc8f1143b69fb4cb463f7058fa7e7fc2ec"
+    },
+    {
+        "RelativePath":  "blender.shared\\boost_program_options-vc142-mt-x64-1_82.dll",
+        "Length":  344576,
+        "SHA256":  "d45ff922daa93a35b3cccb6850ca678fea0f14543d0a195f8c313eea4df8cc48"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\Cython\\Tempita\\_tempita.cp311-win_amd64.pyd",
+        "Length":  336384,
+        "SHA256":  "c10b16d835ac61888373916587fb0d698a52db73484d9446eb1bf9963e6a72bb"
+    },
+    {
+        "RelativePath":  "blender.shared\\imath.dll",
+        "Length":  335872,
+        "SHA256":  "545d1174de7dc05fcae2f0b63e6a8ea668629e27cf389cb8dbfda993242f5556"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdUtils\\_usdUtils.pyd",
+        "Length":  334336,
+        "SHA256":  "dbd4444a9890c9ec337b659d9d863686855b9cc573b5bb06fd68161f7a6cb9f0"
+    },
+    {
+        "RelativePath":  "blender.crt\\concrt140.dll",
+        "Length":  317864,
+        "SHA256":  "573229a07f38ab9d2fc2e1a5b98e9243b9b39100323180c83ad7ddaf98eee46a"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\MaterialX\\PyMaterialXFormat.pyd",
+        "Length":  293376,
+        "SHA256":  "9ea7475e9b5c9b208bfb06afbf5c06fadd589d15a3779dbe86ceccff87e82b0d"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_decimal.pyd",
+        "Length":  293376,
+        "SHA256":  "23ad6f1cd4497104157c0d67a74f6e2044ff950eafe11f59da70f0245351ed3b"
+    },
+    {
+        "RelativePath":  "blender.shared\\MaterialXGenMdl.dll",
+        "Length":  280576,
+        "SHA256":  "c6d08a10e28363c8b72e7c0d6648a055656a69d0c48ff8c341cf0ea0c902374e"
+    },
+    {
+        "RelativePath":  "blender.shared\\Iex.dll",
+        "Length":  280064,
+        "SHA256":  "f27466ebbb0ff63be996909d26666c64dc01a4e39e939cfc31c35767d692f052"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Plug\\_plug.pyd",
+        "Length":  267264,
+        "SHA256":  "8e1b61d5c386fc662dac6b0791dbf6b81cdf5ebbd8f95d0951c935bbea1665f4"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\linalg\\lapack_lite.cp311-win_amd64.pyd",
+        "Length":  266752,
+        "SHA256":  "637a610187fe83c87158e4c36f3591cd8585b34919e318557f4bc08dc09f90c6"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\MaterialX\\PyMaterialXRenderGlsl.pyd",
+        "Length":  258048,
+        "SHA256":  "c5c305b61fb4407b0fd9dc0f293d01d3413c3fc681a24c1b589f58ea35138115"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\venv\\scripts\\nt\\python.exe",
+        "Length":  256512,
+        "SHA256":  "bff511f6bb2ed4b1e4bc6f9a3ff07e9eb737eadd99e0ab71eedaae71d064ff9c"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\Cython\\Compiler\\FusedNode.cp311-win_amd64.pyd",
+        "Length":  247296,
+        "SHA256":  "916be371f2b42823078630a18ec43822734589baba617ef89d9ab709d5d8930a"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\venv\\scripts\\nt\\pythonw.exe",
+        "Length":  244736,
+        "SHA256":  "c693dbf229c5bbefcf4e2cd9c9735ce685c5ad62ac49532468e5d760da30fe45"
+    },
+    {
+        "RelativePath":  "blender.shared\\boost_regex-vc142-mt-x64-1_82.dll",
+        "Length":  228864,
+        "SHA256":  "509ba4597672104694ab69d43c0c191807db6ea7b5fa5e7780c8362ba8baaa53"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdRi\\_usdRi.pyd",
+        "Length":  223744,
+        "SHA256":  "097adec49dae981b6b8d3c50c00f1c4722310a58c89bf37a98ade5fa21e2079c"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Ar\\_ar.pyd",
+        "Length":  218624,
+        "SHA256":  "5c129519302c1224e5cda182bb84d5fe6ced6ba4a4a305119fbd3ab7282925f9"
+    },
+    {
+        "RelativePath":  "blender.shared\\boost_serialization-vc142-mt-x64-1_82.dll",
+        "Length":  215040,
+        "SHA256":  "715a42b779a5e46ec59cd87df1f33de1f0f9b2c2d18922fd08258a8d5f8cfe9f"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\random\\_bounded_integers.cp311-win_amd64.pyd",
+        "Length":  211456,
+        "SHA256":  "36d06af7aedd9c2bcd9dcd5ca2809532770b4d8c81a9d85f775671a04eb8b3b2"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\Cython\\Compiler\\Visitor.cp311-win_amd64.pyd",
+        "Length":  199680,
+        "SHA256":  "114b0945385fe336de5925af743385fbb8eec2a488e7daddf9ee756cc937d450"
+    },
+    {
+        "RelativePath":  "blender.shared\\MaterialXGenOsl.dll",
+        "Length":  195072,
+        "SHA256":  "f4bd21f0b2ce2fb8dc2f4d4775ce4ee09964ebe40445d45c056a255f36597631"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\pyexpat.pyd",
+        "Length":  193536,
+        "SHA256":  "84f217e43a7fee7739b1c40d859ed3585db863e67b444ed36ccae8a6c8b558f9"
+    },
+    {
+        "RelativePath":  "blender.shared\\boost_python311-vc142-mt-x64-1_82.dll",
+        "Length":  192512,
+        "SHA256":  "2fae83f3d942da8b4ccf974546e26da82bb55bc2372c04d299a41c65541b3acc"
+    },
+    {
+        "RelativePath":  "blender.shared\\MaterialXFormat.dll",
+        "Length":  189952,
+        "SHA256":  "85bd51389d41e26095d45ec9b2f43fb24eeb694efcdc7a08d58ec3fe39b33bb9"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdImagingGL\\_usdImagingGL.pyd",
+        "Length":  188416,
+        "SHA256":  "e9d046de6fe33f29be7caea6c7527230df0e3cfb00ba0a153e1e08740d84b4fa"
+    },
+    {
+        "RelativePath":  "blender.crt\\msvcp140_2.dll",
+        "Length":  186800,
+        "SHA256":  "366af8e071f004da5d95a832a46b2e8821a8e0294340a93f7c95cf48c441067e"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pip\\_vendor\\distlib\\t64-arm.exe",
+        "Length":  182784,
+        "SHA256":  "ebc4c06b7d95e74e315419ee7e88e1d0f71e9e9477538c00a93a9ff8c66a6cfc"
+    },
+    {
+        "RelativePath":  "blender.crt\\vcomp140.dll",
+        "Length":  180616,
+        "SHA256":  "615d9cd5d06e2ad69d10b938d91f88c6d372e6c935b315c45da13bb8c4b67e0a"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Sdr\\_sdr.pyd",
+        "Length":  178688,
+        "SHA256":  "2ee667a4472354eab10ce91b146799a299d4cf976d9e184ee01c4f063f718954"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\MaterialX\\PyMaterialXGenGlsl.pyd",
+        "Length":  177152,
+        "SHA256":  "8fa4bb323ed729ebb6de3963ff7d97f59be1e4ec55b0edf8456150a686bcdb57"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Trace\\_trace.pyd",
+        "Length":  173056,
+        "SHA256":  "eeddba5b8137814a2ce56a86e4f58e311328285706e77f3af126bf113a0173b6"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\MaterialX\\PyMaterialXRenderOsl.pyd",
+        "Length":  172032,
+        "SHA256":  "980e3cab06d15e5d3910a31470d63ca7ee170541433a9e764ba444f18a3833d7"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_ssl.pyd",
+        "Length":  170496,
+        "SHA256":  "d1b9a39d6c016f6a92276bf196e464479cb2b90be6564b36606d485d534ab38a"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pip\\_vendor\\distlib\\w64-arm.exe",
+        "Length":  168448,
+        "SHA256":  "c5dc9884a8f458371550e09bd396e5418bf375820a31b9899f6499bf391c7b2e"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdRender\\_usdRender.pyd",
+        "Length":  166400,
+        "SHA256":  "68668d2b3883e6c5b34936a2b37f372dbe0321caf42b68c64b331d2dfa72d710"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\Cython\\Compiler\\Scanning.cp311-win_amd64.pyd",
+        "Length":  165888,
+        "SHA256":  "f404c430db5abe24d79154fabfde81922e570ee8ae441472ad3f862cb8acecbe"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\MaterialX\\PyMaterialXGenMsl.pyd",
+        "Length":  164864,
+        "SHA256":  "4aad13eb218a428bc1c00cd958600c9701b5563c937876fa03c643f7308c0770"
+    },
+    {
+        "RelativePath":  "blender.shared\\OpenImageDenoise.dll",
+        "Length":  163328,
+        "SHA256":  "3d55d155ea1b002b41132c19793ce0767ab6fcb45632b7af30d88982473e9b19"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\PxOsd\\_pxOsd.pyd",
+        "Length":  161792,
+        "SHA256":  "1e0c33a0c5be6fae72a67323ab12978999d877b03449c9641cef66d70204b08a"
+    },
+    {
+        "RelativePath":  "blender.shared\\tbb.dll",
+        "Length":  159232,
+        "SHA256":  "cc62cc39661429945cda80f93a4a62c7c67300f9b5f81253de53abd4c5b53504"
+    },
+    {
+        "RelativePath":  "blender.shared\\oslquery.dll",
+        "Length":  158720,
+        "SHA256":  "14419a023b62ae52eab2c0b9b05c777b3bd3783b4ec00bb7758353cdc4251221"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_lzma.pyd",
+        "Length":  157696,
+        "SHA256":  "2055fcdd4d0aa1dce6da882b55c2471d840217213dd3bf35f04f14d70ee71ead"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\random\\_common.cp311-win_amd64.pyd",
+        "Length":  156160,
+        "SHA256":  "3bc225b5eb2fc9f517c975aaf073ca1e886d96e4f8aa99d5f76536479acdd84e"
+    },
+    {
+        "RelativePath":  "blender.shared\\OpenEXRUtil.dll",
+        "Length":  154112,
+        "SHA256":  "0e2e5ce4b37028d911b43a8476a6de5b02d1fd8c47edc92fd0301e00c7cd09f6"
+    },
+    {
+        "RelativePath":  "blender.shared\\boost_wserialization-vc142-mt-x64-1_82.dll",
+        "Length":  153088,
+        "SHA256":  "d71106ab927bd6851edcfc1a598bfa5ce598f0cda4f0abb7b93b622ef3d31f3a"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\MaterialX\\PyMaterialXGenOsl.pyd",
+        "Length":  152576,
+        "SHA256":  "f2d0d5fa7827ac821751b4f06681a33de17d88626cc4d632999bb171658e8a7d"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\MaterialX\\PyMaterialXGenMdl.pyd",
+        "Length":  145920,
+        "SHA256":  "05c034300ba20f09ccbf837db12f5c68e6f3ae070c2beefef91e0b1b0bc97b30"
+    },
+    {
+        "RelativePath":  "blender.shared\\boost_filesystem-vc142-mt-x64-1_82.dll",
+        "Length":  142848,
+        "SHA256":  "9a04a7499e734218c09df70f1f63a5ed7a9ffa5be4096d0bbfbef82228db584c"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\setuptools\\gui-arm64.exe",
+        "Length":  137728,
+        "SHA256":  "4c416738a0e2fa6ab766ccf1a9b0a80974e733f9615168dd22a069afa7d5b38d"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\setuptools\\cli-arm64.exe",
+        "Length":  137216,
+        "SHA256":  "a3d6a6c68c2e759f7c36f35687f6b60d163c2e1a0846a4c07a4c4006a96d88c7"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdUI\\_usdUI.pyd",
+        "Length":  136704,
+        "SHA256":  "8fef65eff94d3cb695fa08a07b466eb8db11021528c64e4b175d0fb1d7fd4fbd"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdVol\\_usdVol.pyd",
+        "Length":  136192,
+        "SHA256":  "8883eeabfb579499bde4d0d18fc1fc932caf4fb9543cd0342724df5d5784edf5"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\random\\bit_generator.cp311-win_amd64.pyd",
+        "Length":  134656,
+        "SHA256":  "df8b350c6a9f8d7f88d82b4f2be1e619a3a97796d682a8c602cdc9f28c0e934c"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Glf\\_glf.pyd",
+        "Length":  133632,
+        "SHA256":  "8327c2f10535cefd2f4b29a19e69c25a21bd18ce53b9d667312c028758879195"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdMedia\\_usdMedia.pyd",
+        "Length":  131072,
+        "SHA256":  "8439601bb5cc40ebef176cc3762b55a72a2e0daeca8493d9c6e4299545e73b9e"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_elementtree.pyd",
+        "Length":  126464,
+        "SHA256":  "d4950efedd4434036cabf88ca7a7a489b9e8e16cf29cd7d1182862b17f25da2c"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_ctypes.pyd",
+        "Length":  120832,
+        "SHA256":  "fafcdb6662315a763ca9970f831d7cec7963503d12f6eee7cf55d4926365ed30"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\fft\\_pocketfft_internal.cp311-win_amd64.pyd",
+        "Length":  110592,
+        "SHA256":  "cb4eecc4faa5454d600707ee09ee7e9080fb76cc3ace371c4c32ba7002cfc512"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pip\\_vendor\\distlib\\t64.exe",
+        "Length":  108032,
+        "SHA256":  "81a618f21cb87db9076134e70388b6e9cb7c2106739011b6a51772d22cae06b7"
+    },
+    {
+        "RelativePath":  "blender.shared\\swresample-4.dll",
+        "Length":  102912,
+        "SHA256":  "9ad2a9af2f74250a2bf3d08a3ebdc18c8d02be113eb0732d8081e0e4bdcb0944"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pip\\_vendor\\distlib\\w64.exe",
+        "Length":  101888,
+        "SHA256":  "7a319ffaba23a017d7b1e18ba726ba6c54c53d6446db55f92af53c279894f8ad"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\CameraUtil\\_cameraUtil.pyd",
+        "Length":  101376,
+        "SHA256":  "0036994d27973fc3ed8bac1c58decc69b1f6e6d1fd6bc09166438593b020a1dd"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_sqlite3.pyd",
+        "Length":  98304,
+        "SHA256":  "8d9d3ba8eed8b030df51cf08907cfa3a99774b26d94b877c2e57d13565b99b28"
+    },
+    {
+        "RelativePath":  "blender.crt\\vcruntime140.dll",
+        "Length":  98224,
+        "SHA256":  "9d2b40f0395cc5d1b4d5ea17b84970c29971d448c37104676db577586d4ad1b1"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pip\\_vendor\\distlib\\t32.exe",
+        "Length":  97792,
+        "SHA256":  "6b4195e640a85ac32eb6f9628822a622057df1e459df7c17a12f97aeabc9415b"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pip\\_vendor\\distlib\\w32.exe",
+        "Length":  91648,
+        "SHA256":  "47872cc77f8e18cf642f868f23340a468e537e64521d9a3a416c8b84384d064b"
+    },
+    {
+        "RelativePath":  "4.2\\python\\bin\\python.exe",
+        "Length":  91136,
+        "SHA256":  "f0c8eebe8cfe271b1ecf29960bb3de09ea5ff1af6c23e5ccef1f5554317999fe"
+    },
+    {
+        "RelativePath":  "blender.shared\\MaterialXRenderOsl.dll",
+        "Length":  90112,
+        "SHA256":  "03871d6a4057647937c19145f59082bcef9aa58a1bce380093b4a468550fa2ac"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdHydra\\_usdHydra.pyd",
+        "Length":  88576,
+        "SHA256":  "13619b05304538231cf93032b5dee68db64f56a8891157d4c865b444ce656032"
+    },
+    {
+        "RelativePath":  "blender.shared\\boost_thread-vc142-mt-x64-1_82.dll",
+        "Length":  78848,
+        "SHA256":  "3e755a572c430fb2575a05ee2560e461188edb73fb8a1a528940bdd47699f23e"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_bz2.pyd",
+        "Length":  78848,
+        "SHA256":  "2ffbf548b70b058a699314166d57ca720d0c9e94522d16ad9040b73814fb6d1d"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\setuptools\\gui-64.exe",
+        "Length":  75264,
+        "SHA256":  "69828c857d4824b9f850b1e0597d2c134c91114b7a0774c41dffe33b0eb23721"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\setuptools\\cli-64.exe",
+        "Length":  74752,
+        "SHA256":  "28b001bb9a72ae7a24242bfab248d767a1ac5dec981c672a3944f7a072375e9a"
+    },
+    {
+        "RelativePath":  "blender.shared\\avdevice-60.dll",
+        "Length":  70656,
+        "SHA256":  "f13122910c9b50d2b5d7748e987921bb11e14d02145907499de0fc39822ff35d"
+    },
+    {
+        "RelativePath":  "blender.shared\\pi_win_proxy_loaderd.dll",
+        "Length":  69632,
+        "SHA256":  "06419f64c1d80166074a0955b7646786540a42f061d1171b7a6d2679e591d4c3"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_socket.pyd",
+        "Length":  69120,
+        "SHA256":  "ad55f6e1f932401fbecc1d6e5da0010e643d7700b6d63cd28589d1305131ac59"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\random\\_pcg64.cp311-win_amd64.pyd",
+        "Length":  69120,
+        "SHA256":  "e95ffe1cf7f85bfd8c3d0bdad01d7c058f4c6b2a170c0cd8cb8e75e80fb6ac8e"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\Cython\\Plex\\Scanners.cp311-win_amd64.pyd",
+        "Length":  66048,
+        "SHA256":  "6cf3a45746aab343571c0d2ecce28ab3e933301e5f6d1f30ce80e6e349f1eeb8"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\core\\_multiarray_tests.cp311-win_amd64.pyd",
+        "Length":  66048,
+        "SHA256":  "17a0aeac94563ca94b19f9835ca3e6a00f3c24ea27e4bc2e51c450cfc6debd2b"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\setuptools\\cli.exe",
+        "Length":  65536,
+        "SHA256":  "75f12ea2f30d9c0d872dade345f30f562e6d93847b6a509ba53beec6d0b2c346"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\setuptools\\gui.exe",
+        "Length":  65536,
+        "SHA256":  "5c1af46c7300e87a73dacf6cf41ce397e3f05df6bd9c7e227b4ac59f85769160"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\setuptools\\cli-32.exe",
+        "Length":  65536,
+        "SHA256":  "75f12ea2f30d9c0d872dade345f30f562e6d93847b6a509ba53beec6d0b2c346"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\setuptools\\gui-32.exe",
+        "Length":  65536,
+        "SHA256":  "5c1af46c7300e87a73dacf6cf41ce397e3f05df6bd9c7e227b4ac59f85769160"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Kind\\_kind.pyd",
+        "Length":  64512,
+        "SHA256":  "17e350bbc1058585a47dc0db1f63e112399c71a65bab6ff6c944b020b2825777"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-crt-private-l1-1-0.dll",
+        "Length":  64464,
+        "SHA256":  "785c49fd9f99c6eb636d78887aa186233e9304921dd835dee8f72e2609ff65c4"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Garch\\_garch.pyd",
+        "Length":  63488,
+        "SHA256":  "24b56de5d3dce196154ec4dc6e1ea2d965ec28ca3e1196b47a308bafc219c077"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdProc\\_usdProc.pyd",
+        "Length":  63488,
+        "SHA256":  "b305899113e9f16b57b9367f8fe0c558b720a0f886db59026050a7422bea98f4"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\random\\_mt19937.cp311-win_amd64.pyd",
+        "Length":  62976,
+        "SHA256":  "151b38ba33b7d31043db9ed39c4724e93ef61de52f156dd8a95a437b1cb2e2bc"
+    },
+    {
+        "RelativePath":  "python3.dll",
+        "Length":  61568,
+        "SHA256":  "6a506de345dbd5018bc56b5ddcf12b8fdedbc3814e47f2a24afd861d78c09374"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdAppUtils\\_usdAppUtils.pyd",
+        "Length":  58368,
+        "SHA256":  "efca1749f0810ec28a426ff9e485ee5a95d10654ac7dd7e5c6efb6a28faeaa4c"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\random\\_philox.cp311-win_amd64.pyd",
+        "Length":  57344,
+        "SHA256":  "7e16f2b4c3e291485067bc8898ac322ebd48244a4968f975c493d1d63864c012"
+    },
+    {
+        "RelativePath":  "blender.crt\\msvcp140_atomic_wait.dll",
+        "Length":  57264,
+        "SHA256":  "c61a28711f8c6e9bfd4879cf5f53b013d653badad308abe3e887c694b223d6f0"
+    },
+    {
+        "RelativePath":  "blender.shared\\tbbmalloc.dll",
+        "Length":  55808,
+        "SHA256":  "476f84225029847ff7e318f3107dbb755a38826d3db69fc7ef92851ea3934210"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_asyncio.pyd",
+        "Length":  55296,
+        "SHA256":  "d39402f593d6d00603114658154a4d0c057c0ffdc0e9604356276a4f066c593b"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\GeomUtil\\_geomUtil.pyd",
+        "Length":  53760,
+        "SHA256":  "522c080fdca4b6c0a370c2d6997275de4426d261c67c8dc61f187686cb7b1e94"
+    },
+    {
+        "RelativePath":  "blender.shared\\pi_win_proxy_loader.dll",
+        "Length":  52224,
+        "SHA256":  "66357fbbb2b5df5b750f05e0a6c8fb71a84a015450e94beeb0637e2307e57469"
+    },
+    {
+        "RelativePath":  "blender.shared\\boost_numpy311-vc142-mt-x64-1_82.dll",
+        "Length":  51200,
+        "SHA256":  "87dd26e86eee9ea96cff2d72f652c1e76e7b6b90c4e745e539fd6aef2d51ff25"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_hashlib.pyd",
+        "Length":  50176,
+        "SHA256":  "91719cf9d7c68bd6b0b84bc17527446b65df0fef7f94566b063df137c5f875c1"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\Cython\\Runtime\\refnanny.cp311-win_amd64.pyd",
+        "Length":  47616,
+        "SHA256":  "a3f404f2c754c60938d266db97f471d3a4ce3567edf5d6dc345ce609f03e9d04"
+    },
+    {
+        "RelativePath":  "blender.shared\\boost_iostreams-vc142-mt-x64-1_82.dll",
+        "Length":  47616,
+        "SHA256":  "02394b1be9ad5ef253d04b73b2d1c20e80f838433eb12c3deb68cdd1a2b29c3b"
+    },
+    {
+        "RelativePath":  "blender.shared\\IlmThread.dll",
+        "Length":  45568,
+        "SHA256":  "89875dc9ec6131a116dba27a551192c915c90448cd7578fa8d4584565a4095c3"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\Cython\\Plex\\Actions.cp311-win_amd64.pyd",
+        "Length":  43008,
+        "SHA256":  "dd833f07c762cb0d41e28361b229dff2f933c4cc71cd2618343be3d4f4c04566"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_overlapped.pyd",
+        "Length":  42496,
+        "SHA256":  "c337188aa3c58e19cd9aea3d0078a7573d4910944f474321fd6da7731702eb1e"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\core\\_rational_tests.cp311-win_amd64.pyd",
+        "Length":  40960,
+        "SHA256":  "994e5d1d47bdcce2e4c8f32decb0210d2bbdea3b8dd3d7ef8a6e7e4caeebf2e2"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\UsdMtlx\\_usdMtlx.pyd",
+        "Length":  40960,
+        "SHA256":  "7f0a54eb1085313f31e95f5da6876547ed4dc3d2d60563d16195b739f13b635f"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\random\\_sfc64.cp311-win_amd64.pyd",
+        "Length":  40448,
+        "SHA256":  "b8dbc575923f4778a1a5e6ef2275c253e7cea5528bdd35aae784513ad257bf3a"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\libffi-8.dll",
+        "Length":  39696,
+        "SHA256":  "eff52743773eb550fcc6ce3efc37c85724502233b6b002a35496d828bd7b280a"
+    },
+    {
+        "RelativePath":  "blender.shared\\oslnoise.dll",
+        "Length":  37888,
+        "SHA256":  "0536c0ca2d28eda9cfc3882b5c205d5677fac5c168dcb58762ebea21ddd8549c"
+    },
+    {
+        "RelativePath":  "blender.crt\\vcruntime140_1.dll",
+        "Length":  37256,
+        "SHA256":  "34048abaa070ecc13b318cea31425f4ca3edd133d350318ac65259e6058c8b32"
+    },
+    {
+        "RelativePath":  "blender.shared\\boost_chrono-vc142-mt-x64-1_82.dll",
+        "Length":  35840,
+        "SHA256":  "d230019c66d65e7bd15fb979bffc00aa1de23719be00c337bdb0c08cfd53d983"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_zoneinfo.pyd",
+        "Length":  33280,
+        "SHA256":  "b82e41951f00f4e26de4575a9869b5afaf9584b334418ea5ba7289d717cec480"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_msi.pyd",
+        "Length":  32768,
+        "SHA256":  "59efbc0bd19460acb464e815e7f79f160d5e8b77f90b94cd402c90fa82514f59"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\core\\_umath_tests.cp311-win_amd64.pyd",
+        "Length":  30208,
+        "SHA256":  "6bdded36fe32a6d05a39d608e35d10a7d90a92a9181f9219ae307a768efdf2d2"
+    },
+    {
+        "RelativePath":  "blender.shared\\tbbmalloc_proxy.dll",
+        "Length":  26112,
+        "SHA256":  "9fba46ab0077fc1ad5d3ccbd97e6eb28963bb413cfbafef3de5abd827a409533"
+    },
+    {
+        "RelativePath":  "blender.shared\\libgmpxx.dll",
+        "Length":  25600,
+        "SHA256":  "b927eca28fada4c2b120d7f00b685e2ed520865c9dbfe6e41e26b15356cbacf8"
+    },
+    {
+        "RelativePath":  "blender.crt\\msvcp140_1.dll",
+        "Length":  23944,
+        "SHA256":  "8731a93e519c2595c9fd489e6d9ac07e964448c0da1c8ee9ee500a7989482617"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_multiprocessing.pyd",
+        "Length":  23040,
+        "SHA256":  "7613d1da4edb264563d208eeebac77a5b5fcd9f6f9f6bec080215f5c8222d6bb"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\pxr\\Work\\_work.pyd",
+        "Length":  21504,
+        "SHA256":  "322eedda78fcc27bfe4c7d04293f751631f6bdd966cf4819b863c6ee37db3fd2"
+    },
+    {
+        "RelativePath":  "blender.crt\\msvcp140_codecvt_ids.dll",
+        "Length":  21424,
+        "SHA256":  "9b45fd069bd0076d8abfeb7c3c30a1f5c5fc8e7124017853a93d831a346c3d21"
+    },
+    {
+        "RelativePath":  "blender_cpu_check.dll",
+        "Length":  21112,
+        "SHA256":  "589790bc337f7bf6536815727fd5a41cfbec344eb4fd361eb39fd2bed1fe01b9"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-crt-math-l1-1-0.dll",
+        "Length":  20944,
+        "SHA256":  "a768339f0b03674735404248a039ec8591fcba6ff61a3c6812414537badd23b0"
+    },
+    {
+        "RelativePath":  "blender.shared\\MaterialXRenderHw.dll",
+        "Length":  20480,
+        "SHA256":  "1587dec7d2914c65803397c87221a6186d62beca6ed5ecc83768c9c44f57395c"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_queue.pyd",
+        "Length":  19968,
+        "SHA256":  "18119b1154c7ee62f32e0e4f1a3b580f9b30ae1aeb5fb1465ad04ad3503504ee"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-crt-multibyte-l1-1-0.dll",
+        "Length":  19920,
+        "SHA256":  "7101b3dff525ea47b7a40dd96544c944ae400447df7a6acd07363b6d7968b889"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\winsound.pyd",
+        "Length":  18944,
+        "SHA256":  "e4caec0674039c532212b26b14b65b7a4f90dcf7fa74fb56cc291d4ba85bcbfa"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\select.pyd",
+        "Length":  18944,
+        "SHA256":  "0a2395efa46759b4b5135c3840a3a697dcfd6dbf1979b4185fbde4fb7d3ec41f"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-crt-string-l1-1-0.dll",
+        "Length":  18384,
+        "SHA256":  "1a916c0db285deb02c0b9df4d08dad5ea95700a6a812ea067bd637a91101a9f6"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-crt-stdio-l1-1-0.dll",
+        "Length":  17872,
+        "SHA256":  "f9d3f380023a4c45e74170fe69b32bca506ee1e1fbe670d965d5b50c616da0cb"
+    },
+    {
+        "RelativePath":  "blender.shared\\boost_atomic-vc142-mt-x64-1_82.dll",
+        "Length":  17408,
+        "SHA256":  "9502927269611827505002f3d92323345742d52e75720b83986e18aa5775d9fd"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-crt-runtime-l1-1-0.dll",
+        "Length":  16336,
+        "SHA256":  "d899c2f061952b3b97ab9cdbca2450290b0f005909ddd243ed0f4c511d32c198"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-crt-convert-l1-1-0.dll",
+        "Length":  15824,
+        "SHA256":  "5cf5bbb861608131b5f560cbf34a3292c80886b7c75357acc779e0bf98e16639"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-file-l1-1-0.dll",
+        "Length":  15328,
+        "SHA256":  "5c9bc70586ad538b0df1fcf5d6f1f3527450ae16935aa34bd7eb494b4f1b2db9"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-localization-l1-2-0.dll",
+        "Length":  14800,
+        "SHA256":  "8664222823e122fca724620fd8b72187fc5336c737d891d3cef85f4f533b8de2"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\core\\_struct_ufunc_tests.cp311-win_amd64.pyd",
+        "Length":  14336,
+        "SHA256":  "528eb5cf374eb189b054573424bccdb60c22a4720ddffd083a4bbc1956af8406"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-crt-time-l1-1-0.dll",
+        "Length":  14288,
+        "SHA256":  "b56bc94e8539603dd2f0fea2f25efd17966315067442507db4bffafcbc2955b0"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-processthreads-l1-1-0.dll",
+        "Length":  14288,
+        "SHA256":  "a5b733e3dce21ab62bd4010f151b3578c6f1246da4a96d51ac60817865648dd3"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-crt-filesystem-l1-1-0.dll",
+        "Length":  13776,
+        "SHA256":  "7102f8d9d0f3f689129d7fe071b234077fba4dd3687071d1e2aeaa137b123f86"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-synch-l1-1-0.dll",
+        "Length":  13776,
+        "SHA256":  "d6708d1254ed88a948871771d6d1296945e1aa3aeb7e33e16cc378f396c61045"
+    },
+    {
+        "RelativePath":  "4.2\\python\\DLLs\\_uuid.pyd",
+        "Length":  13312,
+        "SHA256":  "27bfda28947991d77be57560943eb191c831e4fe9f7437b7a233dcc506cd4469"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-sysinfo-l1-1-0.dll",
+        "Length":  12768,
+        "SHA256":  "76d8e4ed946deefeefa0d0012c276f0b61f3d1c84af00533f4931546cbb2f99e"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-libraryloader-l1-1-0.dll",
+        "Length":  12752,
+        "SHA256":  "f320f9c0463de641b396ce7561af995de32211e144407828b117088cf289df91"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-crt-conio-l1-1-0.dll",
+        "Length":  12752,
+        "SHA256":  "e677497c1baefffb33a17d22a99b76b7fa7ae7a0c84e12fda27d9be5c3d104cf"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-processenvironment-l1-1-0.dll",
+        "Length":  12752,
+        "SHA256":  "058eb7ce88c22d2ff7d3e61e6593ca4e3d6df449f984bf251d9432665e1517d1"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-crt-process-l1-1-0.dll",
+        "Length":  12752,
+        "SHA256":  "3af38920e767bd9ebc08f88eaf2d08c748a267c7ec60eab41c49b3f282a4cf65"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-crt-heap-l1-1-0.dll",
+        "Length":  12752,
+        "SHA256":  "f5183b8d7462c01031992267fe85680ab9c5b279bedc0b25ab219f7c2184766f"
+    },
+    {
+        "RelativePath":  "4.2\\python\\lib\\site-packages\\numpy\\core\\_operand_flag_tests.cp311-win_amd64.pyd",
+        "Length":  12288,
+        "SHA256":  "fa097c2b40034e6d4c0d8f6bc5a01dfe6027b6657f2c9e027eb5ac7eb4a216eb"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-heap-l1-1-0.dll",
+        "Length":  12256,
+        "SHA256":  "c43075b1d2386a8a262de628c93a65350e52eae82582b27f879708364b978e29"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-console-l1-2-0.dll",
+        "Length":  12256,
+        "SHA256":  "f5025e74de2c1c6ea74e475b57771ac32205e6f1fa6a0390298bbe1f4049ac5d"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-memory-l1-1-0.dll",
+        "Length":  12240,
+        "SHA256":  "5d9767d8cca0fbfd5801bff2e0c2adddd1baaaa8175543625609abce1a9257bd"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-crt-locale-l1-1-0.dll",
+        "Length":  12240,
+        "SHA256":  "2eb96422375f1a7b687115b132a4005d2e7d3d5dc091fb0eb22a6471e712848e"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-crt-environment-l1-1-0.dll",
+        "Length":  12240,
+        "SHA256":  "b7ee468f5b6c650dada7db3ad9e115a0e97135b3df095c3220dfd22ba277b607"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-rtlsupport-l1-1-0.dll",
+        "Length":  12240,
+        "SHA256":  "91508ab353b90b30ff2551020e9755d7ab0e860308f16c2f6417dfb2e9a75014"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-processthreads-l1-1-1.dll",
+        "Length":  12240,
+        "SHA256":  "1ef06c600c451e66e744b2ca356b7f4b7b88ba2f52ec7795858d21525848ac8c"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-crt-utility-l1-1-0.dll",
+        "Length":  12240,
+        "SHA256":  "dd14133adf5c534539298422f6c4b52739f80aca8c5a85ca8c966dea9964ceb1"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-console-l1-1-0.dll",
+        "Length":  12240,
+        "SHA256":  "8f8b79150e850acc92fd6aab614f6e3759bea875134a62087d5dd65581e3001f"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-synch-l1-2-0.dll",
+        "Length":  12240,
+        "SHA256":  "72c639d1afda32a65143bcbe016fe5d8b46d17924f5f5190eb04efe954c1199a"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-timezone-l1-1-0.dll",
+        "Length":  12240,
+        "SHA256":  "b0eda99eabd32fefecc478fd9fe7439a3f646a864fdab4ec3c1f18574b5f8b34"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-file-l2-1-0.dll",
+        "Length":  11744,
+        "SHA256":  "dac867476caa42ff8df8f5dfe869ffd56a18dadee17d47889afb69ed6519afbf"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-datetime-l1-1-0.dll",
+        "Length":  11736,
+        "SHA256":  "913eaaa7997a6aee53574cffb83f9c9c1700b1d8b46744a5e12d76a1e53376fd"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-handle-l1-1-0.dll",
+        "Length":  11736,
+        "SHA256":  "0b3dfb8554ead94d5da7859a12db353942406f9d1dfe3fac3d48663c233ea99d"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-util-l1-1-0.dll",
+        "Length":  11728,
+        "SHA256":  "f28a8fe2cd7e8e00b6d2ec273c16db6e6eea9b6b16f7f69887154b6228af981e"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-string-l1-1-0.dll",
+        "Length":  11728,
+        "SHA256":  "f3a7a9c98ebe915b1b57c16e27fffd4ddf31a82f0f21c06fe292878e48f5883e"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-interlocked-l1-1-0.dll",
+        "Length":  11728,
+        "SHA256":  "c23fe8d5c3ca89189d11ec8df983cc144d168cb54d9eab5d9532767bcb2f1fa3"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-file-l1-2-0.dll",
+        "Length":  11728,
+        "SHA256":  "629e52ba4e2dca91b10ef7729a1722888e01284eed7dda6030d0a1ec46c94086"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-errorhandling-l1-1-0.dll",
+        "Length":  11728,
+        "SHA256":  "46079c0a1b660fc187aafd760707f369d0b60d424d878c57685545a3fce95819"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-namedpipe-l1-1-0.dll",
+        "Length":  11728,
+        "SHA256":  "8e015cdf2561450ed9a0773be1159463163c19eab2b6976155117d16c36519da"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-profile-l1-1-0.dll",
+        "Length":  11728,
+        "SHA256":  "e63550608dd58040304ea85367e9e0722038ba8e7dc7bf9d91c4d84f0ec65887"
+    },
+    {
+        "RelativePath":  "blender.crt\\api-ms-win-core-debug-l1-1-0.dll",
+        "Length":  11728,
+        "SHA256":  "58a8d69df60ecbee776cd9a74b2a32b14bf2b0bd92d527ec5f19502a0d3eb8e9"
+    },
+    {
+        "RelativePath":  "blender.shared\\boost_date_time-vc142-mt-x64-1_82.dll",
+        "Length":  9728,
+        "SHA256":  "52f666128d3128bcdbd8568a669bc5a196818229d00b7c66734ebcde0115181c"
+    },
+    {
+        "RelativePath":  "blender.shared\\boost_system-vc142-mt-x64-1_82.dll",
+        "Length":  9728,
+        "SHA256":  "6ccacc55f33700ff143094f439abe0c989b46bcf6e011879b73a7a5ce42f46fc"
+    }
+]

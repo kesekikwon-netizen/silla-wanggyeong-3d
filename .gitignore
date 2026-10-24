@@ -1,0 +1,9 @@
+# Downloaded binary archives & large REA raw dumps
+artifacts/*.zip
+artifacts/*.7z
+artifacts/*.exe
+docs/rea/blender-4.2.3-rea-evidence-bundle.json
+node_modules/
+dist/
+*.log
+.DS_Store

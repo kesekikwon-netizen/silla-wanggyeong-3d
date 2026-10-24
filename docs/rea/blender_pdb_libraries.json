@@ -1,0 +1,3686 @@
+{
+  "total_libraries": 253,
+  "total_translation_units": 5919,
+  "libraries": [
+    {
+      "library": "bf_draw_shaders.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_draw_shaders.lib",
+      "tu_count": 409,
+      "sample_tus": [
+        "common_subdiv_custom_data_interp_comp.glsl.c.obj",
+        "common_subdiv_ibo_lines_comp.glsl.c.obj",
+        "common_subdiv_ibo_tris_comp.glsl.c.obj",
+        "common_subdiv_lib.glsl.c.obj",
+        "common_subdiv_normals_accumulate_comp.glsl.c.obj",
+        "common_subdiv_normals_finalize_comp.glsl.c.obj",
+        "common_subdiv_patch_evaluation_comp.glsl.c.obj",
+        "common_subdiv_vbo_edge_fac_comp.glsl.c.obj",
+        "common_subdiv_vbo_lnor_comp.glsl.c.obj",
+        "common_subdiv_vbo_sculpt_data_comp.glsl.c.obj",
+        "common_subdiv_vbo_edituv_strech_angle_comp.glsl.c.obj",
+        "common_subdiv_vbo_edituv_strech_area_comp.glsl.c.obj",
+        "common_fullscreen_vert.glsl.c.obj",
+        "eevee_ambient_occlusion_lib.glsl.c.obj",
+        "eevee_ambient_occlusion_pass_comp.glsl.c.obj"
+      ]
+    },
+    {
+      "library": "fftw3f.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\fftw3\\lib\\fftw3f.lib",
+      "tu_count": 361,
+      "sample_tus": [
+        "plan-dft-r2c-2d.obj",
+        "plan-dft-c2r-2d.obj",
+        "execute-dft-r2c.obj",
+        "execute-dft-c2r.obj",
+        "apiplan.obj",
+        "malloc.obj",
+        "plan-dft-r2c-1d.obj",
+        "plan-dft-c2r-1d.obj",
+        "the-planner.obj",
+        "plan-dft-r2c.obj",
+        "plan-dft-c2r.obj",
+        "alloc.obj",
+        "timer.obj",
+        "problem.c.obj",
+        "plan.c.obj"
+      ]
+    },
+    {
+      "library": "fftw3.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\fftw3\\lib\\fftw3.lib",
+      "tu_count": 354,
+      "sample_tus": [
+        "execute.obj",
+        "plan-dft-c2r-2d.obj",
+        "apiplan.obj",
+        "plan-dft-c2r.obj",
+        "alloc.obj",
+        "timer.obj",
+        "problem.c.obj",
+        "plan.c.obj",
+        "align.obj",
+        "the-planner.obj",
+        "mapflags.obj",
+        "plan-many-dft-c2r.obj",
+        "assert.obj",
+        "kalloc.obj",
+        "md5-1.obj"
+      ]
+    },
+    {
+      "library": "bf_blenkernel.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_blenkernel.lib",
+      "tu_count": 275,
+      "sample_tus": [
+        "appdir.cc.obj",
+        "blender.cc.obj",
+        "brush.cc.obj",
+        "cachefile.cc.obj",
+        "callbacks.cc.obj",
+        "context.cc.obj",
+        "cpp_types.cc.obj",
+        "gpencil_modifier_legacy.cc.obj",
+        "idtype.cc.obj",
+        "material.cc.obj",
+        "modifier.cc.obj",
+        "node.cc.obj",
+        "particle.cc.obj",
+        "shader_fx.cc.obj",
+        "sound.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_freestyle.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_freestyle.lib",
+      "tu_count": 228,
+      "sample_tus": [
+        "FRS_freestyle.cpp.obj",
+        "BPy_Freestyle.cpp.obj",
+        "AppConfig.cpp.obj",
+        "AppView.cpp.obj",
+        "Controller.cpp.obj",
+        "BlenderStrokeRenderer.cpp.obj",
+        "cmake_pch.cxx.obj",
+        "BPy_BBox.cpp.obj",
+        "BPy_BinaryPredicate0D.cpp.obj",
+        "BPy_BinaryPredicate1D.cpp.obj",
+        "BPy_ContextFunctions.cpp.obj",
+        "BPy_FrsMaterial.cpp.obj",
+        "BPy_FrsNoise.cpp.obj",
+        "BPy_Id.cpp.obj",
+        "BPy_IntegrationType.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_gpu_shaders.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_gpu_shaders.lib",
+      "tu_count": 179,
+      "sample_tus": [
+        "gpu_shader_depth_only_frag.glsl.c.obj",
+        "gpu_shader_colorspace_lib.glsl.c.obj",
+        "glsl_shader_defines.glsl.c.obj",
+        "GPU_shader_shared.hh.c.obj",
+        "gpu_shader_uniform_color_frag.glsl.c.obj",
+        "gpu_shader_checker_frag.glsl.c.obj",
+        "gpu_shader_diag_stripes_frag.glsl.c.obj",
+        "gpu_shader_simple_lighting_frag.glsl.c.obj",
+        "gpu_shader_flat_color_frag.glsl.c.obj",
+        "gpu_shader_flat_color_alpha_test_0_frag.glsl.c.obj",
+        "gpu_shader_flat_id_frag.glsl.c.obj",
+        "gpu_shader_2D_vert.glsl.c.obj",
+        "gpu_shader_2D_area_borders_vert.glsl.c.obj",
+        "gpu_shader_2D_area_borders_frag.glsl.c.obj",
+        "gpu_shader_2D_widget_base_vert.glsl.c.obj"
+      ]
+    },
+    {
+      "library": "bf_draw.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_draw.lib",
+      "tu_count": 163,
+      "sample_tus": [
+        "draw_manager_c.cc.obj",
+        "draw_pbvh.cc.obj",
+        "draw_cache_impl_subdivision.cc.obj",
+        "draw_color_management.cc.obj",
+        "draw_instance_data.cc.obj",
+        "draw_cache.cc.obj",
+        "draw_common.cc.obj",
+        "draw_curves.cc.obj",
+        "draw_pointcloud.cc.obj",
+        "draw_volume.cc.obj",
+        "draw_fluid.cc.obj",
+        "draw_view_c.cc.obj",
+        "draw_manager_profiling.cc.obj",
+        "draw_view_data.cc.obj",
+        "draw_manager_texture.cc.obj"
+      ]
+    },
+    {
+      "library": "extern_ceres.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_ceres.lib",
+      "tu_count": 134,
+      "sample_tus": [
+        "cost_function.cc.obj",
+        "iteration_callback.cc.obj",
+        "problem.cc.obj",
+        "solver.cc.obj",
+        "problem_impl.cc.obj",
+        "types.cc.obj",
+        "context_impl.cc.obj",
+        "detect_structure.cc.obj",
+        "gradient_checking_cost_function.cc.obj",
+        "parameter_block_ordering.cc.obj",
+        "stringprintf.cc.obj",
+        "wall_time.cc.obj",
+        "minimizer.cc.obj",
+        "block_sparse_matrix.cc.obj",
+        "program.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_blenlib.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_blenlib.lib",
+      "tu_count": 133,
+      "sample_tus": [
+        "BLI_assert.c.obj",
+        "string.c.obj",
+        "system_win32.c.obj",
+        "threads.cc.obj",
+        "task_scheduler.cc.obj",
+        "BLI_args.c.obj",
+        "winstuff.cc.obj",
+        "BLI_dynstr.c.obj",
+        "storage.cc.obj",
+        "fileops_c.cc.obj",
+        "listbase.cc.obj",
+        "path_util.cc.obj",
+        "string_utf8.cc.obj",
+        "BLI_filelist.cc.obj",
+        "string_utils.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_compositor_shaders.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_compositor_shaders.lib",
+      "tu_count": 128,
+      "sample_tus": [
+        "compositor_alpha_crop.glsl.c.obj",
+        "compositor_bilateral_blur.glsl.c.obj",
+        "compositor_bokeh_blur.glsl.c.obj",
+        "compositor_bokeh_blur_variable_size.glsl.c.obj",
+        "compositor_bokeh_image.glsl.c.obj",
+        "compositor_box_mask.glsl.c.obj",
+        "compositor_compute_preview.glsl.c.obj",
+        "compositor_convert.glsl.c.obj",
+        "compositor_cryptomatte_image.glsl.c.obj",
+        "compositor_cryptomatte_matte.glsl.c.obj",
+        "compositor_cryptomatte_pick.glsl.c.obj",
+        "compositor_defocus_blur.glsl.c.obj",
+        "compositor_defocus_radius_from_depth.glsl.c.obj",
+        "compositor_defocus_radius_from_scale.glsl.c.obj",
+        "compositor_despeckle.glsl.c.obj"
+      ]
+    },
+    {
+      "library": "audaspace.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\audaspace.lib",
+      "tu_count": 118,
+      "sample_tus": [
+        "AUD_Handle.cpp.obj",
+        "AUD_Device.cpp.obj",
+        "AUD_Sequence.cpp.obj",
+        "AUD_Sound.cpp.obj",
+        "AUD_Special.cpp.obj",
+        "PluginManager.cpp.obj",
+        "File.cpp.obj",
+        "FileWriter.cpp.obj",
+        "StreamBuffer.cpp.obj",
+        "Sawtooth.cpp.obj",
+        "Silence.cpp.obj",
+        "Sine.cpp.obj",
+        "Square.cpp.obj",
+        "Triangle.cpp.obj",
+        "Accumulator.cpp.obj"
+      ]
+    },
+    {
+      "library": "OpenCOLLADASaxFrameworkLoader.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\opencollada\\lib\\opencollada\\OpenCOLLADASaxFrameworkLoader.lib",
+      "tu_count": 106,
+      "sample_tus": [
+        "COLLADASaxFWLLoader.obj",
+        "COLLADASaxFWLIErrorHandler.obj",
+        "COLLADASaxFWLIExtraDataCallbackHandler.obj",
+        "COLLADASaxFWLGeometryMaterialIdInfo.obj",
+        "COLLADASaxFWLSidTreeNode.obj",
+        "COLLADASaxFWLSidAddress.obj",
+        "COLLADASaxFWLKinematicsIntermediateData.obj",
+        "COLLADASaxFWLFileLoader.obj",
+        "COLLADASaxFWLPostProcessor.obj",
+        "COLLADASaxFWLSaxParserErrorHandler.obj",
+        "COLLADASaxFWLExtraDataLoader.obj",
+        "COLLADASaxFWLIFilePartLoader.obj",
+        "COLLADASaxFWLExtraDataElementHandler.obj",
+        "COLLADASaxFWLDocumentProcessor.obj",
+        "COLLADASaxFWLVersionParser.obj"
+      ]
+    },
+    {
+      "library": "bf_modifiers.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_modifiers.lib",
+      "tu_count": 94,
+      "sample_tus": [
+        "MOD_util.cc.obj",
+        "MOD_nodes.cc.obj",
+        "MOD_meshdeform.cc.obj",
+        "MOD_none.cc.obj",
+        "MOD_subsurf.cc.obj",
+        "MOD_lattice.cc.obj",
+        "MOD_curve.cc.obj",
+        "MOD_build.cc.obj",
+        "MOD_mirror.cc.obj",
+        "MOD_decimate.cc.obj",
+        "MOD_wave.cc.obj",
+        "MOD_armature.cc.obj",
+        "MOD_hook.cc.obj",
+        "MOD_softbody.cc.obj",
+        "MOD_boolean.cc.obj"
+      ]
+    },
+    {
+      "library": "Alembic.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\alembic\\lib\\Alembic.lib",
+      "tu_count": 86,
+      "sample_tus": [
+        "IObject.cpp.obj",
+        "ICompoundProperty.cpp.obj",
+        "IArchive.cpp.obj",
+        "Read.cpp.obj",
+        "ReadWrite.cpp.obj",
+        "ErrorHandler.cpp.obj",
+        "IScalarProperty.cpp.obj",
+        "XformSample.cpp.obj",
+        "IXform.cpp.obj",
+        "TimeSampling.cpp.obj",
+        "IArrayProperty.cpp.obj",
+        "ICamera.cpp.obj",
+        "ICurves.cpp.obj",
+        "OCompoundProperty.cpp.obj",
+        "OArrayProperty.cpp.obj"
+      ]
+    },
+    {
+      "library": "extern_bullet.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_bullet.lib",
+      "tu_count": 83,
+      "sample_tus": [
+        "btAlignedAllocator.cpp.obj",
+        "btCollisionObject.cpp.obj",
+        "btCollisionDispatcher.cpp.obj",
+        "btCollisionWorld.cpp.obj",
+        "btCollisionShape.cpp.obj",
+        "btConvexShape.cpp.obj",
+        "btConvexInternalShape.cpp.obj",
+        "btBoxShape.cpp.obj",
+        "btSphereShape.cpp.obj",
+        "btCapsuleShape.cpp.obj",
+        "btCylinderShape.cpp.obj",
+        "btConeShape.cpp.obj",
+        "btConcaveShape.cpp.obj",
+        "btConvexHullShape.cpp.obj",
+        "btTriangleIndexVertexArray.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_bmesh.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_bmesh.lib",
+      "tu_count": 82,
+      "sample_tus": [
+        "bmesh_mesh_normals.cc.obj",
+        "bmesh_mesh_convert.cc.obj",
+        "bmesh_interp.cc.obj",
+        "bmesh_log.cc.obj",
+        "bmesh_mesh.cc.obj",
+        "bmesh_iterators.cc.obj",
+        "bmesh_construct.cc.obj",
+        "bmesh_mesh_tessellate.cc.obj",
+        "bmesh_polygon.cc.obj",
+        "bmesh_query_uv.cc.obj",
+        "bmesh_core.cc.obj",
+        "bmesh_query.cc.obj",
+        "bmesh_marking.cc.obj",
+        "bmesh_operators.cc.obj",
+        "bmesh_structure.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_transform.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_transform.lib",
+      "tu_count": 81,
+      "sample_tus": [
+        "transform_snap_object.cc.obj",
+        "transform_ops.cc.obj",
+        "transform_orientations.cc.obj",
+        "transform.cc.obj",
+        "transform_snap_object_armature.cc.obj",
+        "transform_snap_object_camera.cc.obj",
+        "transform_snap_object_curve.cc.obj",
+        "transform_snap_object_editmesh.cc.obj",
+        "transform_snap_object_mesh.cc.obj",
+        "transform_input.cc.obj",
+        "transform_generics.cc.obj",
+        "transform_convert.cc.obj",
+        "transform_constraints.cc.obj",
+        "transform_draw_cursors.cc.obj",
+        "transform_gizmo_3d.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_sculpt_paint.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_sculpt_paint.lib",
+      "tu_count": 79,
+      "sample_tus": [
+        "paint_canvas.cc.obj",
+        "paint_image.cc.obj",
+        "paint_image_proj.cc.obj",
+        "paint_curve_undo.cc.obj",
+        "sculpt_undo.cc.obj",
+        "curves_sculpt_ops.cc.obj",
+        "paint_ops.cc.obj",
+        "sculpt_ops.cc.obj",
+        "paint_cursor.cc.obj",
+        "sculpt_face_set.cc.obj",
+        "paint_vertex.cc.obj",
+        "paint_weight.cc.obj",
+        "paint_image_2d.cc.obj",
+        "paint_utils.cc.obj",
+        "paint_curve.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_rna.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_rna.lib",
+      "tu_count": 78,
+      "sample_tus": [
+        "rna_access.cc.obj",
+        "rna_rna_gen.cc.obj",
+        "rna_depsgraph_gen.cc.obj",
+        "rna_asset_gen.cc.obj",
+        "rna_context_gen.cc.obj",
+        "rna_layer_gen.cc.obj",
+        "rna_screen_gen.cc.obj",
+        "rna_space_gen.cc.obj",
+        "rna_wm_gen.cc.obj",
+        "rna_workspace_gen.cc.obj",
+        "rna_ID_gen.cc.obj",
+        "rna_nodetree_gen.cc.obj",
+        "rna_node_socket_gen.cc.obj",
+        "rna_brush_gen.cc.obj",
+        "rna_path.cc.obj"
+      ]
+    },
+    {
+      "library": "MSVCRT.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\lib\\x64\\MSVCRT.lib",
+      "tu_count": 75,
+      "sample_tus": [
+        "lconv_unsigned_char.obj",
+        "gshandler.obj",
+        "amdsecgs.obj",
+        "gs_cookie.obj",
+        "exe_main.obj",
+        "new_scalar.obj",
+        "delete_scalar_size.obj",
+        "gshandlereh4.obj",
+        "std_type_info_static.obj",
+        "chkstk.obj",
+        "fltused.obj",
+        "utility.obj",
+        "thread_safe_statics.obj",
+        "tlssup.obj",
+        "ehvecctr.obj"
+      ]
+    },
+    {
+      "library": "libjpeg.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\jpeg\\lib\\libjpeg.lib",
+      "tu_count": 75,
+      "sample_tus": [
+        "jerror.obj",
+        "jcapimin.obj",
+        "jdapimin.obj",
+        "jdatadst.obj",
+        "jdatasrc.obj",
+        "jcparam.obj",
+        "jcapistd.obj",
+        "jdapistd.obj",
+        "jdmarker.obj",
+        "jcomapi.obj",
+        "jcmarker.obj",
+        "jmemmgr.obj",
+        "jutils.obj",
+        "jdinput.obj",
+        "jcinit.obj"
+      ]
+    },
+    {
+      "library": "libwebp.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\webp\\lib\\libwebp.lib",
+      "tu_count": 74,
+      "sample_tus": [
+        "webp_dec.obj",
+        "buffer_dec.obj",
+        "picture_enc.obj",
+        "rescaler_utils.obj",
+        "vp8_dec.obj",
+        "vp8l_dec.obj",
+        "io_dec.obj",
+        "frame_dec.obj",
+        "utils.obj",
+        "config_enc.obj",
+        "picture_csp_enc.obj",
+        "webp_enc.obj",
+        "rescaler.obj",
+        "alpha_dec.obj",
+        "bit_reader_utils.obj"
+      ]
+    },
+    {
+      "library": "extern_mantaflow.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_mantaflow.lib",
+      "tu_count": 72,
+      "sample_tus": [
+        "registry.cpp.obj",
+        "registration.cpp.obj",
+        "pclass.cpp.obj",
+        "pconvert.cpp.obj",
+        "fluidsolver.cpp.obj",
+        "conjugategrad.cpp.obj",
+        "grid.cpp.obj",
+        "grid4d.cpp.obj",
+        "fastmarch.cpp.obj",
+        "iogrids.cpp.obj",
+        "mantaio.cpp.obj",
+        "advection.cpp.obj",
+        "extforces.cpp.obj",
+        "apic.cpp.obj",
+        "flip.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_datafiles.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_datafiles.lib",
+      "tu_count": 71,
+      "sample_tus": [
+        "bfont.pfb.c.obj",
+        "startup.blend.c.obj",
+        "blender_logo.png.c.obj",
+        "splash.png.c.obj",
+        "blender_icons16.png.c.obj",
+        "blender_icons32.png.c.obj",
+        "alert_icons.png.c.obj",
+        "blob.png.c.obj",
+        "blur.png.c.obj",
+        "clay.png.c.obj",
+        "claystrips.png.c.obj",
+        "clone.png.c.obj",
+        "crease.png.c.obj",
+        "draw.png.c.obj",
+        "fill.png.c.obj"
+      ]
+    },
+    {
+      "library": "bf_depsgraph.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_depsgraph.lib",
+      "tu_count": 66,
+      "sample_tus": [
+        "depsgraph_type.cc.obj",
+        "depsgraph_tag.cc.obj",
+        "depsgraph.cc.obj",
+        "depsgraph_query.cc.obj",
+        "depsgraph_debug.cc.obj",
+        "depsgraph_build.cc.obj",
+        "depsgraph_query_iter.cc.obj",
+        "depsgraph_eval.cc.obj",
+        "depsgraph_physics.cc.obj",
+        "depsgraph_light_linking.cc.obj",
+        "deg_node.cc.obj",
+        "deg_node_operation.cc.obj",
+        "deg_node_component.cc.obj",
+        "depsgraph_registry.cc.obj",
+        "depsgraph_update.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_outliner.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_outliner.lib",
+      "tu_count": 62,
+      "sample_tus": [
+        "outliner_sync.cc.obj",
+        "outliner_utils.cc.obj",
+        "space_outliner.cc.obj",
+        "outliner_collections.cc.obj",
+        "tree_element_seq.cc.obj",
+        "outliner_draw.cc.obj",
+        "outliner_tree.cc.obj",
+        "outliner_edit.cc.obj",
+        "outliner_dragdrop.cc.obj",
+        "outliner_ops.cc.obj",
+        "outliner_context.cc.obj",
+        "tree_element.cc.obj",
+        "outliner_select.cc.obj",
+        "outliner_query.cc.obj",
+        "tree_element_grease_pencil_node.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_interface.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_interface.lib",
+      "tu_count": 61,
+      "sample_tus": [
+        "interface.cc.obj",
+        "interface_string_search.cc.obj",
+        "interface_icons.cc.obj",
+        "interface_region_menu_popup.cc.obj",
+        "interface_layout.cc.obj",
+        "view2d.cc.obj",
+        "interface_handlers.cc.obj",
+        "interface_region_tooltip.cc.obj",
+        "interface_utils.cc.obj",
+        "interface_region_hud.cc.obj",
+        "interface_templates.cc.obj",
+        "resources.cc.obj",
+        "interface_query.cc.obj",
+        "interface_region_popup.cc.obj",
+        "interface_region_popover.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_gpu.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_gpu.lib",
+      "tu_count": 56,
+      "sample_tus": [
+        "gl_compilation_subprocess.cc.obj",
+        "gpu_capabilities.cc.obj",
+        "gpu_context.cc.obj",
+        "gpu_material.cc.obj",
+        "gpu_texture.cc.obj",
+        "gpu_vertex_buffer.cc.obj",
+        "gpu_batch.cc.obj",
+        "gpu_state.cc.obj",
+        "gpu_shader.cc.obj",
+        "gpu_init_exit.cc.obj",
+        "gpu_codegen.cc.obj",
+        "gpu_framebuffer.cc.obj",
+        "gpu_vertex_format.cc.obj",
+        "gpu_immediate_util.cc.obj",
+        "gpu_immediate.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_io_usd.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_io_usd.lib",
+      "tu_count": 55,
+      "sample_tus": [
+        "usd_capi_import.cc.obj",
+        "usd_hook.cc.obj",
+        "usd_capi_export.cc.obj",
+        "usd_light_convert.cc.obj",
+        "usd_reader_prim.cc.obj",
+        "usd_reader_xform.cc.obj",
+        "usd_reader_stage.cc.obj",
+        "cmake_pch.cxx.obj",
+        "usd_hierarchy_iterator.cc.obj",
+        "usd_asset_utils.cc.obj",
+        "usd_writer_material.cc.obj",
+        "usd_reader_utils.cc.obj",
+        "usd_reader_camera.cc.obj",
+        "usd_reader_curve.cc.obj",
+        "usd_reader_instance.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_realtime_compositor.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_realtime_compositor.lib",
+      "tu_count": 49,
+      "sample_tus": [
+        "context.cc.obj",
+        "bokeh_kernel.cc.obj",
+        "cached_image.cc.obj",
+        "cached_mask.cc.obj",
+        "cached_shader.cc.obj",
+        "cached_texture.cc.obj",
+        "distortion_grid.cc.obj",
+        "fog_glow_kernel.cc.obj",
+        "keying_screen.cc.obj",
+        "morphological_distance_feather_weights.cc.obj",
+        "smaa_precomputed_textures.cc.obj",
+        "symmetric_blur_weights.cc.obj",
+        "symmetric_separable_blur_weights.cc.obj",
+        "evaluator.cc.obj",
+        "profiler.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_python.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_python.lib",
+      "tu_count": 47,
+      "sample_tus": [
+        "bpy_interface.cc.obj",
+        "bpy_interface_run.cc.obj",
+        "bpy_app.cc.obj",
+        "bpy_rna_callback.cc.obj",
+        "stubs.cc.obj",
+        "bpy_driver.cc.obj",
+        "bpy_app_translations.cc.obj",
+        "bpy_operator_wrap.cc.obj",
+        "bpy_gizmo_wrap.cc.obj",
+        "bpy_path.cc.obj",
+        "bpy.cc.obj",
+        "bpy_interface_atexit.cc.obj",
+        "bpy_intern_string.cc.obj",
+        "bpy_props.cc.obj",
+        "bpy_rna.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_windowmanager.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_windowmanager.lib",
+      "tu_count": 47,
+      "sample_tus": [
+        "wm_init_exit.cc.obj",
+        "wm.cc.obj",
+        "wm_files.cc.obj",
+        "wm_window.cc.obj",
+        "wm_playanim.cc.obj",
+        "wm_cursors.cc.obj",
+        "wm_gizmo_map.cc.obj",
+        "wm_keymap.cc.obj",
+        "wm_event_system.cc.obj",
+        "wm_uilist_type.cc.obj",
+        "wm_menu_type.cc.obj",
+        "wm_panel_type.cc.obj",
+        "wm_jobs.cc.obj",
+        "wm_message_bus.cc.obj",
+        "wm_gizmo_type.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_view3d.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_view3d.lib",
+      "tu_count": 45,
+      "sample_tus": [
+        "view3d_view.cc.obj",
+        "view3d_draw.cc.obj",
+        "view3d_project.cc.obj",
+        "view3d_utils.cc.obj",
+        "view3d_edit.cc.obj",
+        "space_view3d.cc.obj",
+        "view3d_header.cc.obj",
+        "view3d_context.cc.obj",
+        "view3d_select.cc.obj",
+        "view3d_gizmo_preselect_type.cc.obj",
+        "view3d_iterators.cc.obj",
+        "view3d_cursor_snap.cc.obj",
+        "view3d_snap.cc.obj",
+        "view3d_navigate.cc.obj",
+        "view3d_navigate_smoothview.cc.obj"
+      ]
+    },
+    {
+      "library": "libhpdfs.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\haru\\lib\\libhpdfs.lib",
+      "tu_count": 45,
+      "sample_tus": [
+        "hpdf_doc.obj",
+        "hpdf_pages.obj",
+        "hpdf_ext_gstate.obj",
+        "hpdf_page_operator.obj",
+        "hpdf_utils.obj",
+        "hpdf_error.obj",
+        "hpdf_mmgr.obj",
+        "hpdf_list.obj",
+        "hpdf_streams.obj",
+        "hpdf_encoder.obj",
+        "hpdf_null.obj",
+        "hpdf_string.obj",
+        "hpdf_binary.obj",
+        "hpdf_array.obj",
+        "hpdf_dict.obj"
+      ]
+    },
+    {
+      "library": "cycles_scene.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\cycles_scene.lib",
+      "tu_count": 41,
+      "sample_tus": [
+        "shader.cpp.obj",
+        "osl.cpp.obj",
+        "pass.cpp.obj",
+        "scene.cpp.obj",
+        "object.cpp.obj",
+        "stats.cpp.obj",
+        "bake.cpp.obj",
+        "image.cpp.obj",
+        "integrator.cpp.obj",
+        "light.cpp.obj",
+        "colorspace.cpp.obj",
+        "camera.cpp.obj",
+        "attribute.cpp.obj",
+        "geometry_attributes.cpp.obj",
+        "geometry.cpp.obj"
+      ]
+    },
+    {
+      "library": "OpenCOLLADAStreamWriter.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\opencollada\\lib\\opencollada\\OpenCOLLADAStreamWriter.lib",
+      "tu_count": 39,
+      "sample_tus": [
+        "COLLADASWColor.obj",
+        "COLLADASWTexture.obj",
+        "COLLADASWStreamWriter.obj",
+        "COLLADASWAsset.obj",
+        "COLLADASWLibraryAnimations.obj",
+        "COLLADASWLibraryControllers.obj",
+        "COLLADASWLibraryVisualScenes.obj",
+        "COLLADASWScene.obj",
+        "COLLADASWLibraryGeometries.obj",
+        "COLLADASWExtraTechnique.obj",
+        "COLLADASWSampler.obj",
+        "COLLADASWEffectProfile.obj",
+        "COLLADASWLibrary.obj",
+        "COLLADASWLibraryEffects.obj",
+        "COLLADASWSource.obj"
+      ]
+    },
+    {
+      "library": "OpenCOLLADAFramework.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\opencollada\\lib\\opencollada\\OpenCOLLADAFramework.lib",
+      "tu_count": 38,
+      "sample_tus": [
+        "COLLADAFWUniqueId.obj",
+        "COLLADAFWFloatOrDoubleArray.obj",
+        "COLLADAFWColor.obj",
+        "COLLADAFWTexture.obj",
+        "COLLADAFWNode.obj",
+        "COLLADAFWRoot.obj",
+        "COLLADAFWSampler.obj",
+        "COLLADAFWEffectCommon.obj",
+        "COLLADAFWFileInfo.obj",
+        "COLLADAFWMeshPrimitive.obj",
+        "COLLADAFWLoaderUtils.obj",
+        "COLLADAFWConstants.obj",
+        "COLLADAFWFormulas.obj",
+        "COLLADAFWSkinController.obj",
+        "COLLADAFWAxisInfo.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_libmv.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_libmv.lib",
+      "tu_count": 38,
+      "sample_tus": [
+        "logging.cc.obj",
+        "image.cc.obj",
+        "camera_intrinsics.cc.obj",
+        "homography.cc.obj",
+        "frame_accessor.cc.obj",
+        "track_region.cc.obj",
+        "camera_intrinsics.cc.obj",
+        "homography.cc.obj",
+        "convolve.cc.obj",
+        "distortion_models.cc.obj",
+        "packed_intrinsics.cc.obj",
+        "conditioning.cc.obj",
+        "numeric.cc.obj",
+        "projection.cc.obj",
+        "reconstruction.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_imbuf.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_imbuf.lib",
+      "tu_count": 37,
+      "sample_tus": [
+        "module.cc.obj",
+        "util.cc.obj",
+        "moviecache.cc.obj",
+        "colormanagement.cc.obj",
+        "allocimbuf.cc.obj",
+        "rectop.cc.obj",
+        "stereoimbuf.cc.obj",
+        "divers.cc.obj",
+        "readimage.cc.obj",
+        "interp.cc.obj",
+        "scaling.cc.obj",
+        "filter.cc.obj",
+        "thumbs.cc.obj",
+        "anim_movie.cc.obj",
+        "writeimage.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_ghost.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_ghost.lib",
+      "tu_count": 36,
+      "sample_tus": [
+        "GHOST_Path-api.cc.obj",
+        "GHOST_C-api.cc.obj",
+        "GHOST_Xr.cc.obj",
+        "GHOST_XrEvent.cc.obj",
+        "GHOST_ISystemPaths.cc.obj",
+        "GHOST_Rect.cc.obj",
+        "GHOST_ISystem.cc.obj",
+        "GHOST_XrSession.cc.obj",
+        "GHOST_CallbackEventConsumer.cc.obj",
+        "GHOST_XrContext.cc.obj",
+        "GHOST_SystemPathsWin32.cc.obj",
+        "GHOST_DisplayManager.cc.obj",
+        "GHOST_System.cc.obj",
+        "GHOST_Window.cc.obj",
+        "GHOST_SystemWin32.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_geometry.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_geometry.lib",
+      "tu_count": 35,
+      "sample_tus": [
+        "join_geometries.cc.obj",
+        "mesh_merge_by_distance.cc.obj",
+        "randomize.cc.obj",
+        "mesh_boolean.cc.obj",
+        "mesh_primitive_cuboid.cc.obj",
+        "mesh_to_volume.cc.obj",
+        "subdivide_curves.cc.obj",
+        "smooth_curves.cc.obj",
+        "realize_instances.cc.obj",
+        "extend_curves.cc.obj",
+        "trim_curves.cc.obj",
+        "resample_curves.cc.obj",
+        "simplify_curves.cc.obj",
+        "reorder.cc.obj",
+        "mix_geometries.cc.obj"
+      ]
+    },
+    {
+      "library": "libxml2s.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\xml2\\lib\\libxml2s.lib",
+      "tu_count": 35,
+      "sample_tus": [
+        "tree.obj",
+        "SAX2.obj",
+        "globals.obj",
+        "parser.obj",
+        "parserInternals.obj",
+        "xmlstring.obj",
+        "dict.obj",
+        "hash.obj",
+        "valid.obj",
+        "entities.obj",
+        "uri.obj",
+        "chvalid.obj",
+        "buf.obj",
+        "error.obj",
+        "xmlIO.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_mesh.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_mesh.lib",
+      "tu_count": 33,
+      "sample_tus": [
+        "editmesh_utils.cc.obj",
+        "editmesh_select.cc.obj",
+        "mesh_data.cc.obj",
+        "editmesh_undo.cc.obj",
+        "mesh_ops.cc.obj",
+        "mesh_mirror.cc.obj",
+        "meshtools.cc.obj",
+        "editmesh_add.cc.obj",
+        "editmesh_add_gizmo.cc.obj",
+        "editmesh_attribute.cc.obj",
+        "editmesh_bevel.cc.obj",
+        "editmesh_bisect.cc.obj",
+        "editmesh_extrude.cc.obj",
+        "editmesh_extrude_screw.cc.obj",
+        "editmesh_extrude_spin.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_gpencil_modifiers_legacy.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_gpencil_modifiers_legacy.lib",
+      "tu_count": 33,
+      "sample_tus": [
+        "lineart_cpu.cc.obj",
+        "MOD_gpencil_legacy_util.cc.obj",
+        "lineart_chain.cc.obj",
+        "lineart_util.cc.obj",
+        "lineart_shadow.cc.obj",
+        "MOD_gpencil_legacy_noise.cc.obj",
+        "MOD_gpencil_legacy_subdiv.cc.obj",
+        "MOD_gpencil_legacy_simplify.cc.obj",
+        "MOD_gpencil_legacy_thick.cc.obj",
+        "MOD_gpencil_legacy_tint.cc.obj",
+        "MOD_gpencil_legacy_color.cc.obj",
+        "MOD_gpencil_legacy_array.cc.obj",
+        "MOD_gpencil_legacy_build.cc.obj",
+        "MOD_gpencil_legacy_opacity.cc.obj",
+        "MOD_gpencil_legacy_outline.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_gpencil_legacy.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_gpencil_legacy.lib",
+      "tu_count": 32,
+      "sample_tus": [
+        "gpencil_edit.cc.obj",
+        "editaction_gpencil.cc.obj",
+        "gpencil_utils.cc.obj",
+        "annotate_draw.cc.obj",
+        "gpencil_undo.cc.obj",
+        "gpencil_ops.cc.obj",
+        "annotate_paint.cc.obj",
+        "gpencil_paint.cc.obj",
+        "gpencil_fill.cc.obj",
+        "gpencil_vertex_paint.cc.obj",
+        "gpencil_vertex_ops.cc.obj",
+        "gpencil_select.cc.obj",
+        "gpencil_data.cc.obj",
+        "gpencil_edit_curve.cc.obj",
+        "gpencil_sculpt_paint.cc.obj"
+      ]
+    },
+    {
+      "library": "libtiff.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\tiff\\lib\\libtiff.lib",
+      "tu_count": 32,
+      "sample_tus": [
+        "tif_fax3.obj",
+        "tif_win32.obj",
+        "tif_dirinfo.obj",
+        "tif_strip.obj",
+        "tif_tile.obj",
+        "tif_dir.obj",
+        "tif_warning.obj",
+        "tif_error.obj",
+        "tif_swab.obj",
+        "tif_write.obj",
+        "tif_compress.obj",
+        "tif_aux.obj",
+        "tif_open.obj",
+        "tif_fax3sm.obj",
+        "tif_codec.obj"
+      ]
+    },
+    {
+      "library": "bf_io_collada.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_io_collada.lib",
+      "tu_count": 31,
+      "sample_tus": [
+        "collada.cpp.obj",
+        "BlenderContext.cpp.obj",
+        "collada_utils.cpp.obj",
+        "DocumentExporter.cpp.obj",
+        "DocumentImporter.cpp.obj",
+        "BCMath.cpp.obj",
+        "ExtraTags.cpp.obj",
+        "collada_internal.cpp.obj",
+        "EffectExporter.cpp.obj",
+        "AnimationExporter.cpp.obj",
+        "CameraExporter.cpp.obj",
+        "ControllerExporter.cpp.obj",
+        "GeometryExporter.cpp.obj",
+        "ImageExporter.cpp.obj",
+        "LightExporter.cpp.obj"
+      ]
+    },
+    {
+      "library": "cycles_device.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\cycles_device.lib",
+      "tu_count": 31,
+      "sample_tus": [
+        "device.cpp.obj",
+        "denoise.cpp.obj",
+        "memory.cpp.obj",
+        "device.cpp.obj",
+        "kernel.cpp.obj",
+        "device.cpp.obj",
+        "device.cpp.obj",
+        "device.cpp.obj",
+        "device.cpp.obj",
+        "device.cpp.obj",
+        "device.cpp.obj",
+        "device_impl.cpp.obj",
+        "device_impl.cpp.obj",
+        "device_impl.cpp.obj",
+        "device_impl.cpp.obj"
+      ]
+    },
+    {
+      "library": "osdCPU.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\opensubdiv\\lib\\osdCPU.lib",
+      "tu_count": 29,
+      "sample_tus": [
+        "level.cpp.obj",
+        "topologyRefiner.cpp.obj",
+        "topologyRefinerFactory.cpp.obj",
+        "crease.cpp.obj",
+        "patchTable.cpp.obj",
+        "patchTableFactory.cpp.obj",
+        "stencilTableFactory.cpp.obj",
+        "cpuPatchTable.cpp.obj",
+        "cpuEvaluator.cpp.obj",
+        "cpuVertexBuffer.cpp.obj",
+        "error.cpp.obj",
+        "fvarLevel.cpp.obj",
+        "typeTraits.cpp.obj",
+        "refinement.cpp.obj",
+        "sparseSelector.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_nodes_texture.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_nodes_texture.lib",
+      "tu_count": 28,
+      "sample_tus": [
+        "node_texture_tree.cc.obj",
+        "node_texture_util.cc.obj",
+        "node_texture_register.cc.obj",
+        "node_texture_common.cc.obj",
+        "node_texture_at.cc.obj",
+        "node_texture_bricks.cc.obj",
+        "node_texture_checker.cc.obj",
+        "node_texture_combine_color.cc.obj",
+        "node_texture_compose.cc.obj",
+        "node_texture_coord.cc.obj",
+        "node_texture_curves.cc.obj",
+        "node_texture_decompose.cc.obj",
+        "node_texture_distance.cc.obj",
+        "node_texture_hueSatVal.cc.obj",
+        "node_texture_image.cc.obj"
+      ]
+    },
+    {
+      "library": "freetype2ST.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\freetype\\lib\\freetype2ST.lib",
+      "tu_count": 28,
+      "sample_tus": [
+        "ftinit.obj",
+        "ftbase.obj",
+        "ftcache.obj",
+        "ftmm.obj",
+        "ftbitmap.obj",
+        "autofit.obj",
+        "truetype.obj",
+        "type1.obj",
+        "cff.obj",
+        "type1cid.obj",
+        "pfr.obj",
+        "type42.obj",
+        "winfnt.obj",
+        "pcf.obj",
+        "bdf.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_object.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_object.lib",
+      "tu_count": 27,
+      "sample_tus": [
+        "object_edit.cc.obj",
+        "object_select.cc.obj",
+        "object_constraint.cc.obj",
+        "object_modifier.cc.obj",
+        "object_vgroup.cc.obj",
+        "object_relations.cc.obj",
+        "object_gpencil_modifier.cc.obj",
+        "object_shader_fx.cc.obj",
+        "add_modifier_assets.cc.obj",
+        "object_add.cc.obj",
+        "object_modes.cc.obj",
+        "object_ops.cc.obj",
+        "object_shapekey.cc.obj",
+        "object_utils.cc.obj",
+        "object_transform.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_itasc.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_itasc.lib",
+      "tu_count": 26,
+      "sample_tus": [
+        "frames.cpp.obj",
+        "inertia.cpp.obj",
+        "joint.cpp.obj",
+        "jntarray.cpp.obj",
+        "Cache.cpp.obj",
+        "ConstraintSet.cpp.obj",
+        "Armature.cpp.obj",
+        "CopyPose.cpp.obj",
+        "Distance.cpp.obj",
+        "MovingFrame.cpp.obj",
+        "Scene.cpp.obj",
+        "WDLSSolver.cpp.obj",
+        "WSDLSSolver.cpp.obj",
+        "utility.cpp.obj",
+        "eigen_types.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_compositor.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_compositor.lib",
+      "tu_count": 25,
+      "sample_tus": [
+        "unity_2_cxx.cxx.obj",
+        "unity_1_cxx.cxx.obj",
+        "unity_22_cxx.cxx.obj",
+        "unity_0_cxx.cxx.obj",
+        "unity_18_cxx.cxx.obj",
+        "unity_15_cxx.cxx.obj",
+        "unity_23_cxx.cxx.obj",
+        "unity_20_cxx.cxx.obj",
+        "cmake_pch.cxx.obj",
+        "unity_17_cxx.cxx.obj",
+        "unity_6_cxx.cxx.obj",
+        "unity_10_cxx.cxx.obj",
+        "unity_13_cxx.cxx.obj",
+        "unity_4_cxx.cxx.obj",
+        "unity_7_cxx.cxx.obj"
+      ]
+    },
+    {
+      "library": "bf_io_alembic.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_io_alembic.lib",
+      "tu_count": 25,
+      "sample_tus": [
+        "alembic_capi.cc.obj",
+        "abc_export_capi.cc.obj",
+        "abc_reader_archive.cc.obj",
+        "abc_reader_object.cc.obj",
+        "abc_reader_camera.cc.obj",
+        "abc_reader_curves.cc.obj",
+        "abc_reader_mesh.cc.obj",
+        "abc_reader_points.cc.obj",
+        "abc_reader_transform.cc.obj",
+        "abc_util.cc.obj",
+        "abc_archive.cc.obj",
+        "abc_hierarchy_iterator.cc.obj",
+        "abc_axis_conversion.cc.obj",
+        "abc_customdata.cc.obj",
+        "abc_writer_abstract.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_sequencer.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_sequencer.lib",
+      "tu_count": 24,
+      "sample_tus": [
+        "sound.cc.obj",
+        "strip_time.cc.obj",
+        "iterator.cc.obj",
+        "sequencer.cc.obj",
+        "utils.cc.obj",
+        "strip_relations.cc.obj",
+        "prefetch.cc.obj",
+        "modifier.cc.obj",
+        "effects.cc.obj",
+        "proxy.cc.obj",
+        "channels.cc.obj",
+        "strip_retiming.cc.obj",
+        "proxy_job.cc.obj",
+        "image_cache.cc.obj",
+        "strip_add.cc.obj"
+      ]
+    },
+    {
+      "library": "zstd_static.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\zstd\\lib\\zstd_static.lib",
+      "tu_count": 24,
+      "sample_tus": [
+        "zstd_common.obj",
+        "zstd_compress.obj",
+        "zstd_decompress.obj",
+        "error_private.obj",
+        "hist.obj",
+        "entropy_common.obj",
+        "fse_compress.obj",
+        "huf_compress.obj",
+        "xxhash.obj",
+        "zstdmt_compress.obj",
+        "zstd_compress_sequences.obj",
+        "zstd_compress_literals.obj",
+        "zstd_fast.obj",
+        "zstd_double_fast.obj",
+        "zstd_lazy.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_sequencer.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_sequencer.lib",
+      "tu_count": 22,
+      "sample_tus": [
+        "space_sequencer.cc.obj",
+        "sequencer_edit.cc.obj",
+        "sequencer_ops.cc.obj",
+        "sequencer_preview_draw.cc.obj",
+        "sequencer_select.cc.obj",
+        "sequencer_retiming.cc.obj",
+        "sequencer_scopes.cc.obj",
+        "sequencer_timeline_draw.cc.obj",
+        "sequencer_thumbnails.cc.obj",
+        "sequencer_channels_draw.cc.obj",
+        "sequencer_drag_drop.cc.obj",
+        "sequencer_buttons.cc.obj",
+        "sequencer_view.cc.obj",
+        "sequencer_retiming_draw.cc.obj",
+        "sequencer_add.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_cycles.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_cycles.lib",
+      "tu_count": 22,
+      "sample_tus": [
+        "logging.cpp.obj",
+        "python.cpp.obj",
+        "session.cpp.obj",
+        "device.cpp.obj",
+        "sync.cpp.obj",
+        "display_driver.cpp.obj",
+        "output_driver.cpp.obj",
+        "image.cpp.obj",
+        "camera.cpp.obj",
+        "viewport.cpp.obj",
+        "object.cpp.obj",
+        "shader.cpp.obj",
+        "light_linking.cpp.obj",
+        "geometry.cpp.obj",
+        "curves.cpp.obj"
+      ]
+    },
+    {
+      "library": "ucrt.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\ucrt\\x64\\ucrt.lib",
+      "tu_count": 22,
+      "sample_tus": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "Import:api-ms-win-crt-utility-l1-1-0.dll",
+        "Import:api-ms-win-crt-time-l1-1-0.dll",
+        "Import:api-ms-win-crt-string-l1-1-0.dll",
+        "Import:api-ms-win-crt-stdio-l1-1-0.dll"
+      ]
+    },
+    {
+      "library": "openjp2.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\openjpeg\\lib\\openjp2.lib",
+      "tu_count": 21,
+      "sample_tus": [
+        "image.obj",
+        "cio.obj",
+        "openjpeg.obj",
+        "opj_malloc.obj",
+        "event.obj",
+        "j2k.obj",
+        "jp2.obj",
+        "thread.obj",
+        "function_list.obj",
+        "invert.obj",
+        "pi.obj",
+        "tcd.obj",
+        "dwt.obj",
+        "mct.obj",
+        "tgt.obj"
+      ]
+    },
+    {
+      "library": "bf_python_gpu.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_python_gpu.lib",
+      "tu_count": 20,
+      "sample_tus": [
+        "gpu_py_api.cc.obj",
+        "gpu_py_capabilities.cc.obj",
+        "gpu_py_compute.cc.obj",
+        "gpu_py_matrix.cc.obj",
+        "gpu_py_platform.cc.obj",
+        "gpu_py_select.cc.obj",
+        "gpu_py_state.cc.obj",
+        "gpu_py_shader.cc.obj",
+        "gpu_py_texture.cc.obj",
+        "gpu_py_types.cc.obj",
+        "gpu_py.cc.obj",
+        "gpu_py_framebuffer.cc.obj",
+        "gpu_py_shader_create_info.cc.obj",
+        "gpu_py_uniformbuffer.cc.obj",
+        "gpu_py_vertex_format.cc.obj"
+      ]
+    },
+    {
+      "library": "cycles_integrator.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\cycles_integrator.lib",
+      "tu_count": 20,
+      "sample_tus": [
+        "denoiser.cpp.obj",
+        "adaptive_sampling.cpp.obj",
+        "shader_eval.cpp.obj",
+        "path_trace.cpp.obj",
+        "render_scheduler.cpp.obj",
+        "denoiser_oidn.cpp.obj",
+        "denoiser_oidn_gpu.cpp.obj",
+        "denoiser_optix.cpp.obj",
+        "pass_accessor.cpp.obj",
+        "path_trace_work.cpp.obj",
+        "work_balancer.cpp.obj",
+        "path_trace_display.cpp.obj",
+        "path_trace_tile.cpp.obj",
+        "pass_accessor_cpu.cpp.obj",
+        "denoiser_gpu.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_blenloader.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_blenloader.lib",
+      "tu_count": 19,
+      "sample_tus": [
+        "writefile.cc.obj",
+        "readfile.cc.obj",
+        "readblenentry.cc.obj",
+        "versioning_defaults.cc.obj",
+        "userdef_default_theme.c.obj",
+        "versioning_userdef.cc.obj",
+        "blend_validate.cc.obj",
+        "undofile.cc.obj",
+        "versioning_dna.cc.obj",
+        "versioning_legacy.cc.obj",
+        "versioning_250.cc.obj",
+        "versioning_260.cc.obj",
+        "versioning_270.cc.obj",
+        "versioning_280.cc.obj",
+        "versioning_290.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_clip.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_clip.lib",
+      "tu_count": 19,
+      "sample_tus": [
+        "clip_editor.cc.obj",
+        "clip_buttons.cc.obj",
+        "space_clip.cc.obj",
+        "clip_ops.cc.obj",
+        "clip_utils.cc.obj",
+        "clip_dopesheet_draw.cc.obj",
+        "clip_dopesheet_ops.cc.obj",
+        "clip_draw.cc.obj",
+        "clip_graph_draw.cc.obj",
+        "clip_graph_ops.cc.obj",
+        "tracking_ops.cc.obj",
+        "tracking_ops_track.cc.obj",
+        "tracking_ops_solve.cc.obj",
+        "tracking_ops_orient.cc.obj",
+        "tracking_ops_detect.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_nodes_geometry.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_nodes_geometry.lib",
+      "tu_count": 19,
+      "sample_tus": [
+        "unity_16_cxx.cxx.obj",
+        "unity_0_cxx.cxx.obj",
+        "unity_5_cxx.cxx.obj",
+        "unity_9_cxx.cxx.obj",
+        "unity_13_cxx.cxx.obj",
+        "unity_18_cxx.cxx.obj",
+        "unity_1_cxx.cxx.obj",
+        "unity_2_cxx.cxx.obj",
+        "unity_3_cxx.cxx.obj",
+        "unity_4_cxx.cxx.obj",
+        "unity_6_cxx.cxx.obj",
+        "unity_7_cxx.cxx.obj",
+        "unity_8_cxx.cxx.obj",
+        "unity_10_cxx.cxx.obj",
+        "unity_11_cxx.cxx.obj"
+      ]
+    },
+    {
+      "library": "cycles_util.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\cycles_util.lib",
+      "tu_count": 19,
+      "sample_tus": [
+        "log.cpp.obj",
+        "system.cpp.obj",
+        "guarded_allocator.cpp.obj",
+        "string.cpp.obj",
+        "path.cpp.obj",
+        "debug.cpp.obj",
+        "md5.cpp.obj",
+        "task.cpp.obj",
+        "time.cpp.obj",
+        "murmurhash.cpp.obj",
+        "transform_sse42.cpp.obj",
+        "transform_avx2.cpp.obj",
+        "aligned_malloc.cpp.obj",
+        "windows.cpp.obj",
+        "transform.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_animation.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_animation.lib",
+      "tu_count": 18,
+      "sample_tus": [
+        "fmodifier_ui.cc.obj",
+        "keyframes_general.cc.obj",
+        "keyingsets.cc.obj",
+        "drivers.cc.obj",
+        "anim_filter.cc.obj",
+        "anim_deps.cc.obj",
+        "keyframing.cc.obj",
+        "anim_channels_edit.cc.obj",
+        "time_scrub_ui.cc.obj",
+        "keyframes_keylist.cc.obj",
+        "anim_channels_defines.cc.obj",
+        "keyframes_draw.cc.obj",
+        "anim_ops.cc.obj",
+        "anim_markers.cc.obj",
+        "anim_draw.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_asset.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_asset.lib",
+      "tu_count": 18,
+      "sample_tus": [
+        "asset_shelf.cc.obj",
+        "asset_list.cc.obj",
+        "asset_catalog.cc.obj",
+        "asset_mark_clear.cc.obj",
+        "asset_library_reference_enum.cc.obj",
+        "asset_shelf_settings.cc.obj",
+        "asset_handle.cc.obj",
+        "asset_filter.cc.obj",
+        "asset_shelf_popup.cc.obj",
+        "asset_ops.cc.obj",
+        "asset_temp_id_consumer.cc.obj",
+        "asset_shelf_regiondata.cc.obj",
+        "asset_shelf_asset_view.cc.obj",
+        "asset_shelf_catalog_selector.cc.obj",
+        "asset_indexer.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_node.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_node.lib",
+      "tu_count": 18,
+      "sample_tus": [
+        "clipboard.cc.obj",
+        "drawnode.cc.obj",
+        "node_edit.cc.obj",
+        "space_node.cc.obj",
+        "node_draw.cc.obj",
+        "node_templates.cc.obj",
+        "add_menu_assets.cc.obj",
+        "node_view.cc.obj",
+        "node_ops.cc.obj",
+        "node_shader_preview.cc.obj",
+        "node_select.cc.obj",
+        "node_relationships.cc.obj",
+        "node_geometry_attribute_search.cc.obj",
+        "node_gizmo.cc.obj",
+        "node_context_path.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_armature.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_armature.lib",
+      "tu_count": 17,
+      "sample_tus": [
+        "armature_utils.cc.obj",
+        "armature_naming.cc.obj",
+        "armature_add.cc.obj",
+        "armature_edit.cc.obj",
+        "pose_edit.cc.obj",
+        "editarmature_undo.cc.obj",
+        "armature_ops.cc.obj",
+        "pose_select.cc.obj",
+        "armature_select.cc.obj",
+        "armature_relations.cc.obj",
+        "bone_collections.cc.obj",
+        "pose_transform.cc.obj",
+        "pose_lib_2.cc.obj",
+        "pose_slide.cc.obj",
+        "pose_utils.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_asset_system.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_asset_system.lib",
+      "tu_count": 16,
+      "sample_tus": [
+        "asset_identifier.cc.obj",
+        "asset_library.cc.obj",
+        "asset_representation.cc.obj",
+        "asset_catalog.cc.obj",
+        "asset_library_service.cc.obj",
+        "asset_storage.cc.obj",
+        "utils.cc.obj",
+        "asset_catalog_path.cc.obj",
+        "asset_catalog_tree.cc.obj",
+        "asset_catalog_collection.cc.obj",
+        "asset_catalog_definition_file.cc.obj",
+        "asset_library_essentials.cc.obj",
+        "asset_library_all.cc.obj",
+        "asset_library_on_disk.cc.obj",
+        "asset_library_from_preferences.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_opensubdiv.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_opensubdiv.lib",
+      "tu_count": 16,
+      "sample_tus": [
+        "topology_refiner_capi.cc.obj",
+        "opensubdiv_capi.cc.obj",
+        "evaluator_capi.cc.obj",
+        "type_convert.cc.obj",
+        "topology_refiner_factory.cc.obj",
+        "topology_refiner_impl.cc.obj",
+        "topology_refiner_impl_compare.cc.obj",
+        "evaluator_cache_impl.cc.obj",
+        "evaluator_impl.cc.obj",
+        "mesh_topology.cc.obj",
+        "mesh_topology_compare.cc.obj",
+        "gl_compute_evaluator.cc.obj",
+        "eval_output.cc.obj",
+        "eval_output_gpu.cc.obj",
+        "patch_map.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_nodes.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_nodes.lib",
+      "tu_count": 16,
+      "sample_tus": [
+        "node_declaration.cc.obj",
+        "node_socket.cc.obj",
+        "node_register.cc.obj",
+        "geometry_nodes_lazy_function.cc.obj",
+        "geometry_nodes_log.cc.obj",
+        "node_common.cc.obj",
+        "derived_node_tree.cc.obj",
+        "geometry_nodes_execute.cc.obj",
+        "node_socket_declarations.cc.obj",
+        "node_multi_function.cc.obj",
+        "node_util.cc.obj",
+        "socket_search_link.cc.obj",
+        "math_functions.cc.obj",
+        "node_geometry_exec.cc.obj",
+        "node_rna_define.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_gizmo_library.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_gizmo_library.lib",
+      "tu_count": 15,
+      "sample_tus": [
+        "gizmo_library_presets.cc.obj",
+        "arrow3d_gizmo.cc.obj",
+        "button2d_gizmo.cc.obj",
+        "cage2d_gizmo.cc.obj",
+        "cage3d_gizmo.cc.obj",
+        "dial3d_gizmo.cc.obj",
+        "move3d_gizmo.cc.obj",
+        "primitive3d_gizmo.cc.obj",
+        "blank3d_gizmo.cc.obj",
+        "snap3d_gizmo.cc.obj",
+        "gizmo_library_utils.cc.obj",
+        "gizmo_draw_utils.cc.obj",
+        "geom_arrow_gizmo.cc.obj",
+        "geom_cube_gizmo.cc.obj",
+        "geom_dial_gizmo.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_grease_pencil.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_grease_pencil.lib",
+      "tu_count": 14,
+      "sample_tus": [
+        "grease_pencil_edit.cc.obj",
+        "grease_pencil_utils.cc.obj",
+        "grease_pencil_select.cc.obj",
+        "grease_pencil_geom.cc.obj",
+        "grease_pencil_undo.cc.obj",
+        "grease_pencil_ops.cc.obj",
+        "grease_pencil_add.cc.obj",
+        "grease_pencil_layers.cc.obj",
+        "grease_pencil_frames.cc.obj",
+        "grease_pencil_cutter.cc.obj",
+        "grease_pencil_material.cc.obj",
+        "grease_pencil_primitive.cc.obj",
+        "grease_pencil_weight_paint.cc.obj",
+        "grease_pencil_image_render.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_screen.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_screen.lib",
+      "tu_count": 14,
+      "sample_tus": [
+        "screen_edit.cc.obj",
+        "workspace_layout_edit.cc.obj",
+        "area.cc.obj",
+        "workspace_edit.cc.obj",
+        "glutil.cc.obj",
+        "screen_ops.cc.obj",
+        "workspace_listen.cc.obj",
+        "area_query.cc.obj",
+        "screen_draw.cc.obj",
+        "screen_context.cc.obj",
+        "screen_geometry.cc.obj",
+        "screendump.cc.obj",
+        "screen_user_menu.cc.obj",
+        "area_utils.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_render.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_render.lib",
+      "tu_count": 14,
+      "sample_tus": [
+        "engine.cc.obj",
+        "texture_procedural.cc.obj",
+        "pipeline.cc.obj",
+        "render_result.cc.obj",
+        "initrender.cc.obj",
+        "texture_pointdensity.cc.obj",
+        "compositor.cc.obj",
+        "multires_bake.cc.obj",
+        "bake.cc.obj",
+        "tile_highlight.cc.obj",
+        "texture_image.cc.obj",
+        "render_types.cc.obj",
+        "texture_margin.cc.obj",
+        "zbuf.cc.obj"
+      ]
+    },
+    {
+      "library": "extern_quadriflow.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_quadriflow.lib",
+      "tu_count": 14,
+      "sample_tus": [
+        "hierarchy.cpp.obj",
+        "optimizer.cpp.obj",
+        "parametrizer-mesh.cpp.obj",
+        "parametrizer-sing.cpp.obj",
+        "parametrizer.cpp.obj",
+        "parametrizer-scale.cpp.obj",
+        "localsat.cpp.obj",
+        "base.cc.obj",
+        "dedge.cpp.obj",
+        "loader.cpp.obj",
+        "adjacent-matrix.cpp.obj",
+        "subdivide.cpp.obj",
+        "parametrizer-int.cpp.obj",
+        "parametrizer-flip.cpp.obj"
+      ]
+    },
+    {
+      "library": "libpng.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\png\\lib\\libpng.lib",
+      "tu_count": 14,
+      "sample_tus": [
+        "pngwrite.obj",
+        "pngerror.obj",
+        "png.obj",
+        "pngset.obj",
+        "pngwutil.obj",
+        "pngtrans.obj",
+        "pngwio.obj",
+        "pngmem.obj",
+        "pngget.obj",
+        "pngwtran.obj",
+        "pngread.obj",
+        "pngrtran.obj",
+        "pngrio.obj",
+        "pngrutil.obj"
+      ]
+    },
+    {
+      "library": "openxr_loader.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\xr_openxr_sdk\\lib\\openxr_loader.lib",
+      "tu_count": 14,
+      "sample_tus": [
+        "xr_generated_loader.obj",
+        "loader_core.obj",
+        "loader_instance.obj",
+        "loader_logger.obj",
+        "api_layer_interface.obj",
+        "loader_logger_recorders.obj",
+        "runtime_interface.obj",
+        "xr_generated_dispatch_table.obj",
+        "object_info.obj",
+        "manifest_file.obj",
+        "filesystem_utils.obj",
+        "json_value.obj",
+        "json_reader.obj",
+        "json_writer.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_io.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_io.lib",
+      "tu_count": 13,
+      "sample_tus": [
+        "io_ops.cc.obj",
+        "io_collada.cc.obj",
+        "io_alembic.cc.obj",
+        "io_usd.cc.obj",
+        "io_cache.cc.obj",
+        "io_drop_import_file.cc.obj",
+        "io_gpencil_import.cc.obj",
+        "io_gpencil_export.cc.obj",
+        "io_obj.cc.obj",
+        "io_ply_ops.cc.obj",
+        "io_stl_ops.cc.obj",
+        "io_utils.cc.obj",
+        "io_gpencil_utils.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_file.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_file.lib",
+      "tu_count": 13,
+      "sample_tus": [
+        "space_file.cc.obj",
+        "filelist.cc.obj",
+        "filesel.cc.obj",
+        "fsmenu.cc.obj",
+        "file_context.cc.obj",
+        "file_draw.cc.obj",
+        "file_ops.cc.obj",
+        "file_indexer.cc.obj",
+        "folder_history.cc.obj",
+        "file_panels.cc.obj",
+        "fsmenu_system.cc.obj",
+        "asset_catalog_tree_view.cc.obj",
+        "file_utils.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_io_wavefront_obj.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_io_wavefront_obj.lib",
+      "tu_count": 13,
+      "sample_tus": [
+        "IO_wavefront_obj.cc.obj",
+        "obj_exporter.cc.obj",
+        "obj_importer.cc.obj",
+        "obj_export_mesh.cc.obj",
+        "obj_export_nurbs.cc.obj",
+        "obj_export_file_writer.cc.obj",
+        "obj_import_file_reader.cc.obj",
+        "obj_import_mesh.cc.obj",
+        "obj_import_nurbs.cc.obj",
+        "obj_export_mtl.cc.obj",
+        "obj_import_string_utils.cc.obj",
+        "importer_mesh_utils.cc.obj",
+        "obj_import_mtl.cc.obj"
+      ]
+    },
+    {
+      "library": "audaspace-py.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\audaspace-py.lib",
+      "tu_count": 12,
+      "sample_tus": [
+        "PyAPI.cpp.obj",
+        "PySound.cpp.obj",
+        "PyHandle.cpp.obj",
+        "PyDevice.cpp.obj",
+        "PySequenceEntry.cpp.obj",
+        "PySequence.cpp.obj",
+        "PyPlaybackManager.cpp.obj",
+        "PyDynamicMusic.cpp.obj",
+        "PyThreadPool.cpp.obj",
+        "PySource.cpp.obj",
+        "PyImpulseResponse.cpp.obj",
+        "PyHRTF.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_spreadsheet.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_spreadsheet.lib",
+      "tu_count": 12,
+      "sample_tus": [
+        "space_spreadsheet.cc.obj",
+        "spreadsheet_column.cc.obj",
+        "spreadsheet_data_source.cc.obj",
+        "spreadsheet_data_source_geometry.cc.obj",
+        "spreadsheet_cache.cc.obj",
+        "spreadsheet_ops.cc.obj",
+        "spreadsheet_panels.cc.obj",
+        "spreadsheet_draw.cc.obj",
+        "spreadsheet_layout.cc.obj",
+        "spreadsheet_row_filter.cc.obj",
+        "spreadsheet_row_filter_ui.cc.obj",
+        "spreadsheet_dataset_draw.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_text.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_text.lib",
+      "tu_count": 12,
+      "sample_tus": [
+        "text_draw.cc.obj",
+        "text_format.cc.obj",
+        "space_text.cc.obj",
+        "text_undo.cc.obj",
+        "text_autocomplete.cc.obj",
+        "text_format_glsl.cc.obj",
+        "text_format_py.cc.obj",
+        "text_format_osl.cc.obj",
+        "text_format_pov.cc.obj",
+        "text_format_pov_ini.cc.obj",
+        "text_ops.cc.obj",
+        "text_header.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_functions.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_functions.lib",
+      "tu_count": 12,
+      "sample_tus": [
+        "lazy_function_graph.cc.obj",
+        "field.cc.obj",
+        "multi_function.cc.obj",
+        "multi_function_params.cc.obj",
+        "lazy_function.cc.obj",
+        "lazy_function_graph_executor.cc.obj",
+        "lazy_function_execute.cc.obj",
+        "multi_function_builder.cc.obj",
+        "multi_function_procedure.cc.obj",
+        "multi_function_procedure_builder.cc.obj",
+        "multi_function_procedure_executor.cc.obj",
+        "multi_function_procedure_optimization.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_io_ply.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_io_ply.lib",
+      "tu_count": 12,
+      "sample_tus": [
+        "IO_ply.cc.obj",
+        "ply_export.cc.obj",
+        "ply_import.cc.obj",
+        "ply_export_data.cc.obj",
+        "ply_export_header.cc.obj",
+        "ply_export_load_plydata.cc.obj",
+        "ply_file_buffer.cc.obj",
+        "ply_file_buffer_ascii.cc.obj",
+        "ply_file_buffer_binary.cc.obj",
+        "ply_import_data.cc.obj",
+        "ply_import_buffer.cc.obj",
+        "ply_import_mesh.cc.obj"
+      ]
+    },
+    {
+      "library": "cycles_bvh.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\cycles_bvh.lib",
+      "tu_count": 12,
+      "sample_tus": [
+        "bvh2.cpp.obj",
+        "bvh.cpp.obj",
+        "embree.cpp.obj",
+        "unaligned.cpp.obj",
+        "build.cpp.obj",
+        "node.cpp.obj",
+        "hiprt.cpp.obj",
+        "multi.cpp.obj",
+        "optix.cpp.obj",
+        "binning.cpp.obj",
+        "split.cpp.obj",
+        "sort.cpp.obj"
+      ]
+    },
+    {
+      "library": "libz_st.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\zlib\\lib\\libz_st.lib",
+      "tu_count": 12,
+      "sample_tus": [
+        "gzlib.obj",
+        "deflate.obj",
+        "inflate.obj",
+        "adler32.obj",
+        "crc32.obj",
+        "gzread.obj",
+        "gzwrite.obj",
+        "gzclose.obj",
+        "trees.obj",
+        "zutil.obj",
+        "inftrees.obj",
+        "inffast.obj"
+      ]
+    },
+    {
+      "library": "bf_animrig.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_animrig.lib",
+      "tu_count": 11,
+      "sample_tus": [
+        "bone_collections.cc.obj",
+        "action.cc.obj",
+        "bonecolor.cc.obj",
+        "evaluation.cc.obj",
+        "animdata.cc.obj",
+        "keyframing_auto.cc.obj",
+        "fcurve.cc.obj",
+        "keyframing.cc.obj",
+        "anim_rna.cc.obj",
+        "visualkey.cc.obj",
+        "driver.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_physics.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_physics.lib",
+      "tu_count": 11,
+      "sample_tus": [
+        "particle_edit.cc.obj",
+        "particle_edit_undo.cc.obj",
+        "physics_ops.cc.obj",
+        "rigidbody_object.cc.obj",
+        "particle_object.cc.obj",
+        "particle_boids.cc.obj",
+        "physics_fluid.cc.obj",
+        "dynamicpaint_ops.cc.obj",
+        "physics_pointcache.cc.obj",
+        "rigidbody_constraint.cc.obj",
+        "rigidbody_world.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_uvedit.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_uvedit.lib",
+      "tu_count": 11,
+      "sample_tus": [
+        "uvedit_clipboard.cc.obj",
+        "uvedit_ops.cc.obj",
+        "uvedit_select.cc.obj",
+        "uvedit_unwrap_ops.cc.obj",
+        "uvedit_draw.cc.obj",
+        "uvedit_buttons.cc.obj",
+        "uvedit_clipboard_graph_iso.cc.obj",
+        "uvedit_rip.cc.obj",
+        "uvedit_smart_stitch.cc.obj",
+        "uvedit_path.cc.obj",
+        "uvedit_islands.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_python_mathutils.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_python_mathutils.lib",
+      "tu_count": 11,
+      "sample_tus": [
+        "mathutils.cc.obj",
+        "mathutils_Color.cc.obj",
+        "mathutils_Euler.cc.obj",
+        "mathutils_Matrix.cc.obj",
+        "mathutils_Quaternion.cc.obj",
+        "mathutils_Vector.cc.obj",
+        "mathutils_geometry.cc.obj",
+        "mathutils_interpolate.cc.obj",
+        "mathutils_bvhtree.cc.obj",
+        "mathutils_kdtree.cc.obj",
+        "mathutils_noise.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_shader_fx.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_shader_fx.lib",
+      "tu_count": 11,
+      "sample_tus": [
+        "FX_shader_util.cc.obj",
+        "FX_shader_blur.cc.obj",
+        "FX_shader_colorize.cc.obj",
+        "FX_shader_flip.cc.obj",
+        "FX_shader_glow.cc.obj",
+        "FX_shader_pixel.cc.obj",
+        "FX_shader_rim.cc.obj",
+        "FX_shader_shadow.cc.obj",
+        "FX_shader_swirl.cc.obj",
+        "FX_shader_wave.cc.obj",
+        "FX_ui_common.cc.obj"
+      ]
+    },
+    {
+      "library": "OLDNAMES.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\lib\\x64\\OLDNAMES.lib",
+      "tu_count": 10,
+      "sample_tus": [
+        "close.obi",
+        "write.obi",
+        "fileno.obi",
+        "read.obi",
+        "isatty.obi",
+        "getpid.obi",
+        "unlink.obi",
+        "strdup.obi",
+        "getcwd.obi",
+        "open.obi"
+      ]
+    },
+    {
+      "library": "OpenCOLLADABaseUtils.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\opencollada\\lib\\opencollada\\OpenCOLLADABaseUtils.lib",
+      "tu_count": 10,
+      "sample_tus": [
+        "COLLADABUURI.obj",
+        "COLLADABUNativeString.obj",
+        "COLLADABUUtils.obj",
+        "COLLADABUMathVector3.obj",
+        "COLLADABUHashFunctions.obj",
+        "COLLADABUMathMatrix4.obj",
+        "COLLADABUMathQuaternion.obj",
+        "COLLADABUMathUtils.obj",
+        "COLLADABUStringUtils.obj",
+        "COLLADABUMathMatrix3.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_curve.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_curve.lib",
+      "tu_count": 10,
+      "sample_tus": [
+        "editcurve.cc.obj",
+        "editcurve_undo.cc.obj",
+        "editfont_undo.cc.obj",
+        "curve_ops.cc.obj",
+        "editcurve_select.cc.obj",
+        "editcurve_query.cc.obj",
+        "editfont.cc.obj",
+        "editcurve_add.cc.obj",
+        "editcurve_paint.cc.obj",
+        "editcurve_pen.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_curves.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_curves.lib",
+      "tu_count": 10,
+      "sample_tus": [
+        "curves_selection.cc.obj",
+        "curves_data.cc.obj",
+        "curves_undo.cc.obj",
+        "curves_ops.cc.obj",
+        "curves_add.cc.obj",
+        "curves_attribute_set.cc.obj",
+        "curves_draw.cc.obj",
+        "curves_extrude.cc.obj",
+        "curves_masks.cc.obj",
+        "curves_edit.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_nodes_composite.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_nodes_composite.lib",
+      "tu_count": 10,
+      "sample_tus": [
+        "unity_3_cxx.cxx.obj",
+        "unity_1_cxx.cxx.obj",
+        "unity_4_cxx.cxx.obj",
+        "unity_8_cxx.cxx.obj",
+        "unity_9_cxx.cxx.obj",
+        "unity_0_cxx.cxx.obj",
+        "unity_6_cxx.cxx.obj",
+        "unity_7_cxx.cxx.obj",
+        "unity_2_cxx.cxx.obj",
+        "unity_5_cxx.cxx.obj"
+      ]
+    },
+    {
+      "library": "bf_nodes_shader.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_nodes_shader.lib",
+      "tu_count": 10,
+      "sample_tus": [
+        "unity_9_cxx.cxx.obj",
+        "unity_2_cxx.cxx.obj",
+        "unity_0_cxx.cxx.obj",
+        "unity_1_cxx.cxx.obj",
+        "unity_5_cxx.cxx.obj",
+        "unity_6_cxx.cxx.obj",
+        "unity_3_cxx.cxx.obj",
+        "unity_4_cxx.cxx.obj",
+        "unity_7_cxx.cxx.obj",
+        "unity_8_cxx.cxx.obj"
+      ]
+    },
+    {
+      "library": "MathMLSolver.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\opencollada\\lib\\opencollada\\MathMLSolver.lib",
+      "tu_count": 9,
+      "sample_tus": [
+        "MathMLASTFragmentExpression.obj",
+        "MathMLASTVariableExpression.obj",
+        "MathMLASTUnaryArithmeticExpression.obj",
+        "MathMLASTArithmeticExpression.obj",
+        "MathMLASTBinaryComparisionExpression.obj",
+        "MathMLASTLogicExpression.obj",
+        "MathMLASTConstantExpression.obj",
+        "MathMLASTFunctionExpression.obj",
+        "MathMLString.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_mask.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_mask.lib",
+      "tu_count": 9,
+      "sample_tus": [
+        "mask_edit.cc.obj",
+        "mask_query.cc.obj",
+        "mask_shapekey.cc.obj",
+        "mask_editaction.cc.obj",
+        "mask_draw.cc.obj",
+        "mask_add.cc.obj",
+        "mask_ops.cc.obj",
+        "mask_relationships.cc.obj",
+        "mask_select.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_graph.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_graph.lib",
+      "tu_count": 9,
+      "sample_tus": [
+        "graph_utils.cc.obj",
+        "graph_ops.cc.obj",
+        "space_graph.cc.obj",
+        "graph_buttons.cc.obj",
+        "graph_select.cc.obj",
+        "graph_view.cc.obj",
+        "graph_edit.cc.obj",
+        "graph_slider_ops.cc.obj",
+        "graph_draw.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_util.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_util.lib",
+      "tu_count": 9,
+      "sample_tus": [
+        "ed_util.cc.obj",
+        "numinput.cc.obj",
+        "ed_viewer_path.cc.obj",
+        "ed_util_ops.cc.obj",
+        "select_utils.cc.obj",
+        "ed_draw.cc.obj",
+        "gizmo_utils.cc.obj",
+        "ed_transverts.cc.obj",
+        "ed_util_imbuf.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_python_bmesh.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_python_bmesh.lib",
+      "tu_count": 9,
+      "sample_tus": [
+        "bmesh_py_types.cc.obj",
+        "bmesh_py_api.cc.obj",
+        "bmesh_py_types_customdata.cc.obj",
+        "bmesh_py_types_select.cc.obj",
+        "bmesh_py_types_meshdata.cc.obj",
+        "bmesh_py_geometry.cc.obj",
+        "bmesh_py_ops.cc.obj",
+        "bmesh_py_utils.cc.obj",
+        "bmesh_py_ops_call.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_python_ext.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_python_ext.lib",
+      "tu_count": 9,
+      "sample_tus": [
+        "bpy_threads.cc.obj",
+        "py_capi_utils.cc.obj",
+        "bgl.cc.obj",
+        "bl_math_py_api.cc.obj",
+        "blf_py_api.cc.obj",
+        "idprop_py_api.cc.obj",
+        "imbuf_py_api.cc.obj",
+        "py_capi_rna.cc.obj",
+        "idprop_py_ui_api.cc.obj"
+      ]
+    },
+    {
+      "library": "extern_lzma.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_lzma.lib",
+      "tu_count": 9,
+      "sample_tus": [
+        "LzmaLib.c.obj",
+        "LzmaDec.c.obj",
+        "LzmaEnc.c.obj",
+        "Alloc.c.obj",
+        "LzFind.c.obj",
+        "LzFindMt.c.obj",
+        "CpuArch.c.obj",
+        "Threads.c.obj",
+        "LzFindOpt.c.obj"
+      ]
+    },
+    {
+      "library": "msvcprt.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\lib\\x64\\msvcprt.lib",
+      "tu_count": 9,
+      "sample_tus": [
+        "nothrow.obj",
+        "locale0_implib.obj",
+        "vector_algorithms.obj",
+        "syserror_import_lib.obj",
+        "filesystem.obj",
+        "std_init_once_begin_initialize.obj",
+        "std_init_once_complete.obj",
+        "MSVCP140.dll",
+        "Import:MSVCP140.dll"
+      ]
+    },
+    {
+      "library": "bf_blenfont.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_blenfont.lib",
+      "tu_count": 8,
+      "sample_tus": [
+        "blf.cc.obj",
+        "blf_default.cc.obj",
+        "blf_font_default.cc.obj",
+        "blf_thumbs.cc.obj",
+        "blf_font.cc.obj",
+        "blf_glyph.cc.obj",
+        "blf_dir.cc.obj",
+        "blf_font_win32_compat.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_render_hydra.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_render_hydra.lib",
+      "tu_count": 8,
+      "sample_tus": [
+        "python.cc.obj",
+        "viewport_engine.cc.obj",
+        "engine.cc.obj",
+        "final_engine.cc.obj",
+        "preview_engine.cc.obj",
+        "light_tasks_delegate.cc.obj",
+        "render_task_delegate.cc.obj",
+        "camera.cc.obj"
+      ]
+    },
+    {
+      "library": "extern_glog.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_glog.lib",
+      "tu_count": 8,
+      "sample_tus": [
+        "logging.cc.obj",
+        "vlog_is_on.cc.obj",
+        "port.cc.obj",
+        "utilities.cc.obj",
+        "raw_logging.cc.obj",
+        "signalhandler.cc.obj",
+        "symbolize.cc.obj",
+        "demangle.cc.obj"
+      ]
+    },
+    {
+      "library": "GeneratedSaxParser.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\opencollada\\lib\\opencollada\\GeneratedSaxParser.lib",
+      "tu_count": 7,
+      "sample_tus": [
+        "GeneratedSaxParserParserError.obj",
+        "GeneratedSaxParserUtils.obj",
+        "GeneratedSaxParserParser.obj",
+        "GeneratedSaxParserSaxParser.obj",
+        "GeneratedSaxParserLibxmlSaxParser.obj",
+        "GeneratedSaxParserParserTemplateBase.obj",
+        "GeneratedSaxParserStackMemoryManager.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_render.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_render.lib",
+      "tu_count": 7,
+      "sample_tus": [
+        "render_update.cc.obj",
+        "render_preview.cc.obj",
+        "render_shading.cc.obj",
+        "render_ops.cc.obj",
+        "render_internal.cc.obj",
+        "render_view.cc.obj",
+        "render_opengl.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_action.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_action.lib",
+      "tu_count": 7,
+      "sample_tus": [
+        "action_ops.cc.obj",
+        "space_action.cc.obj",
+        "action_select.cc.obj",
+        "action_edit.cc.obj",
+        "action_data.cc.obj",
+        "action_buttons.cc.obj",
+        "action_draw.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_image.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_image.lib",
+      "tu_count": 7,
+      "sample_tus": [
+        "image_ops.cc.obj",
+        "image_edit.cc.obj",
+        "image_draw.cc.obj",
+        "image_buttons.cc.obj",
+        "space_image.cc.obj",
+        "image_undo.cc.obj",
+        "image_sequence.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_nla.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_nla.lib",
+      "tu_count": 7,
+      "sample_tus": [
+        "nla_buttons.cc.obj",
+        "nla_ops.cc.obj",
+        "space_nla.cc.obj",
+        "nla_draw.cc.obj",
+        "nla_edit.cc.obj",
+        "nla_select.cc.obj",
+        "nla_tracks.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_io_common.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_io_common.lib",
+      "tu_count": 7,
+      "sample_tus": [
+        "subdiv_disabler.cc.obj",
+        "abstract_hierarchy_iterator.cc.obj",
+        "object_identifier.cc.obj",
+        "orientation.cc.obj",
+        "dupli_persistent_id.cc.obj",
+        "dupli_parent_finder.cc.obj",
+        "path_util.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_io_stl.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_io_stl.lib",
+      "tu_count": 7,
+      "sample_tus": [
+        "IO_stl.cc.obj",
+        "stl_export.cc.obj",
+        "stl_import.cc.obj",
+        "stl_export_writer.cc.obj",
+        "stl_import_ascii_reader.cc.obj",
+        "stl_import_binary_reader.cc.obj",
+        "stl_import_mesh.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_info.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_info.lib",
+      "tu_count": 6,
+      "sample_tus": [
+        "info_stats.cc.obj",
+        "space_info.cc.obj",
+        "textview.cc.obj",
+        "info_ops.cc.obj",
+        "info_draw.cc.obj",
+        "info_report.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_gpencil.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_gpencil.lib",
+      "tu_count": 6,
+      "sample_tus": [
+        "gpencil_io_capi.cc.obj",
+        "gpencil_io_base.cc.obj",
+        "gpencil_io_export_pdf.cc.obj",
+        "gpencil_io_export_svg.cc.obj",
+        "gpencil_io_import_svg.cc.obj",
+        "gpencil_io_import_base.cc.obj"
+      ]
+    },
+    {
+      "library": "libsharpyuv.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\webp\\lib\\libsharpyuv.lib",
+      "tu_count": 6,
+      "sample_tus": [
+        "sharpyuv.obj",
+        "sharpyuv_csp.obj",
+        "sharpyuv_dsp.obj",
+        "sharpyuv_gamma.obj",
+        "sharpyuv_cpu.obj",
+        "sharpyuv_sse2.obj"
+      ]
+    },
+    {
+      "library": "openpgl.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\openpgl\\lib\\openpgl.lib",
+      "tu_count": 6,
+      "sample_tus": [
+        "api.obj",
+        "deviceCPU4.obj",
+        "deviceCPU8.obj",
+        "alloc.obj",
+        "VMMPhaseFunctions.obj",
+        "sse.obj"
+      ]
+    },
+    {
+      "library": "bf_imbuf_cineon.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_imbuf_cineon.lib",
+      "tu_count": 5,
+      "sample_tus": [
+        "cineon_dpx.cc.obj",
+        "logImageCore.cc.obj",
+        "cineonlib.cc.obj",
+        "dpxlib.cc.obj",
+        "logmemfile.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_guardedalloc.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_guardedalloc.lib",
+      "tu_count": 5,
+      "sample_tus": [
+        "leak_detector.cc.obj",
+        "mallocn.cc.obj",
+        "memory_usage.cc.obj",
+        "mallocn_lockfree_impl.cc.obj",
+        "mallocn_guarded_impl.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_iksolver.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_iksolver.lib",
+      "tu_count": 5,
+      "sample_tus": [
+        "IK_Solver.cpp.obj",
+        "IK_QJacobian.cpp.obj",
+        "IK_QSegment.cpp.obj",
+        "IK_QTask.cpp.obj",
+        "IK_QJacobianSolver.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_nodes_function.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_nodes_function.lib",
+      "tu_count": 5,
+      "sample_tus": [
+        "unity_0_cxx.cxx.obj",
+        "unity_1_cxx.cxx.obj",
+        "unity_2_cxx.cxx.obj",
+        "unity_3_cxx.cxx.obj",
+        "unity_4_cxx.cxx.obj"
+      ]
+    },
+    {
+      "library": "brotlicommon-static.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\brotli\\lib\\brotlicommon-static.lib",
+      "tu_count": 5,
+      "sample_tus": [
+        "transform.obj",
+        "constants.obj",
+        "context.obj",
+        "platform.obj",
+        "dictionary.obj"
+      ]
+    },
+    {
+      "library": "cycles_session.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\cycles_session.lib",
+      "tu_count": 5,
+      "sample_tus": [
+        "denoising.cpp.obj",
+        "merge.cpp.obj",
+        "buffers.cpp.obj",
+        "session.cpp.obj",
+        "tile.cpp.obj"
+      ]
+    },
+    {
+      "library": "osdGPU.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\opensubdiv\\lib\\osdGPU.lib",
+      "tu_count": 5,
+      "sample_tus": [
+        "glslPatchShaderSource.cpp.obj",
+        "glPatchTable.cpp.obj",
+        "glVertexBuffer.cpp.obj",
+        "glLoader.cpp.obj",
+        "glApi.cpp.obj"
+      ]
+    },
+    {
+      "library": "uuid.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\uuid.lib",
+      "tu_count": 5,
+      "sample_tus": [
+        "objidl_i.obj",
+        "shguids.obj",
+        "guids.obj",
+        "directmanipulation_i.obj",
+        "oleidl_i.obj"
+      ]
+    },
+    {
+      "library": "bf_dna.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_dna.lib",
+      "tu_count": 4,
+      "sample_tus": [
+        "dna_genfile.cc.obj",
+        "dna_utils.cc.obj",
+        "dna_defaults.c.obj",
+        "dna.c.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_geometry.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_geometry.lib",
+      "tu_count": 4,
+      "sample_tus": [
+        "node_group_operator.cc.obj",
+        "geometry_ops.cc.obj",
+        "geometry_attributes.cc.obj",
+        "geometry_randomization.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_lattice.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_lattice.lib",
+      "tu_count": 4,
+      "sample_tus": [
+        "editlattice_undo.cc.obj",
+        "lattice_ops.cc.obj",
+        "editlattice_select.cc.obj",
+        "editlattice_tools.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_buttons.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_buttons.lib",
+      "tu_count": 4,
+      "sample_tus": [
+        "space_buttons.cc.obj",
+        "buttons_texture.cc.obj",
+        "buttons_context.cc.obj",
+        "buttons_ops.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_dualcon.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_dualcon.lib",
+      "tu_count": 4,
+      "sample_tus": [
+        "dualcon_c_api.cpp.obj",
+        "octree.cpp.obj",
+        "Projections.cpp.obj",
+        "manifold_table.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_eigen.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_eigen.lib",
+      "tu_count": 4,
+      "sample_tus": [
+        "matrix.cc.obj",
+        "eigenvalues.cc.obj",
+        "svd.cc.obj",
+        "linear_solver.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_opencolorio.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_opencolorio.lib",
+      "tu_count": 4,
+      "sample_tus": [
+        "ocio_capi.cc.obj",
+        "fallback_impl.cc.obj",
+        "ocio_impl.cc.obj",
+        "ocio_impl_glsl.cc.obj"
+      ]
+    },
+    {
+      "library": "brotlidec-static.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\brotli\\lib\\brotlidec-static.lib",
+      "tu_count": 4,
+      "sample_tus": [
+        "decode.obj",
+        "bit_reader.obj",
+        "huffman.obj",
+        "state.obj"
+      ]
+    },
+    {
+      "library": "comsuppw.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\lib\\x64\\comsuppw.lib",
+      "tu_count": 4,
+      "sample_tus": [
+        "comsupp.obj",
+        "comraise.obj",
+        "invkprxy.obj",
+        "invkerr.obj"
+      ]
+    },
+    {
+      "library": "cycles_subd.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\cycles_subd.lib",
+      "tu_count": 4,
+      "sample_tus": [
+        "patch_table.cpp.obj",
+        "split.cpp.obj",
+        "patch.cpp.obj",
+        "dice.cpp.obj"
+      ]
+    },
+    {
+      "library": "extern_curve_fit_nd.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_curve_fit_nd.lib",
+      "tu_count": 4,
+      "sample_tus": [
+        "curve_fit_cubic_refit.c.obj",
+        "curve_fit_cubic.c.obj",
+        "curve_fit_corners_detect.c.obj",
+        "generic_heap.c.obj"
+      ]
+    },
+    {
+      "library": "potrace.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\potrace\\lib\\potrace.lib",
+      "tu_count": 4,
+      "sample_tus": [
+        "potracelib.obj",
+        "curve.obj",
+        "decompose.obj",
+        "trace.obj"
+      ]
+    },
+    {
+      "library": "vcruntime.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\lib\\x64\\vcruntime.lib",
+      "tu_count": 4,
+      "sample_tus": [
+        "VCRUNTIME140.dll",
+        "VCRUNTIME140_1.dll",
+        "Import:VCRUNTIME140_1.dll",
+        "Import:VCRUNTIME140.dll"
+      ]
+    },
+    {
+      "library": "bf_editor_metaball.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_metaball.lib",
+      "tu_count": 3,
+      "sample_tus": [
+        "editmball_undo.cc.obj",
+        "mball_ops.cc.obj",
+        "mball_edit.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_console.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_console.lib",
+      "tu_count": 3,
+      "sample_tus": [
+        "space_console.cc.obj",
+        "console_draw.cc.obj",
+        "console_ops.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_script.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_script.lib",
+      "tu_count": 3,
+      "sample_tus": [
+        "space_script.cc.obj",
+        "script_ops.cc.obj",
+        "script_edit.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_undo.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_undo.lib",
+      "tu_count": 3,
+      "sample_tus": [
+        "undo_system_types.cc.obj",
+        "memfile_undo.cc.obj",
+        "ed_undo.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_ikplugin.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_ikplugin.lib",
+      "tu_count": 3,
+      "sample_tus": [
+        "ikplugin_api.cc.obj",
+        "iksolver_plugin.cc.obj",
+        "itasc_plugin.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_mantaflow.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_mantaflow.lib",
+      "tu_count": 3,
+      "sample_tus": [
+        "manta_fluid_API.cpp.obj",
+        "manta_python_API.cpp.obj",
+        "MANTA_main.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_ocio_shaders.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_ocio_shaders.lib",
+      "tu_count": 3,
+      "sample_tus": [
+        "gpu_shader_display_transform_vert.glsl.c.obj",
+        "gpu_shader_display_transform_frag.glsl.c.obj",
+        "ocio_shader_shared.hh.c.obj"
+      ]
+    },
+    {
+      "library": "bf_simulation.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_simulation.lib",
+      "tu_count": 3,
+      "sample_tus": [
+        "SIM_mass_spring.cc.obj",
+        "implicit_blender.cc.obj",
+        "hair_volume.cc.obj"
+      ]
+    },
+    {
+      "library": "buffer.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\opencollada\\lib\\opencollada\\buffer.lib",
+      "tu_count": 3,
+      "sample_tus": [
+        "CommonBuffer.obj",
+        "CommonCharacterBuffer.obj",
+        "CommonFWriteBufferFlusher.obj"
+      ]
+    },
+    {
+      "library": "cycles_kernel_osl.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\cycles_kernel_osl.lib",
+      "tu_count": 3,
+      "sample_tus": [
+        "globals.cpp.obj",
+        "closures.cpp.obj",
+        "services.cpp.obj"
+      ]
+    },
+    {
+      "library": "delayimp.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\lib\\x64\\delayimp.lib",
+      "tu_count": 3,
+      "sample_tus": [
+        "delayhlp.obj",
+        "delayhk2.obj",
+        "delayhk1.obj"
+      ]
+    },
+    {
+      "library": "extern_gflags.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_gflags.lib",
+      "tu_count": 3,
+      "sample_tus": [
+        "gflags.cc.obj",
+        "gflags_reporting.cc.obj",
+        "gflags_completions.cc.obj"
+      ]
+    },
+    {
+      "library": "ftoa.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\opencollada\\lib\\opencollada\\ftoa.lib",
+      "tu_count": 3,
+      "sample_tus": [
+        "Commonftoa.obj",
+        "Commondtoa.obj",
+        "Commonitoa.obj"
+      ]
+    },
+    {
+      "library": "shell32.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\shell32.lib",
+      "tu_count": 3,
+      "sample_tus": [
+        "shguid.obj",
+        "SHELL32.dll",
+        "Import:SHELL32.dll"
+      ]
+    },
+    {
+      "library": "Cfgmgr32.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\Cfgmgr32.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "CFGMGR32.dll",
+        "Import:CFGMGR32.dll"
+      ]
+    },
+    {
+      "library": "Comctl32.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\Comctl32.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "COMCTL32.dll",
+        "Import:COMCTL32.dll"
+      ]
+    },
+    {
+      "library": "Dbghelp.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\Dbghelp.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "dbghelp.dll",
+        "Import:dbghelp.dll"
+      ]
+    },
+    {
+      "library": "Dwmapi.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\Dwmapi.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "dwmapi.dll",
+        "Import:dwmapi.dll"
+      ]
+    },
+    {
+      "library": "Iex.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\openexr\\lib\\Iex.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "Iex.dll",
+        "Import:Iex.dll"
+      ]
+    },
+    {
+      "library": "Imath.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\imath\\lib\\Imath.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "Imath.dll",
+        "Import:Imath.dll"
+      ]
+    },
+    {
+      "library": "MaterialXCore.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\MaterialX\\lib\\MaterialXCore.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "MaterialXCore.dll",
+        "Import:MaterialXCore.dll"
+      ]
+    },
+    {
+      "library": "MaterialXFormat.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\MaterialX\\lib\\MaterialXFormat.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "MaterialXFormat.dll",
+        "Import:MaterialXFormat.dll"
+      ]
+    },
+    {
+      "library": "OpenColorIO.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\OpenColorIO\\lib\\OpenColorIO.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "OpenColorIO_2_3.dll",
+        "Import:OpenColorIO_2_3.dll"
+      ]
+    },
+    {
+      "library": "OpenEXR.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\openexr\\lib\\OpenEXR.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "OpenEXR.dll",
+        "Import:OpenEXR.dll"
+      ]
+    },
+    {
+      "library": "OpenImageDenoise.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\openimagedenoise\\lib\\OpenImageDenoise.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "OpenImageDenoise.dll",
+        "Import:OpenImageDenoise.dll"
+      ]
+    },
+    {
+      "library": "OpenImageIO.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\OpenImageIO\\lib\\OpenImageIO.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "OpenImageIO.dll",
+        "Import:OpenImageIO.dll"
+      ]
+    },
+    {
+      "library": "OpenImageIO_Util.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\OpenImageIO\\lib\\OpenImageIO_Util.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "OpenImageIO_Util.dll",
+        "Import:OpenImageIO_Util.dll"
+      ]
+    },
+    {
+      "library": "SDL2.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\sdl\\lib\\SDL2.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "SDL2.dll",
+        "Import:SDL2.dll"
+      ]
+    },
+    {
+      "library": "Shcore.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\Shcore.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "api-ms-win-shcore-scaling-l1-1-1.dll",
+        "Import:api-ms-win-shcore-scaling-l1-1-1.dll"
+      ]
+    },
+    {
+      "library": "Shlwapi.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\Shlwapi.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "SHLWAPI.dll",
+        "Import:SHLWAPI.dll"
+      ]
+    },
+    {
+      "library": "VCOMP.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\lib\\x64\\VCOMP.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "unique.obj",
+        "Import:VCOMP140.DLL"
+      ]
+    },
+    {
+      "library": "advapi32.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\advapi32.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "ADVAPI32.dll",
+        "Import:ADVAPI32.dll"
+      ]
+    },
+    {
+      "library": "avcodec.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\ffmpeg\\lib\\avcodec.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "avcodec-60.dll",
+        "Import:avcodec-60.dll"
+      ]
+    },
+    {
+      "library": "avdevice.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\ffmpeg\\lib\\avdevice.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "avdevice-60.dll",
+        "Import:avdevice-60.dll"
+      ]
+    },
+    {
+      "library": "avformat.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\ffmpeg\\lib\\avformat.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "avformat-60.dll",
+        "Import:avformat-60.dll"
+      ]
+    },
+    {
+      "library": "avutil.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\ffmpeg\\lib\\avutil.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "avutil-58.dll",
+        "Import:avutil-58.dll"
+      ]
+    },
+    {
+      "library": "bf_blentranslation.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_blentranslation.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "blt_translation.cc.obj",
+        "blt_lang.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_scene.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_scene.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "scene_edit.cc.obj",
+        "scene_fps.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_userpref.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_userpref.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "space_userpref.cc.obj",
+        "userpref_ops.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_imbuf_openimageio.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_imbuf_openimageio.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "openimageio_api.cpp.obj",
+        "openimageio_support.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_audaspace.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_audaspace.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "AUD_Set.cpp.obj",
+        "AUD_PyInit.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_rigidbody.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_rigidbody.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "rb_bullet_api.cpp.obj",
+        "rb_convex_hull_api.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_sky.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_sky.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "sky_model.cpp.obj",
+        "sky_nishita.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_utfconv.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_utfconv.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "utfconv.cc.obj",
+        "utf_winfunc.cc.obj"
+      ]
+    },
+    {
+      "library": "blender_cpu_check.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\blender_cpu_check.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "blender_cpu_check.dll",
+        "Import:blender_cpu_check.dll"
+      ]
+    },
+    {
+      "library": "boost_locale-vc142-mt-x64-1_82.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\boost\\lib\\boost_locale-vc142-mt-x64-1_82.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "boost_locale-vc142-mt-x64-1_82.dll",
+        "Import:boost_locale-vc142-mt-x64-1_82.dll"
+      ]
+    },
+    {
+      "library": "boost_python311-vc142-mt-x64-1_82.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\boost\\lib\\boost_python311-vc142-mt-x64-1_82.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "boost_python311-vc142-mt-x64-1_82.dll",
+        "Import:boost_python311-vc142-mt-x64-1_82.dll"
+      ]
+    },
+    {
+      "library": "cycles_graph.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\cycles_graph.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "node.cpp.obj",
+        "node_type.cpp.obj"
+      ]
+    },
+    {
+      "library": "cycles_kernel.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\cycles_kernel.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "kernel.cpp.obj",
+        "kernel_avx2.cpp.obj"
+      ]
+    },
+    {
+      "library": "cycles_kernel_oneapi_aot.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\intern\\cycles\\kernel\\cycles_kernel_oneapi_aot.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "cycles_kernel_oneapi_aot.dll",
+        "Import:cycles_kernel_oneapi_aot.dll"
+      ]
+    },
+    {
+      "library": "dxgi.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\dxgi.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "dxgi.dll",
+        "Import:dxgi.dll"
+      ]
+    },
+    {
+      "library": "embree4.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\embree\\lib\\embree4.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "embree4.dll",
+        "Import:embree4.dll"
+      ]
+    },
+    {
+      "library": "embree4_sycl.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\embree\\lib\\embree4_sycl.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "rtcore_sycl.cpp.obj",
+        "rthwif_embree.cpp.obj"
+      ]
+    },
+    {
+      "library": "epoxy.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\epoxy\\lib\\epoxy.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "epoxy-0.dll",
+        "Import:epoxy-0.dll"
+      ]
+    },
+    {
+      "library": "extern_hipew.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_hipew.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "hiprtew.cc.obj",
+        "hipew.c.obj"
+      ]
+    },
+    {
+      "library": "extern_nanosvg.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_nanosvg.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "blender_nanosvg.c.obj",
+        "blender_raster.c.obj"
+      ]
+    },
+    {
+      "library": "gdi32.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\gdi32.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "GDI32.dll",
+        "Import:GDI32.dll"
+      ]
+    },
+    {
+      "library": "gmp.dll.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\gmp\\lib\\gmp.dll.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "gmp-10.dll",
+        "Import:gmp-10.dll"
+      ]
+    },
+    {
+      "library": "imm32.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\imm32.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "IMM32.dll",
+        "Import:IMM32.dll"
+      ]
+    },
+    {
+      "library": "kernel32.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\kernel32.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "KERNEL32.dll",
+        "Import:KERNEL32.dll"
+      ]
+    },
+    {
+      "library": "libgmpxx.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\gmp\\lib\\libgmpxx.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "libgmpxx.dll",
+        "Import:libgmpxx.dll"
+      ]
+    },
+    {
+      "library": "ole32.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\ole32.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "ole32.dll",
+        "Import:ole32.dll"
+      ]
+    },
+    {
+      "library": "oleaut32.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\oleaut32.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "OLEAUT32.dll",
+        "Import:OLEAUT32.dll"
+      ]
+    },
+    {
+      "library": "openal32.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\openal\\lib\\openal32.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "OpenAL32.dll",
+        "Import:OpenAL32.dll"
+      ]
+    },
+    {
+      "library": "openvdb.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\openVDB\\lib\\openvdb.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "openvdb.dll",
+        "Import:openvdb.dll"
+      ]
+    },
+    {
+      "library": "oslcomp.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\osl\\lib\\oslcomp.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "oslcomp.dll",
+        "Import:oslcomp.dll"
+      ]
+    },
+    {
+      "library": "oslexec.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\osl\\lib\\oslexec.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "oslexec.dll",
+        "Import:oslexec.dll"
+      ]
+    },
+    {
+      "library": "oslquery.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\osl\\lib\\oslquery.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "oslquery.dll",
+        "Import:oslquery.dll"
+      ]
+    },
+    {
+      "library": "python311.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\python\\311\\libs\\python311.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "python311.dll",
+        "Import:python311.dll"
+      ]
+    },
+    {
+      "library": "sndfile.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\sndfile\\lib\\sndfile.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "sndfile.dll",
+        "Import:sndfile.dll"
+      ]
+    },
+    {
+      "library": "swscale.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\ffmpeg\\lib\\swscale.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "swscale-7.dll",
+        "Import:swscale-7.dll"
+      ]
+    },
+    {
+      "library": "sycl7.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\dpcpp\\lib\\sycl7.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "sycl7.dll",
+        "Import:sycl7.dll"
+      ]
+    },
+    {
+      "library": "tbb.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\tbb\\lib\\tbb.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "tbb.dll",
+        "Import:tbb.dll"
+      ]
+    },
+    {
+      "library": "tbbmalloc.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\tbb\\lib\\tbbmalloc.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "tbbmalloc.dll",
+        "Import:tbbmalloc.dll"
+      ]
+    },
+    {
+      "library": "tbbmalloc_proxy.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\tbb\\lib\\tbbmalloc_proxy.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "tbbmalloc_proxy.dll",
+        "Import:tbbmalloc_proxy.dll"
+      ]
+    },
+    {
+      "library": "usd_ms.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\usd\\lib\\usd_ms.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "usd_ms.dll",
+        "Import:usd_ms.dll"
+      ]
+    },
+    {
+      "library": "user32.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\user32.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "USER32.dll",
+        "Import:USER32.dll"
+      ]
+    },
+    {
+      "library": "version.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\version.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "VERSION.dll",
+        "Import:VERSION.dll"
+      ]
+    },
+    {
+      "library": "ws2_32.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\ws2_32.lib",
+      "tu_count": 2,
+      "sample_tus": [
+        "WS2_32.dll",
+        "Import:WS2_32.dll"
+      ]
+    },
+    {
+      "library": "DIRECT_OBJ",
+      "full_lib_path": "",
+      "tu_count": 1,
+      "sample_tus": [
+        "* Linker *"
+      ]
+    },
+    {
+      "library": "UTF.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\opencollada\\lib\\opencollada\\UTF.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "ConvertUTF.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_sound.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_sound.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "sound_ops.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_api.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_api.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "spacetypes.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_statusbar.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_statusbar.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "space_statusbar.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_editor_space_topbar.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_editor_space_topbar.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "space_topbar.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_imbuf_openexr.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_imbuf_openexr.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "openexr_api.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_clog.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_clog.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "clog.c.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_locale.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_locale.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "boost_locale_wrapper.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_memutil.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_memutil.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "MEM_CacheLimiterC-Api.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_openvdb.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_openvdb.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "openvdb_capi.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_intern_quadriflow.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_intern_quadriflow.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "quadriflow_capi.cpp.obj"
+      ]
+    },
+    {
+      "library": "bf_nodes_functions_generated.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_nodes_functions_generated.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "register_function_nodes.cc.obj"
+      ]
+    },
+    {
+      "library": "bf_nodes_geometry_generated.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\bf_nodes_geometry_generated.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "register_geometry_nodes.cc.obj"
+      ]
+    },
+    {
+      "library": "blender.exp",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\bin\\blender.exp",
+      "tu_count": 1,
+      "sample_tus": [
+        "blender.exp"
+      ]
+    },
+    {
+      "library": "buildinfo.c.obj",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\source\\creator\\CMakeFiles\\blender.dir\\buildinfo.c.obj",
+      "tu_count": 1,
+      "sample_tus": [
+        "buildinfo.c.obj"
+      ]
+    },
+    {
+      "library": "creator.cc.obj",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\source\\creator\\CMakeFiles\\blender.dir\\creator.cc.obj",
+      "tu_count": 1,
+      "sample_tus": [
+        "creator.cc.obj"
+      ]
+    },
+    {
+      "library": "creator_args.cc.obj",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\source\\creator\\CMakeFiles\\blender.dir\\creator_args.cc.obj",
+      "tu_count": 1,
+      "sample_tus": [
+        "creator_args.cc.obj"
+      ]
+    },
+    {
+      "library": "creator_signals.cc.obj",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\source\\creator\\CMakeFiles\\blender.dir\\creator_signals.cc.obj",
+      "tu_count": 1,
+      "sample_tus": [
+        "creator_signals.cc.obj"
+      ]
+    },
+    {
+      "library": "extern_cuew.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_cuew.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "cuew.c.obj"
+      ]
+    },
+    {
+      "library": "extern_fmtlib.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_fmtlib.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "format.cc.obj"
+      ]
+    },
+    {
+      "library": "extern_minilzo.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_minilzo.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "minilzo.c.obj"
+      ]
+    },
+    {
+      "library": "extern_rangetree.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_rangetree.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "range_tree.c.obj"
+      ]
+    },
+    {
+      "library": "extern_wcwidth.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_wcwidth.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "wcwidth.c.obj"
+      ]
+    },
+    {
+      "library": "extern_xxhash.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\lib\\extern_xxhash.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "xxhash.c.obj"
+      ]
+    },
+    {
+      "library": "ksuser.lib",
+      "full_lib_path": "C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.19041.0\\um\\x64\\ksuser.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "guids.obj"
+      ]
+    },
+    {
+      "library": "pthreadVC3.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\pthreads\\lib\\pthreadVC3.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "pthread.o"
+      ]
+    },
+    {
+      "library": "pugixml.lib",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\blender.git\\lib\\windows_x64\\pugixml\\lib\\pugixml.lib",
+      "tu_count": 1,
+      "sample_tus": [
+        "pugixml.obj"
+      ]
+    },
+    {
+      "library": "winblender.rc.res",
+      "full_lib_path": "C:\\Users\\blender\\git\\blender-v420\\build_release\\source\\creator\\CMakeFiles\\blender.dir\\__\\__\\release\\windows\\icons\\winblender.rc.res",
+      "tu_count": 1,
+      "sample_tus": [
+        "winblender.rc.res"
+      ]
+    }
+  ]
+}

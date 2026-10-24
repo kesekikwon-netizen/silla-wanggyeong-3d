@@ -1,0 +1,25 @@
+{
+  "name": "hgis-3d-engine",
+  "version": "1.0.0",
+  "description": "Blender 4.2.3 REA-derived Zero-Lag 3D Photorealistic Satellite Terrain, Building & Gyeongju Archaeological Evaluation Engine",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/*.test.js",
+    "export:gyeongju": "node scripts/export_gyeongju_cli.js"
+  },
+  "keywords": [
+    "gis",
+    "archaeology",
+    "gyeongju",
+    "silla",
+    "3d-terrain",
+    "bvh",
+    "pbvh",
+    "kdtree",
+    "blender-rea",
+    "eevee-next",
+    "webgl2"
+  ],
+  "license": "MIT"
+}
