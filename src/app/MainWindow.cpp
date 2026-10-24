@@ -1,0 +1,99 @@
+#include "MainWindow.h"
+
+#include <QComboBox>
+#include <QDoubleSpinBox>
+#include <QElapsedTimer>
+#include <QLabel>
+#include <QPushButton>
+#include <QStandardPaths>
+#include <QStatusBar>
+#include <QToolBar>
+#include <QtConcurrent>
+
+#include "CrsTransform.h"
+#include "DemProvider.h"
+#include "KaGlTerrainViewport.h"
+
+namespace {
+const QString kWorkCrs = QStringLiteral("EPSG:5187");
+
+// DEM 읽기·재배열·분트리 만들기는 전부 UI 스레드 밖에서 한다.
+MainWindow::LoadResult buildScene(MainWindow::Options opt) {
+  QElapsedTimer timer;
+  timer.start();
+  MainWindow::LoadResult out;
+  double x = opt.lon, y = opt.lat;
+  if (!strata3d::transformPoint(QStringLiteral("EPSG:4326"), kWorkCrs, &x, &y, &out.error)) return out;
+  strata3d::DemRequest req;
+  req.centerX = x;
+  req.centerY = y;
+  req.halfExtentM = opt.halfExtentM;
+  req.pixelSizeM = opt.pixelSizeM;
+  req.workCrs = kWorkCrs;
+  req.cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QStringLiteral("/dem");
+  if (!opt.demPath.isEmpty()) req.sources = {opt.demPath};
+  strata3d::DemGrid grid;
+  if (!strata3d::loadDemWindow(req, &grid, &out.error)) return out;
+  out.tree = strata3d::TerrainLodTree::build(grid);
+  if (!out.tree) out.error = QStringLiteral("지형 트리를 만들지 못했습니다.");
+  out.seconds = timer.elapsed() / 1000.0;
+  return out;
+}
+}  // namespace
+
+MainWindow::MainWindow(const Options& options, QWidget* parent) : QMainWindow(parent), options_(options) {
+  setWindowTitle(QStringLiteral("Strata 3D · 경주 실측 지형"));
+  resize(1280, 800);
+  viewport_ = new KaGlTerrainViewport(this);
+  setCentralWidget(viewport_);
+
+  auto* bar = addToolBar(QStringLiteral("보기"));
+  bar->setMovable(false);
+  auto* mode = new QComboBox(bar);
+  mode->addItems({QStringLiteral("점토 (기복 판독)"), QStringLiteral("표고 색띠"), QStringLiteral("경사도")});
+  bar->addWidget(mode);
+  auto* zs = new QDoubleSpinBox(bar);
+  zs->setRange(1.0, 5.0);
+  zs->setSingleStep(0.5);
+  zs->setValue(1.0);
+  zs->setPrefix(QStringLiteral("높이 ×"));
+  bar->addWidget(zs);
+  auto* reload = new QPushButton(QStringLiteral("다시 불러오기"), bar);
+  bar->addWidget(reload);
+  connect(mode, &QComboBox::currentIndexChanged, this, [this](int i) { viewport_->setMode(KaGlTerrainViewport::Mode(i)); });
+  connect(zs, &QDoubleSpinBox::valueChanged, this, [this](double v) { viewport_->setZScale(float(v)); });
+  connect(reload, &QPushButton::clicked, this, &MainWindow::loadScene);
+
+  status_ = new QLabel(this);
+  statusBar()->addWidget(status_, 1);
+  connect(viewport_, &KaGlTerrainViewport::frameRendered, this, &MainWindow::updateStatus);
+  connect(&watcher_, &QFutureWatcher<LoadResult>::finished, this, [this] {
+    lastLoad_ = watcher_.result();
+    if (!lastLoad_.tree) {
+      status_->setText(QStringLiteral("불러오기 실패: ") + lastLoad_.error);
+      emit loadFinished(false, lastLoad_.error);
+      return;
+    }
+    viewport_->setTerrain(lastLoad_.tree);
+    const strata3d::DemGrid& g = lastLoad_.tree->grid();
+    emit loadFinished(true, QStringLiteral("%1×%2 칸, 표고 %3~%4 m, %5초")
+                                .arg(g.width).arg(g.height).arg(g.zMin, 0, 'f', 1).arg(g.zMax, 0, 'f', 1)
+                                .arg(lastLoad_.seconds, 0, 'f', 1));
+  });
+}
+
+void MainWindow::loadScene() {
+  status_->setText(QStringLiteral("실측 DEM 불러오는 중…"));
+  watcher_.setFuture(QtConcurrent::run(buildScene, options_));
+}
+
+void MainWindow::updateStatus() {
+  if (!viewport_->hasTerrain()) return;
+  const auto& s = viewport_->stats();
+  const strata3d::DemGrid& g = lastLoad_.tree->grid();
+  status_->setText(QStringLiteral("%1 · %2 · 조각 %3개(가장 잘게 %4) · 선택 %5 ms · %6")
+                       .arg(g.crs, g.source.contains(QStringLiteral("copernicus")) ? QStringLiteral("Copernicus GLO-30") : g.source)
+                       .arg(QStringLiteral("%1×%2 @ %3 m").arg(g.width).arg(g.height).arg(g.pixelSize))
+                       .arg(s.chunks).arg(s.finestChunks).arg(s.selectMs, 0, 'f', 2)
+                       .arg(viewport_->glInfo()));
+}

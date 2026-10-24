@@ -1,3 +1,8 @@
+# 빌드 산출물
+build/
+*.user
+CMakeUserPresets.json
+
 # Downloaded binary archives & large REA raw dumps
 artifacts/*.zip
 artifacts/*.7z
@@ -5,8 +10,9 @@ artifacts/*.exe
 artifacts/web-rea-targets/
 artifacts/_rea_extract/
 docs/rea/blender-4.2.3-rea-evidence-bundle.json
-shared_gis_bus/
-node_modules/
-dist/
+
+# 에이전트 작업 상태
+.omc/
+
 *.log
 .DS_Store
