@@ -16,3 +16,4 @@ docs/rea/blender-4.2.3-rea-evidence-bundle.json
 
 *.log
 .DS_Store
+out/
