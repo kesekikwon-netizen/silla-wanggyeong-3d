@@ -29,6 +29,8 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   void setTerrain(std::shared_ptr<const strata3d::TerrainLodTree> tree);
   void setMode(Mode mode);
   void setZScale(float zScale);
+  // 지형을 올린 직후의 카메라(도, 도, 미터). 재현 가능한 화면을 얻으려고 쓴다.
+  void setCameraPreset(float yawDeg, float pitchDeg, float distanceM);
   const FrameStats& stats() const { return stats_; }
   bool hasTerrain() const { return bool(tree_); }
   QString glInfo() const { return glInfo_; }
@@ -65,6 +67,8 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   float pitchDeg_ = 38.0f;
   float distance_ = 1000.0f;
   QPoint lastMouse_;
+  bool hasPreset_ = false;
+  float presetYaw_ = 0, presetPitch_ = 0, presetDistance_ = 0;
 
   // GL 자원
   unsigned program_ = 0;

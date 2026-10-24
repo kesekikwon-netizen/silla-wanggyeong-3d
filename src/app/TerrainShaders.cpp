@@ -44,10 +44,6 @@ uniform vec3 uSunDir;
 uniform int uMode;
 out vec4 oColor;
 
-float hAt(ivec2 p) {
-  return texelFetch(uHeight, clamp(p, ivec2(0), uGrid - ivec2(1)), 0).r;
-}
-
 vec3 ramp(float t) {
   const vec3 c0 = vec3(0.16, 0.38, 0.22);
   const vec3 c1 = vec3(0.55, 0.62, 0.30);
@@ -66,10 +62,17 @@ vec3 heat(float t) {
   return vec3(smoothstep(0.35, 0.75, t), 1.0 - abs(t - 0.45) * 1.8, 1.0 - smoothstep(0.1, 0.5, t));
 }
 
+// 선형 필터로 칸 사이 값을 이어 붙이고(vPix 는 칸 가운데 기준이 아니라 정점 위치), 소벨 3×3 으로
+// 법선을 구한다. 칸마다 법선이 뚝뚝 끊겨 생기던 줄무늬를 없애기 위함.
+float hLin(vec2 pix) {
+  return texture(uHeight, (pix + 0.5) / vec2(uGrid)).r;
+}
+
 void main() {
-  ivec2 p = ivec2(vPix + 0.5);
-  float dzdx = (hAt(p + ivec2(1, 0)) - hAt(p - ivec2(1, 0))) / (2.0 * uPixel);
-  float dzdy = (hAt(p - ivec2(0, 1)) - hAt(p + ivec2(0, 1))) / (2.0 * uPixel);
+  float dzdx = ((hLin(vPix + vec2(1, -1)) + 2.0 * hLin(vPix + vec2(1, 0)) + hLin(vPix + vec2(1, 1))) -
+                (hLin(vPix + vec2(-1, -1)) + 2.0 * hLin(vPix + vec2(-1, 0)) + hLin(vPix + vec2(-1, 1)))) / (8.0 * uPixel);
+  float dzdy = ((hLin(vPix + vec2(-1, -1)) + 2.0 * hLin(vPix + vec2(0, -1)) + hLin(vPix + vec2(1, -1))) -
+                (hLin(vPix + vec2(-1, 1)) + 2.0 * hLin(vPix + vec2(0, 1)) + hLin(vPix + vec2(1, 1)))) / (8.0 * uPixel);
   vec3 n = normalize(vec3(-dzdx * uZScale, -dzdy * uZScale, 1.0));
   float lambert = max(dot(n, normalize(uSunDir)), 0.0);
   float light = 0.28 + 0.72 * lambert;

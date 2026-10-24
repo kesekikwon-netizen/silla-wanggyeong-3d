@@ -146,17 +146,34 @@ void KaGlTerrainViewport::uploadTerrain() {
   glBindTexture(GL_TEXTURE_2D, heightTex_);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, g.width, g.height, 0, GL_RED, GL_FLOAT, g.z.data());
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   resetCamera();
   emit terrainUploaded();
+}
+
+void KaGlTerrainViewport::setCameraPreset(float yawDeg, float pitchDeg, float distanceM) {
+  hasPreset_ = true;
+  presetYaw_ = yawDeg;
+  presetPitch_ = pitchDeg;
+  presetDistance_ = distanceM;
 }
 
 void KaGlTerrainViewport::resetCamera() {
   const strata3d::DemGrid& g = tree_->grid();
   const float extent = float(std::max(g.width, g.height) * g.pixelSize);
-  target_ = QVector3D(0, 0, (g.zMin + g.zMax) * 0.5f * zScale_);
+  float zc = (g.zMin + g.zMax) * 0.5f;
+  float zAtCenter = 0;
+  if (g.sample(g.xAt((g.width - 1) * 0.5 + 0.5), g.yAt((g.height - 1) * 0.5 + 0.5), &zAtCenter)) zc = zAtCenter;
+  target_ = QVector3D(0, 0, zc * zScale_);
   distance_ = extent * 0.7f;
+  if (hasPreset_) {  // 미리 정한 시점은 지형 한가운데의 실제 표고를 바라본다
+    yawDeg_ = presetYaw_;
+    pitchDeg_ = presetPitch_;
+    distance_ = presetDistance_;
+  }
 }
 
 QVector3D KaGlTerrainViewport::eyePosition() const {

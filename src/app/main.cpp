@@ -81,10 +81,11 @@ int main(int argc, char** argv) {
   QCommandLineOption smoke(QStringLiteral("smoke-quit"), QStringLiteral("실측 DEM을 읽어 한 장 그린 뒤 종료(성공 0)."));
   QCommandLineOption report(QStringLiteral("smoke-report"), QStringLiteral("스모크 결과를 이 파일에도 적는다."), QStringLiteral("file"));
   QCommandLineOption image(QStringLiteral("smoke-image"), QStringLiteral("스모크에서 그린 프레임을 PNG 로 저장."), QStringLiteral("file"));
+  QCommandLineOption cam(QStringLiteral("cam"), QStringLiteral("시작 카메라 yaw,pitch,거리(m)."), QStringLiteral("y,p,d"));
   QCommandLineOption dem(QStringLiteral("dem"), QStringLiteral("DEM 경로 또는 /vsicurl/ 주소(기본: Copernicus GLO-30)."), QStringLiteral("path"));
   QCommandLineOption lon(QStringLiteral("lon"), QStringLiteral("중심 경도(WGS84)."), QStringLiteral("deg"));
   QCommandLineOption lat(QStringLiteral("lat"), QStringLiteral("중심 위도(WGS84)."), QStringLiteral("deg"));
-  parser.addOptions({smoke, report, image, dem, lon, lat});
+  parser.addOptions({smoke, report, image, cam, dem, lon, lat});
   parser.process(app);
 
   MainWindow::Options opt;
@@ -93,6 +94,10 @@ int main(int argc, char** argv) {
   if (parser.isSet(lat)) opt.lat = parser.value(lat).toDouble();
 
   MainWindow w(opt);
+  if (parser.isSet(cam)) {
+    const QStringList c = parser.value(cam).split(QLatin1Char(','));
+    if (c.size() == 3) w.viewport()->setCameraPreset(c[0].toFloat(), c[1].toFloat(), c[2].toFloat());
+  }
   w.show();
   QTimer::singleShot(0, &w, &MainWindow::loadScene);
 
