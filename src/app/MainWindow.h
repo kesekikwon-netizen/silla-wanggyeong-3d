@@ -91,6 +91,13 @@ class MainWindow : public QMainWindow {
   void setTrench(double ax, double ay, double bx, double by);
   void clearTrench();
   void setTrenchMode(bool on);
+  // 사용자 3D 맵 선 긋기 & 3D 격자 만들기 제어
+  void setUserDrawMode(int drawMode);
+  void addUserLine(double ax, double ay, double bx, double by);
+  void addUserGrid(double centerX, double centerY, double cellW, double cellH, int cols, int rows, double azimuthDeg = 0.0);
+  void addUserGridAtCameraCenter();
+  void undoLastUserDrawing();
+  void clearUserDrawings();
 
  signals:
   void loadFinished(bool ok, const QString& message);
@@ -106,7 +113,10 @@ class MainWindow : public QMainWindow {
   void onPick(const QVector3D& origin, const QVector3D& direction);
   void showEvaluation();
   void onTrenchPoint(const QVector3D& origin, const QVector3D& direction);
-  void refreshOverlay();  // 조사 + 평가 + 트렌치 + 방리구획 겹침을 한 메시로 합쳐 올린다
+  void onMapDrawPoint(int drawMode, const QVector3D& origin, const QVector3D& direction);
+  void onMapHoverRay(int drawMode, const QVector3D& origin, const QVector3D& direction);
+  void rebuildUserDrawOverlay();
+  void refreshOverlay();  // 조사 + 평가 + 트렌치 + 방리구획 + 사용자 3D 선/격자 겹침을 한 메시로 합쳐 올린다
   void rebuildSceneMeshForTerrainMode();
   void keyPressEvent(QKeyEvent* e) override;
 
@@ -114,10 +124,18 @@ class MainWindow : public QMainWindow {
   ProfilePlot* plot_ = nullptr;
   QLabel* trenchInfo_ = nullptr;
   QPushButton* trenchBtn_ = nullptr;
+  QPushButton* tbLineDrawBtn_ = nullptr;
+  QPushButton* tbGridDrawBtn_ = nullptr;
   std::optional<strata3d::Pt> trenchA_;  // 첫 점만 찍은 상태
   std::vector<strata3d::ProfilePoint> trenchProfile_;
   QString trenchSummary_;
-  std::shared_ptr<const strata3d::SceneMesh> evalOverlay_, trenchOverlay_, bangriOverlay_;
+  std::optional<strata3d::Pt> userDrawStartPt_;
+  std::optional<strata3d::UserDrawnLine3D> previewLine_;
+  std::optional<strata3d::UserDrawnGrid3D> previewGrid_;
+  std::vector<strata3d::UserDrawnLine3D> userLines_;
+  std::vector<strata3d::UserDrawnGrid3D> userGrids_;
+  std::vector<bool> userDrawHistoryIsGrid_;
+  std::shared_ptr<const strata3d::SceneMesh> evalOverlay_, trenchOverlay_, bangriOverlay_, userDrawOverlay_;
   KaGlTerrainViewport* viewport_ = nullptr;
   QLabel* status_ = nullptr;
   QTextBrowser* report_ = nullptr;

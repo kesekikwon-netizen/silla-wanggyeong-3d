@@ -1,15 +1,18 @@
 #pragma once
 
 #include <QWidget>
+#include <array>
 #include <vector>
 
 #include "BangriGridEngine.h"
+#include "BangriTerrainValidator.h"
 #include "SheetComposer.h"
 
 class QCheckBox;
 class QComboBox;
 class QDoubleSpinBox;
 class QLabel;
+class QListWidget;
 class QPushButton;
 class QSlider;
 class QSpinBox;
@@ -40,6 +43,24 @@ class BangriDockPanel : public QWidget {
   QString currentPresetId() const;
   strata3d::BangriParams currentParams() const;
 
+  // 경주 20대 유적 개별 ON/OFF 제어
+  std::vector<QString> enabledHeritageSiteIds() const;
+  void setHeritageSiteEnabled(const QString& siteId, bool enabled, bool emitSignal = true);
+  void setAllHeritageSitesEnabled(bool enabled, bool emitSignal = true);
+
+  // 사용자 3D 선 긋기 & 3D 격자 만들기 설정값
+  double userGridCellWidthM() const;
+  double userGridCellHeightM() const;
+  int userGridCols() const;
+  int userGridRows() const;
+  double userGridAzimuthDeg() const;
+  bool userGridAutoAlign() const;
+  float userDrawLineWidthM() const;
+  int userGridSubdivisions() const;
+  std::array<float, 4> userDrawColor() const;
+  void syncDrawToolButtons(int activeDrawMode);
+  void setUserDrawStatusText(const QString& text);
+
   void setPresetById(const QString& presetId, bool emitSignals = true);
   void setParams(const strata3d::BangriParams& params, bool emitSignals = false);
   void setBareEarthAndMounds(bool bareEarth, bool mounds, bool emitSignals = false);
@@ -49,6 +70,13 @@ class BangriDockPanel : public QWidget {
   void presetSelected(const QString& presetId);
   void paramsChanged(const strata3d::BangriParams& params);
   void terrainModeChanged(bool gridEnabled, bool bareEarth, bool mounds);
+  void heritageSiteSelectionChanged();
+  void heritageSiteFocusRequested(const QString& siteId);
+  void userDrawModeRequested(int drawMode);
+  void addUserGridAtCameraRequested();
+  void userDrawStyleEdited();
+  void undoUserDrawRequested();
+  void clearUserDrawRequested();
   void cameraTourRequested(int targetKind);
   void uiAndHudScaleChanged(float fontScale, float boxScale);
   void autoFitRequested();
@@ -61,6 +89,7 @@ class BangriDockPanel : public QWidget {
   strata3d::BangriParams collectParams() const;
 
   std::vector<strata3d::BangriCityPreset> presets_;
+  std::vector<strata3d::GyeongjuHeritageSiteMeta> heritageCatalog_;
   strata3d::BangriParams baseParams_;
   bool updatingUi_ = false;
 
@@ -74,6 +103,26 @@ class BangriDockPanel : public QWidget {
   QSlider* boxSlider_ = nullptr;
   QLabel* fontPctLabel_ = nullptr;
   QLabel* boxPctLabel_ = nullptr;
+  QListWidget* heritageList_ = nullptr;
+  QLabel* heritageCountLabel_ = nullptr;
+
+  // 사용자 3D 선 & 격자 그리기 위젯
+  QPushButton* drawLineBtn_ = nullptr;
+  QPushButton* drawGridBtn_ = nullptr;
+  QPushButton* instantGridBtn_ = nullptr;
+  QPushButton* undoDrawBtn_ = nullptr;
+  QPushButton* clearDrawBtn_ = nullptr;
+  QDoubleSpinBox* userGridWidthSpin_ = nullptr;
+  QDoubleSpinBox* userGridHeightSpin_ = nullptr;
+  QSpinBox* userGridColsSpin_ = nullptr;
+  QSpinBox* userGridRowsSpin_ = nullptr;
+  QDoubleSpinBox* userGridAzimuthSpin_ = nullptr;
+  QCheckBox* userGridAutoAlignCheck_ = nullptr;
+  QDoubleSpinBox* userDrawLineWidthSpin_ = nullptr;
+  QComboBox* userGridSubdivCombo_ = nullptr;
+  QComboBox* userDrawColorCombo_ = nullptr;
+  QLabel* userDrawStatusLabel_ = nullptr;
+
   QComboBox* presetCombo_ = nullptr;
   QComboBox* scaleCombo_ = nullptr;
   QDoubleSpinBox* blockWidthSpin_ = nullptr;

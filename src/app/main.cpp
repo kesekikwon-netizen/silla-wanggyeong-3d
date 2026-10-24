@@ -22,10 +22,27 @@ namespace {
 
 // 설치 옆에 GDAL/PROJ 자료 폴더가 있으면 환경 변수로 알려 준다(dev-env.ps1 없이 실행해도 좌표계가 열리게).
 void primeGeoEnvironment() {
-  const QString root = qEnvironmentVariable("OSGEO4W_ROOT");
+  QString root = qEnvironmentVariable("OSGEO4W_ROOT");
+  if (root.isEmpty()) {
+    for (const char* cand : {"C:/OSGeo4W", "D:/OSGeo4W", "A:/OSGeo4W"}) {
+      if (QDir(QString::fromLatin1(cand)).exists()) {
+        root = QString::fromLatin1(cand);
+        qputenv("OSGEO4W_ROOT", root.toUtf8());
+        break;
+      }
+    }
+  }
   if (root.isEmpty()) return;
   if (qEnvironmentVariableIsEmpty("PROJ_DATA")) qputenv("PROJ_DATA", QDir(root).filePath("share/proj").toUtf8());
+  if (qEnvironmentVariableIsEmpty("PROJ_LIB")) qputenv("PROJ_LIB", QDir(root).filePath("share/proj").toUtf8());
   if (qEnvironmentVariableIsEmpty("GDAL_DATA")) qputenv("GDAL_DATA", QDir(root).filePath("apps/gdal-dev/share/gdal").toUtf8());
+  const QString qtPlugins = QDir(root).filePath("apps/Qt6/plugins");
+  if (qEnvironmentVariableIsEmpty("QT_PLUGIN_PATH") && QDir(qtPlugins).exists()) {
+    qputenv("QT_PLUGIN_PATH", qtPlugins.toUtf8());
+  }
+  if (QDir(qtPlugins).exists()) {
+    QCoreApplication::addLibraryPath(qtPlugins);
+  }
 }
 
 // 화면에 지형이 정말 그려졌는지 본다: 배경(하늘색) 아닌 점이 충분히 많고 색이 단조롭지 않아야 한다.

@@ -29,6 +29,7 @@ constexpr float kSkirtFraction = 0.12f;
 KaGlTerrainViewport::KaGlTerrainViewport(QWidget* parent) : QOpenGLWidget(parent) {
   setMinimumSize(480, 320);
   setFocusPolicy(Qt::StrongFocus);
+  setMouseTracking(true);
 }
 
 KaGlTerrainViewport::~KaGlTerrainViewport() {
@@ -89,6 +90,14 @@ void KaGlTerrainViewport::focusOnWorld(double worldX, double worldY, float yawDe
     target_ = QVector3D(float(worldX - g.centerX()), float(worldY - g.centerY()), targetBaseZ_ * zScale_);
   }
   update();
+}
+
+bool KaGlTerrainViewport::currentTargetWorld(double* worldX, double* worldY) const {
+  if (!tree_) return false;
+  const strata3d::DemGrid& g = tree_->grid();
+  if (worldX) *worldX = g.centerX() + double(target_.x());
+  if (worldY) *worldY = g.centerY() + double(target_.y());
+  return true;
 }
 
 unsigned KaGlTerrainViewport::buildProgram(const char* vsSrc, const char* fsSrc) {
@@ -195,20 +204,35 @@ bool KaGlTerrainViewport::pickRay(const QPointF& pos, QVector3D* origin, QVector
 }
 
 void KaGlTerrainViewport::mouseDoubleClickEvent(QMouseEvent* e) {
-  if (!tree_ || e->button() != Qt::LeftButton || trenchMode_) return;  // 트렌치 모드에서는 더블클릭 평가를 쓰지 않는다
+  if (!tree_ || e->button() != Qt::LeftButton || drawMode_ != DrawMode::None) return;
   QVector3D o, d;
   if (pickRay(e->position(), &o, &d)) emit pickRequested(o, d);
 }
 
 void KaGlTerrainViewport::setTrenchMode(bool on) {
-  trenchMode_ = on;
-  setCursor(on ? Qt::CrossCursor : Qt::ArrowCursor);
+  setDrawMode(on ? DrawMode::Trench : (drawMode_ == DrawMode::Trench ? DrawMode::None : drawMode_));
+}
+
+void KaGlTerrainViewport::setDrawMode(DrawMode mode) {
+  drawMode_ = mode;
+  setCursor(mode != DrawMode::None ? Qt::CrossCursor : Qt::ArrowCursor);
+  update();
 }
 
 void KaGlTerrainViewport::mouseReleaseEvent(QMouseEvent* e) {
-  if (!trenchMode_ || !tree_ || e->button() != Qt::LeftButton || dragged_) return;
+  if (drawMode_ == DrawMode::None || !tree_ || dragged_) return;
+  if (e->button() == Qt::RightButton) {
+    emit mapDrawCancelRequested();
+    return;
+  }
+  if (e->button() != Qt::LeftButton) return;
   QVector3D o, d;
-  if (pickRay(e->position(), &o, &d)) emit trenchPointRequested(o, d);
+  if (!pickRay(e->position(), &o, &d)) return;
+  if (drawMode_ == DrawMode::Trench) {
+    emit trenchPointRequested(o, d);
+  } else {
+    emit mapDrawPointRequested(int(drawMode_), o, d);
+  }
 }
 
 QImage KaGlTerrainViewport::renderToImage(int w, int h) {
@@ -706,6 +730,12 @@ void KaGlTerrainViewport::mouseMoveEvent(QMouseEvent* e) {
     const float k = distance_ * 0.0015f;
     target_ += QVector3D(std::cos(yaw), std::sin(yaw), 0) * (-d.x() * k) + QVector3D(-std::sin(yaw), std::cos(yaw), 0) * (d.y() * k);
   } else {
+    if ((drawMode_ == DrawMode::UserLine || drawMode_ == DrawMode::UserGrid) && tree_) {
+      QVector3D o, dir;
+      if (pickRay(e->position(), &o, &dir)) {
+        emit mapHoverRay(int(drawMode_), o, dir);
+      }
+    }
     return;
   }
   update();

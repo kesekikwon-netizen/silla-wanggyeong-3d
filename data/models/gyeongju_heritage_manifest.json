@@ -1,0 +1,449 @@
+{
+  "generator": "Blender 4.2.3 LTS (bpy + bmesh)",
+  "format": "S3DMESH_V1",
+  "siteCount": 20,
+  "sites": [
+    {
+      "id": "hwangnyongsa",
+      "name": "황룡사 9층목탑 · 대가람 (사적 제6호)",
+      "category": "대사찰",
+      "subtitle": "높이 80m 9층목탑 · 중금당 · 동서금당 · 강당 · 종루 · 경루 · 남문 · 외곽 회랑",
+      "lat": 35.83718,
+      "lon": 129.23313,
+      "labelHeightM": 82.0,
+      "badgeColor": [
+        205,
+        50,
+        35
+      ],
+      "camera": {
+        "yaw": 14.0,
+        "pitch": 32.0,
+        "distM": 780.0
+      },
+      "vertices": 24138,
+      "triangles": 8046,
+      "plyFile": "data/models/gyeongju/hwangnyongsa.ply"
+    },
+    {
+      "id": "bunhwangsa",
+      "name": "분황사 모전석탑 · 보광전 (국보 제30호)",
+      "category": "국보 석탑",
+      "subtitle": "신라 최고(634년) 안산암 벽돌 3층 석탑 · 네 모서리 돌사자 · 보광전 · 팔각석정",
+      "lat": 35.840566,
+      "lon": 129.233618,
+      "labelHeightM": 16.0,
+      "badgeColor": [
+        110,
+        115,
+        125
+      ],
+      "camera": {
+        "yaw": 12.0,
+        "pitch": 30.0,
+        "distM": 420.0
+      },
+      "vertices": 2262,
+      "triangles": 754,
+      "plyFile": "data/models/gyeongju/bunhwangsa.ply"
+    },
+    {
+      "id": "guhwangdong_wonji",
+      "name": "경주 구황동 원지 유적 (사적 제548호)",
+      "category": "왕경 정원",
+      "subtitle": "신라 왕경 조경 연못 · 호안 석축 · 크기 다른 2개 인공섬 · 중심 정자",
+      "lat": 35.84055,
+      "lon": 129.23518,
+      "labelHeightM": 12.0,
+      "badgeColor": [
+        25,
+        130,
+        175
+      ],
+      "camera": {
+        "yaw": 15.0,
+        "pitch": 34.0,
+        "distM": 450.0
+      },
+      "vertices": 1683,
+      "triangles": 561,
+      "plyFile": "data/models/gyeongju/guhwangdong_wonji.ply"
+    },
+    {
+      "id": "donggung_wolji",
+      "name": "동궁과 월지 · 안압지 (사적 제18호)",
+      "category": "태자궁·별궁",
+      "subtitle": "굴곡진 호안 석축 월지 연못 · 삼신산 3개 섬(대도·중도·소도) · 서안 임해전 제1·2·3 누각",
+      "lat": 35.834788,
+      "lon": 129.226537,
+      "labelHeightM": 20.0,
+      "badgeColor": [
+        25,
+        115,
+        210
+      ],
+      "camera": {
+        "yaw": 12.0,
+        "pitch": 32.0,
+        "distM": 620.0
+      },
+      "vertices": 10587,
+      "triangles": 3529,
+      "plyFile": "data/models/gyeongju/donggung_wolji.ply"
+    },
+    {
+      "id": "wolseong",
+      "name": "경주 월성 · 반월성 왕궁 (사적 제16호)",
+      "category": "신라 왕궁",
+      "subtitle": "실제 초승달 모양 왕궁 토석 성곽 · 북편 계단식 해자 연못 · 왕궁 정전 및 내전군",
+      "lat": 35.83183,
+      "lon": 129.22208,
+      "labelHeightM": 24.0,
+      "badgeColor": [
+        175,
+        45,
+        40
+      ],
+      "camera": {
+        "yaw": 12.0,
+        "pitch": 34.0,
+        "distM": 920.0
+      },
+      "vertices": 8928,
+      "triangles": 2976,
+      "plyFile": "data/models/gyeongju/wolseong.ply"
+    },
+    {
+      "id": "seokbinggo",
+      "name": "경주 석빙고 (보물 제66호)",
+      "category": "왕실 석조유산",
+      "subtitle": "월성 북측 성루 위 화강암 홍예(아치) 얼음창고 · 환기구 3기 · 잔디 봉토",
+      "lat": 35.83314,
+      "lon": 129.22395,
+      "labelHeightM": 11.0,
+      "badgeColor": [
+        120,
+        130,
+        140
+      ],
+      "camera": {
+        "yaw": 10.0,
+        "pitch": 30.0,
+        "distM": 320.0
+      },
+      "vertices": 180,
+      "triangles": 60,
+      "plyFile": "data/models/gyeongju/seokbinggo.ply"
+    },
+    {
+      "id": "cheomseongdae",
+      "name": "경주 첨성대 (국보 제31호)",
+      "category": "천문 관측대",
+      "subtitle": "선덕여왕대 27단 하이퍼볼릭 곡선 원통형 석조 천문대 · 남측 창문 · 2단 정(井)자 정상석",
+      "lat": 35.834702,
+      "lon": 129.218984,
+      "labelHeightM": 16.0,
+      "badgeColor": [
+        155,
+        110,
+        45
+      ],
+      "camera": {
+        "yaw": 14.0,
+        "pitch": 28.0,
+        "distM": 260.0
+      },
+      "vertices": 2586,
+      "triangles": 862,
+      "plyFile": "data/models/gyeongju/cheomseongdae.ply"
+    },
+    {
+      "id": "woljeonggyo",
+      "name": "경주 월정교 · 춘양교지 (사적 제457호)",
+      "category": "남천 누각교",
+      "subtitle": "남천 위 주형(배 모양) 석조 교각 4기 · 단청 회랑 교량(66m) · 남·북 중층 문루 2동",
+      "lat": 35.82925,
+      "lon": 129.21814,
+      "labelHeightM": 20.0,
+      "badgeColor": [
+        170,
+        65,
+        35
+      ],
+      "camera": {
+        "yaw": 18.0,
+        "pitch": 30.0,
+        "distM": 420.0
+      },
+      "vertices": 6300,
+      "triangles": 2100,
+      "plyFile": "data/models/gyeongju/woljeonggyo.ply"
+    },
+    {
+      "id": "gyerim_naemul",
+      "name": "경주 계림 & 내물왕릉 (사적 제19·188호)",
+      "category": "신화숲·왕릉",
+      "subtitle": "김알지 탄강 신화 계림 고목림 · 탄강 유허비각 · 내물마립간 왕릉 및 상석",
+      "lat": 35.832566,
+      "lon": 129.217202,
+      "labelHeightM": 14.0,
+      "badgeColor": [
+        45,
+        145,
+        65
+      ],
+      "camera": {
+        "yaw": 14.0,
+        "pitch": 30.0,
+        "distM": 440.0
+      },
+      "vertices": 4824,
+      "triangles": 1608,
+      "plyFile": "data/models/gyeongju/gyerim_naemul.ply"
+    },
+    {
+      "id": "gyeongju_hyanggyo",
+      "name": "경주향교 (대성전·명륜당) & 최부자댁",
+      "category": "국학·고택유산",
+      "subtitle": "신라 국학(國學) 터에 세워진 경주향교 대성전·명륜당·동서무와 경주 교동 최부자댁 고택",
+      "lat": 35.831253,
+      "lon": 129.216928,
+      "labelHeightM": 14.0,
+      "badgeColor": [
+        140,
+        85,
+        40
+      ],
+      "camera": {
+        "yaw": 16.0,
+        "pitch": 32.0,
+        "distM": 420.0
+      },
+      "vertices": 9660,
+      "triangles": 3220,
+      "plyFile": "data/models/gyeongju/gyeongju_hyanggyo.ply"
+    },
+    {
+      "id": "national_museum_emille",
+      "name": "성덕대왕신종 (국보 제29호) & 국립경주박물관",
+      "category": "국보 범종·박물관",
+      "subtitle": "에밀레종 종각 및 청동 대종 · 신라역사관 · 신라미술관 · 고선사지 3층석탑(국보 제38호)",
+      "lat": 35.829891,
+      "lon": 129.227277,
+      "labelHeightM": 18.0,
+      "badgeColor": [
+        165,
+        115,
+        30
+      ],
+      "camera": {
+        "yaw": 14.0,
+        "pitch": 32.0,
+        "distM": 560.0
+      },
+      "vertices": 6336,
+      "triangles": 2112,
+      "plyFile": "data/models/gyeongju/national_museum_emille.ply"
+    },
+    {
+      "id": "daereungwon_hwangnam",
+      "name": "대릉원 황남대총 (높이 23m 남북 쌍분 · 사적 제512호)",
+      "category": "최대 왕릉",
+      "subtitle": "신라 최대 크기 표형분(쌍분, 남북 길이 120m · 높이 23m) 왕릉 · 금관 및 은관 출토",
+      "lat": 35.838967,
+      "lon": 129.211929,
+      "labelHeightM": 27.0,
+      "badgeColor": [
+        45,
+        150,
+        60
+      ],
+      "camera": {
+        "yaw": 22.0,
+        "pitch": 28.0,
+        "distM": 520.0
+      },
+      "vertices": 4416,
+      "triangles": 1472,
+      "plyFile": "data/models/gyeongju/daereungwon_hwangnam.ply"
+    },
+    {
+      "id": "cheonmachong_michu",
+      "name": "천마총 · 미추왕릉 · 대릉원 고분군",
+      "category": "대릉원 왕릉",
+      "subtitle": "천마도와 금관이 출토된 천마총(155호분) · 김씨 시조왕 미추왕릉 · 검총 · 90호 대분",
+      "lat": 35.838574,
+      "lon": 129.210495,
+      "labelHeightM": 18.0,
+      "badgeColor": [
+        45,
+        150,
+        60
+      ],
+      "camera": {
+        "yaw": 18.0,
+        "pitch": 30.0,
+        "distM": 680.0
+      },
+      "vertices": 16896,
+      "triangles": 5632,
+      "plyFile": "data/models/gyeongju/cheonmachong_michu.ply"
+    },
+    {
+      "id": "bonghwangdae_geumgwanchong",
+      "name": "봉황대 (높이 22m) · 금관총 · 서봉총",
+      "category": "노동·노서 고분",
+      "subtitle": "단일 최대 고분 봉황대(높이 22m) · 신라 금관 최초 출토지 금관총 · 서봉총 · 식리총",
+      "lat": 35.841289,
+      "lon": 129.210629,
+      "labelHeightM": 25.0,
+      "badgeColor": [
+        45,
+        150,
+        60
+      ],
+      "camera": {
+        "yaw": 16.0,
+        "pitch": 30.0,
+        "distM": 560.0
+      },
+      "vertices": 13170,
+      "triangles": 4390,
+      "plyFile": "data/models/gyeongju/bonghwangdae_geumgwanchong.ply"
+    },
+    {
+      "id": "jjoksaem",
+      "name": "쪽샘지구 신라 고분군 (44호·마갑총 · 발굴관)",
+      "category": "쪽샘 왕릉군",
+      "subtitle": "비단벌레 장식과 말갑옷이 출토된 황오·인왕동 적석목곽분 밀집 지구 및 쪽샘유적발굴관",
+      "lat": 35.840346,
+      "lon": 129.215712,
+      "labelHeightM": 16.0,
+      "badgeColor": [
+        55,
+        155,
+        65
+      ],
+      "camera": {
+        "yaw": 14.0,
+        "pitch": 32.0,
+        "distM": 580.0
+      },
+      "vertices": 15498,
+      "triangles": 5166,
+      "plyFile": "data/models/gyeongju/jjoksaem.ply"
+    },
+    {
+      "id": "oreung",
+      "name": "경주 오릉 (五陵) & 숭덕전 · 알영정 (사적 제172호)",
+      "category": "시조 왕릉",
+      "subtitle": "박혁거세 거서간·알영부인·남해·유리·파사이사금 5기 능과 시조 사당 숭덕전",
+      "lat": 35.822158,
+      "lon": 129.208669,
+      "labelHeightM": 16.0,
+      "badgeColor": [
+        45,
+        150,
+        60
+      ],
+      "camera": {
+        "yaw": 15.0,
+        "pitch": 32.0,
+        "distM": 620.0
+      },
+      "vertices": 12570,
+      "triangles": 4190,
+      "plyFile": "data/models/gyeongju/oreung.ply"
+    },
+    {
+      "id": "poseokjeong_najeong",
+      "name": "경주 나정 · 양산재 & 포석정지 (사적 제1·245호)",
+      "category": "시조탄강·연회유적",
+      "subtitle": "박혁거세 탄강지 나정 팔각건물지 · 육부촌장 사당 양산재 · 전복 모양 유상곡수 포석정",
+      "lat": 35.81573,
+      "lon": 129.21272,
+      "labelHeightM": 14.0,
+      "badgeColor": [
+        150,
+        95,
+        45
+      ],
+      "camera": {
+        "yaw": 14.0,
+        "pitch": 32.0,
+        "distM": 680.0
+      },
+      "vertices": 2652,
+      "triangles": 884,
+      "plyFile": "data/models/gyeongju/poseokjeong_najeong.ply"
+    },
+    {
+      "id": "hwangboksa_nangsan",
+      "name": "황복사지 3층석탑 · 선덕여왕릉 · 사천왕사지",
+      "category": "낭산 왕실사찰",
+      "subtitle": "국보 제37호 황복사지 삼층석탑 · 도리천 선덕여왕릉 · 호국 사천왕사지 쌍탑·금당 가람",
+      "lat": 35.83219,
+      "lon": 129.24239,
+      "labelHeightM": 16.0,
+      "badgeColor": [
+        130,
+        125,
+        115
+      ],
+      "camera": {
+        "yaw": 16.0,
+        "pitch": 32.0,
+        "distM": 880.0
+      },
+      "vertices": 8520,
+      "triangles": 2840,
+      "plyFile": "data/models/gyeongju/hwangboksa_nangsan.ply"
+    },
+    {
+      "id": "muyeol_kimyushin",
+      "name": "태종무열왕릉 (국보 무열왕릉비) & 김유신장군묘",
+      "category": "삼국통일 왕릉",
+      "subtitle": "사적 제20호 태종무열왕릉 · 국보 제25호 귀부·이수 비각 · 사적 제21호 김유신장군묘",
+      "lat": 35.82527,
+      "lon": 129.18739,
+      "labelHeightM": 18.0,
+      "badgeColor": [
+        45,
+        150,
+        60
+      ],
+      "camera": {
+        "yaw": 18.0,
+        "pitch": 30.0,
+        "distM": 820.0
+      },
+      "vertices": 7974,
+      "triangles": 2658,
+      "plyFile": "data/models/gyeongju/muyeol_kimyushin.ply"
+    },
+    {
+      "id": "gyeongju_eupseong",
+      "name": "경주읍성 (향일문·성곽) & 성동동 전랑지 · 재매정",
+      "category": "읍성·관아유적",
+      "subtitle": "사적 제96호 경주읍성 성벽·여장·중층 문루 향일문 · 사적 제88호 성동동 전랑지 관아 회랑",
+      "lat": 35.847195,
+      "lon": 129.213564,
+      "labelHeightM": 18.0,
+      "badgeColor": [
+        135,
+        95,
+        55
+      ],
+      "camera": {
+        "yaw": 14.0,
+        "pitch": 32.0,
+        "distM": 720.0
+      },
+      "vertices": 6030,
+      "triangles": 2010,
+      "plyFile": "data/models/gyeongju/gyeongju_eupseong.ply"
+    }
+  ],
+  "totalVertices": 165210,
+  "totalTriangles": 55070
+}

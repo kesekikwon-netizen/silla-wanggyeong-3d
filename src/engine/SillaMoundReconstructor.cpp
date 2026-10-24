@@ -60,6 +60,77 @@ bool SillaMoundReconstructor::isTumulusFeature(const GeoFeature& f) {
   return false;
 }
 
+QString SillaMoundReconstructor::classifyGyeongjuHeritageSiteId(double lat, double lon, const QString& name) {
+  if (name.contains(QStringLiteral("황남대총"))) return QStringLiteral("daereungwon_hwangnam");
+  if (name.contains(QStringLiteral("천마총")) || name.contains(QStringLiteral("미추")) || name.contains(QStringLiteral("검총")))
+    return QStringLiteral("cheonmachong_michu");
+  if (name.contains(QStringLiteral("봉황대")) || name.contains(QStringLiteral("금관총")) ||
+      name.contains(QStringLiteral("서봉총")) || name.contains(QStringLiteral("식리총")) ||
+      name.contains(QStringLiteral("노서")) || name.contains(QStringLiteral("노동")))
+    return QStringLiteral("bonghwangdae_geumgwanchong");
+  if (name.contains(QStringLiteral("쪽샘"))) return QStringLiteral("jjoksaem");
+  if (name.contains(QStringLiteral("내물")) || name.contains(QStringLiteral("계림"))) return QStringLiteral("gyerim_naemul");
+  if (name.contains(QStringLiteral("오릉")) || name.contains(QStringLiteral("숭덕전")) || name.contains(QStringLiteral("알영")))
+    return QStringLiteral("oreung");
+  if (name.contains(QStringLiteral("무열")) || name.contains(QStringLiteral("김유신")) || name.contains(QStringLiteral("서악")))
+    return QStringLiteral("muyeol_kimyushin");
+  if (name.contains(QStringLiteral("선덕")) || name.contains(QStringLiteral("황복사")) || name.contains(QStringLiteral("낭산")))
+    return QStringLiteral("hwangboksa_nangsan");
+  if (name.contains(QStringLiteral("나정")) || name.contains(QStringLiteral("포석정")) || name.contains(QStringLiteral("양산재")))
+    return QStringLiteral("poseokjeong_najeong");
+  if (name.contains(QStringLiteral("황룡사"))) return QStringLiteral("hwangnyongsa");
+  if (name.contains(QStringLiteral("분황사"))) return QStringLiteral("bunhwangsa");
+  if (name.contains(QStringLiteral("구황동"))) return QStringLiteral("guhwangdong_wonji");
+  if (name.contains(QStringLiteral("동궁")) || name.contains(QStringLiteral("월지")) || name.contains(QStringLiteral("안압지")))
+    return QStringLiteral("donggung_wolji");
+  if (name.contains(QStringLiteral("석빙고"))) return QStringLiteral("seokbinggo");
+  if (name.contains(QStringLiteral("월성")) || name.contains(QStringLiteral("반월성"))) return QStringLiteral("wolseong");
+  if (name.contains(QStringLiteral("첨성대"))) return QStringLiteral("cheomseongdae");
+  if (name.contains(QStringLiteral("월정교")) || name.contains(QStringLiteral("춘양교"))) return QStringLiteral("woljeonggyo");
+  if (name.contains(QStringLiteral("향교")) || name.contains(QStringLiteral("최부자"))) return QStringLiteral("gyeongju_hyanggyo");
+  if (name.contains(QStringLiteral("박물관")) || name.contains(QStringLiteral("성덕대왕")) || name.contains(QStringLiteral("에밀레")))
+    return QStringLiteral("national_museum_emille");
+  if (name.contains(QStringLiteral("읍성")) || name.contains(QStringLiteral("전랑지")) || name.contains(QStringLiteral("재매정")))
+    return QStringLiteral("gyeongju_eupseong");
+
+  // 좌표 기반 최근접 유적 권역 판정 (경주 도심 반경 내)
+  if (lat < 35.78 || lat > 35.88 || lon < 129.16 || lon > 129.27) return QString();
+  struct Zone {
+    const char* id;
+    double lat;
+    double lon;
+    double radiusDeg;
+  };
+  static constexpr Zone kZones[] = {
+      {"daereungwon_hwangnam", 35.838967, 129.211929, 0.0008},
+      {"cheonmachong_michu", 35.838100, 129.211800, 0.0032},
+      {"bonghwangdae_geumgwanchong", 35.841200, 129.209600, 0.0025},
+      {"jjoksaem", 35.840100, 129.215100, 0.0025},
+      {"cheomseongdae", 35.834702, 129.218984, 0.0014},
+      {"gyerim_naemul", 35.832566, 129.217202, 0.0014},
+      {"gyeongju_hyanggyo", 35.831253, 129.216928, 0.0014},
+      {"woljeonggyo", 35.829250, 129.218140, 0.0016},
+      {"seokbinggo", 35.833140, 129.223950, 0.0010},
+      {"wolseong", 35.831830, 129.222080, 0.0045},
+      {"donggung_wolji", 35.834788, 129.226537, 0.0024},
+      {"national_museum_emille", 35.829400, 129.228000, 0.0025},
+      {"hwangnyongsa", 35.837350, 129.233130, 0.0028},
+      {"bunhwangsa", 35.840650, 129.233618, 0.0014},
+      {"guhwangdong_wonji", 35.840550, 129.235180, 0.0014},
+      {"oreung", 35.822158, 129.208669, 0.0030},
+      {"poseokjeong_najeong", 35.811400, 129.212600, 0.0060},
+      {"hwangboksa_nangsan", 35.828000, 129.242390, 0.0060},
+      {"muyeol_kimyushin", 35.835000, 129.189500, 0.0120},
+      {"gyeongju_eupseong", 35.845800, 129.214500, 0.0032},
+  };
+  for (const Zone& z : kZones) {
+    if (std::hypot(lat - z.lat, lon - z.lon) <= z.radiusDeg) {
+      return QString::fromLatin1(z.id);
+    }
+  }
+  return QStringLiteral("cheonmachong_michu");
+}
+
 SillaMound SillaMoundReconstructor::moundFromFeature(const GeoFeature& f) {
   SillaMound m;
   m.id = f.id;
@@ -144,6 +215,7 @@ std::vector<SillaMound> SillaMoundReconstructor::builtInSillaMounds(const QStrin
     SillaMound m;
     m.id = QString::fromLatin1(rm.id);
     m.name = QString::fromUtf16(rm.name);
+    m.heritageSiteId = classifyGyeongjuHeritageSiteId(rm.lat, rm.lon, m.name);
     m.x = x;
     m.y = y;
     m.radiusM = rm.radiusM;
@@ -157,23 +229,37 @@ std::vector<SillaMound> SillaMoundReconstructor::builtInSillaMounds(const QStrin
 std::vector<SillaMound> SillaMoundReconstructor::collectMounds(
     const DemGrid& dem,
     const std::vector<GeoFeature>& features,
-    bool includeBuiltInCatalog) {
+    bool includeBuiltInCatalog,
+    const std::vector<QString>* enabledHeritageIds) {
   std::vector<SillaMound> out;
   auto insideDem = [&](double x, double y) {
     float z = 0;
     return dem.sample(x, y, &z);
   };
+  auto isSiteEnabled = [&](const QString& siteId) {
+    if (!enabledHeritageIds || siteId.isEmpty()) return true;
+    return std::find(enabledHeritageIds->begin(), enabledHeritageIds->end(), siteId) != enabledHeritageIds->end();
+  };
 
   if (includeBuiltInCatalog && !dem.crs.isEmpty()) {
     for (SillaMound& m : builtInSillaMounds(dem.crs)) {
+      if (!isSiteEnabled(m.heritageSiteId)) continue;
       if (insideDem(m.x, m.y)) out.push_back(std::move(m));
     }
   }
 
+  const CrsTransformer toWgs84(dem.crs, QStringLiteral("EPSG:4326"));
   for (const GeoFeature& f : features) {
     if (!isTumulusFeature(f)) continue;
     if (!insideDem(f.point.x, f.point.y)) continue;
     SillaMound cand = moundFromFeature(f);
+    double lon = cand.x, lat = cand.y;
+    if (toWgs84.valid() && toWgs84.transform(&lon, &lat)) {
+      cand.heritageSiteId = classifyGyeongjuHeritageSiteId(lat, lon, cand.name);
+    } else {
+      cand.heritageSiteId = classifyGyeongjuHeritageSiteId(0.0, 0.0, cand.name);
+    }
+    if (!isSiteEnabled(cand.heritageSiteId)) continue;
     bool duplicate = false;
     for (const SillaMound& ex : out) {
       if (std::hypot(ex.x - cand.x, ex.y - cand.y) < std::max(25.0, 0.6 * (ex.radiusM + cand.radiusM))) {
@@ -282,15 +368,36 @@ std::shared_ptr<const SceneMesh> SillaMoundReconstructor::buildBareEarthAndMound
     const std::vector<GeoFeature>& features,
     bool bareEarthMode,
     bool reconstructMounds,
-    std::vector<SillaMound>* outMounds) {
+    std::vector<SillaMound>* outMounds,
+    const std::vector<QString>* enabledHeritageIds) {
   std::vector<SillaMound> mounds;
   if (reconstructMounds) {
-    mounds = collectMounds(dem, features, true);
+    mounds = collectMounds(dem, features, true, enabledHeritageIds);
   }
   if (outMounds) *outMounds = mounds;
 
+  const CrsTransformer toWgs84(dem.crs, QStringLiteral("EPSG:4326"));
+  auto isFeatureSiteEnabled = [&](const GeoFeature& f) {
+    if (!enabledHeritageIds) return true;
+    double lon = f.point.x, lat = f.point.y;
+    QString siteId;
+    if (toWgs84.valid() && toWgs84.transform(&lon, &lat)) {
+      siteId = classifyGyeongjuHeritageSiteId(lat, lon, f.name);
+    } else {
+      siteId = classifyGyeongjuHeritageSiteId(0.0, 0.0, f.name);
+    }
+    if (siteId.isEmpty()) return true;
+    return std::find(enabledHeritageIds->begin(), enabledHeritageIds->end(), siteId) != enabledHeritageIds->end();
+  };
+
   if (!bareEarthMode) {
-    auto base = std::make_shared<SceneMesh>(*buildSceneMesh(dem, features));
+    std::vector<GeoFeature> activeFeats;
+    activeFeats.reserve(features.size());
+    for (const GeoFeature& f : features) {
+      if ((f.heritage || isTumulusFeature(f)) && !isFeatureSiteEnabled(f)) continue;
+      activeFeats.push_back(f);
+    }
+    auto base = std::make_shared<SceneMesh>(*buildSceneMesh(dem, activeFeats));
     if (reconstructMounds && !mounds.empty()) {
       auto moundMesh = buildMoundsMesh(dem, mounds);
       appendMesh(base.get(), *moundMesh);
@@ -298,17 +405,9 @@ std::shared_ptr<const SceneMesh> SillaMoundReconstructor::buildBareEarthAndMound
     return base;
   }
 
-  // Bare-Earth 모드: 현대 회색 건물 박스를 제거(또는 0.25m 바닥 흔적선만 표시)하고 유산·고분만 부각한다.
-  std::vector<GeoFeature> filtered;
-  filtered.reserve(features.size());
-  for (const GeoFeature& f : features) {
-    if (f.kind == FeatureKind::Building && !f.heritage && !isTumulusFeature(f)) {
-      continue;  // 현대 일반 건물은 고지형 모드에서 숨겨 선상지·구하도·방리 격자를 선명히 드러낸다.
-    }
-    filtered.push_back(f);
-  }
-
-  auto mesh = std::make_shared<SceneMesh>(*buildSceneMesh(dem, filtered));
+  // Bare-Earth 모드: 현대 회색 건물 박스와 원시 OSM/KHS 붉은 다각형 경계선·갈색 박스를 모두 숨기고
+  // 실제 위치의 블렌더 3D 유적 모델과 3D 왕릉 봉분만 지형 위에 선명하게 표시한다.
+  auto mesh = std::make_shared<SceneMesh>();
   if (reconstructMounds && !mounds.empty()) {
     auto moundMesh = buildMoundsMesh(dem, mounds);
     appendMesh(mesh.get(), *moundMesh);

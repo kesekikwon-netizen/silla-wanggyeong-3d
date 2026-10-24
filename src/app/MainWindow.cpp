@@ -210,6 +210,32 @@ MainWindow::MainWindow(const Options& options, QWidget* parent) : QMainWindow(pa
   bar->addWidget(reload);
   connect(reload, &QPushButton::clicked, this, &MainWindow::loadScene);
   bar->addSeparator();
+  tbLineDrawBtn_ = new QPushButton(QStringLiteral("✏️ 맵에 선 긋기"), bar);
+  tbLineDrawBtn_->setCheckable(true);
+  tbLineDrawBtn_->setToolTip(QStringLiteral("켜고 3D 지형 위 두 점을 클릭하면 지형과 함께 움직이는 3D 입체 선을 긋습니다."));
+  bar->addWidget(tbLineDrawBtn_);
+  connect(tbLineDrawBtn_, &QPushButton::toggled, this, [this](bool on) {
+    setUserDrawMode(on ? 2 : (viewport_->drawMode() == KaGlTerrainViewport::DrawMode::UserLine ? 0 : int(viewport_->drawMode())));
+  });
+
+  tbGridDrawBtn_ = new QPushButton(QStringLiteral("📐 맵에 격자 만들기"), bar);
+  tbGridDrawBtn_->setCheckable(true);
+  tbGridDrawBtn_->setToolTip(QStringLiteral("켜고 3D 지형 위 두 점을 클릭하면 지형과 함께 움직이는 3D 입체 격자를 만듭니다."));
+  bar->addWidget(tbGridDrawBtn_);
+  connect(tbGridDrawBtn_, &QPushButton::toggled, this, [this](bool on) {
+    setUserDrawMode(on ? 3 : (viewport_->drawMode() == KaGlTerrainViewport::DrawMode::UserGrid ? 0 : int(viewport_->drawMode())));
+  });
+
+  auto* tbInstantGridBtn = new QPushButton(QStringLiteral("➕ 현위치 격자"), bar);
+  tbInstantGridBtn->setToolTip(QStringLiteral("현재 3D 화면 중심에 즉시 3D 격자를 생성합니다."));
+  bar->addWidget(tbInstantGridBtn);
+  connect(tbInstantGridBtn, &QPushButton::clicked, this, &MainWindow::addUserGridAtCameraCenter);
+
+  auto* tbClearDrawBtn = new QPushButton(QStringLiteral("선·격자 지우기"), bar);
+  bar->addWidget(tbClearDrawBtn);
+  connect(tbClearDrawBtn, &QPushButton::clicked, this, &MainWindow::clearUserDrawings);
+
+  bar->addSeparator();
   trenchBtn_ = new QPushButton(QStringLiteral("시굴 트렌치 그리기"), bar);
   trenchBtn_->setCheckable(true);
   trenchBtn_->setToolTip(QStringLiteral("켜고 지형 위 두 점을 차례로 누릅니다(Esc: 취소). 끌면 카메라가 돕니다."));
@@ -251,6 +277,53 @@ MainWindow::MainWindow(const Options& options, QWidget* parent) : QMainWindow(pa
   connect(bangriPanel_, &BangriDockPanel::terrainModeChanged, this, [this](bool, bool, bool) {
     rebuildSceneMeshForTerrainMode();
     recomputeBangriState();
+  });
+  connect(bangriPanel_, &BangriDockPanel::heritageSiteSelectionChanged, this, [this] {
+    rebuildSceneMeshForTerrainMode();
+    recomputeBangriState();
+  });
+  connect(bangriPanel_, &BangriDockPanel::heritageSiteFocusRequested, this, [this](const QString& siteId) {
+    if (!viewport_) return;
+    const QString activeCrs = lastLoad_.tree ? lastLoad_.tree->grid().crs : options_.workCrs;
+    for (const auto& s : strata3d::BangriTerrainValidator::gyeongjuHeritageCatalog()) {
+      if (s.id.compare(siteId, Qt::CaseInsensitive) == 0) {
+        double wx = s.lon, wy = s.lat;
+        if (strata3d::transformPoint(QStringLiteral("EPSG:4326"), activeCrs, &wx, &wy)) {
+          viewport_->focusOnWorld(wx, wy, s.focusYawDeg, s.focusPitchDeg, s.focusDistM);
+        }
+        break;
+      }
+    }
+  });
+  connect(bangriPanel_, &BangriDockPanel::userDrawModeRequested, this, &MainWindow::setUserDrawMode);
+  connect(bangriPanel_, &BangriDockPanel::addUserGridAtCameraRequested, this, &MainWindow::addUserGridAtCameraCenter);
+  connect(bangriPanel_, &BangriDockPanel::undoUserDrawRequested, this, &MainWindow::undoLastUserDrawing);
+  connect(bangriPanel_, &BangriDockPanel::clearUserDrawRequested, this, &MainWindow::clearUserDrawings);
+  connect(bangriPanel_, &BangriDockPanel::userDrawStyleEdited, this, [this] {
+    if (!bangriPanel_) return;
+    bool changed = false;
+    if (!userGrids_.empty()) {
+      auto& g = userGrids_.back();
+      g.cellWidthM = bangriPanel_->userGridCellWidthM();
+      g.cellHeightM = bangriPanel_->userGridCellHeightM();
+      g.cols = bangriPanel_->userGridCols();
+      g.rows = bangriPanel_->userGridRows();
+      g.azimuthDeg = bangriPanel_->userGridAzimuthDeg();
+      g.lineWidthM = bangriPanel_->userDrawLineWidthM();
+      g.subDivisions = bangriPanel_->userGridSubdivisions();
+      g.color = bangriPanel_->userDrawColor();
+      changed = true;
+    }
+    if (!userLines_.empty()) {
+      auto& l = userLines_.back();
+      l.widthM = bangriPanel_->userDrawLineWidthM();
+      l.color = bangriPanel_->userDrawColor();
+      changed = true;
+    }
+    if (changed) {
+      rebuildUserDrawOverlay();
+      recomputeBangriState();
+    }
   });
   connect(bangriPanel_, &BangriDockPanel::uiAndHudScaleChanged, this, [this, bangriDock](float fontScale, float boxScale) {
     if (viewport_) {
@@ -346,6 +419,21 @@ MainWindow::MainWindow(const Options& options, QWidget* parent) : QMainWindow(pa
   connect(viewport_, &KaGlTerrainViewport::frameRendered, this, &MainWindow::updateStatus);
   connect(viewport_, &KaGlTerrainViewport::pickRequested, this, &MainWindow::onPick);
   connect(viewport_, &KaGlTerrainViewport::trenchPointRequested, this, &MainWindow::onTrenchPoint);
+  connect(viewport_, &KaGlTerrainViewport::mapDrawPointRequested, this, &MainWindow::onMapDrawPoint);
+  connect(viewport_, &KaGlTerrainViewport::mapHoverRay, this, &MainWindow::onMapHoverRay);
+  connect(viewport_, &KaGlTerrainViewport::mapDrawCancelRequested, this, [this] {
+    if (userDrawStartPt_) {
+      userDrawStartPt_.reset();
+      previewLine_.reset();
+      previewGrid_.reset();
+      rebuildUserDrawOverlay();
+      if (bangriPanel_) {
+        bangriPanel_->setUserDrawStatusText(QStringLiteral("시작점이 취소되었습니다. 지형 위 새로운 시작점을 클릭하세요."));
+      }
+    } else {
+      setUserDrawMode(0);
+    }
+  });
   connect(&evalWatcher_, &QFutureWatcher<strata3d::Evaluation>::finished, this, &MainWindow::showEvaluation);
 
   connect(&watcher_, &QFutureWatcher<LoadResult>::finished, this, [this] {
@@ -453,7 +541,7 @@ void MainWindow::showEvaluation() {
 
 void MainWindow::refreshOverlay() {
   auto overlay = std::make_shared<strata3d::SceneMesh>();
-  for (const auto& part : {surveyOverlay_, bangriOverlay_, evalOverlay_, trenchOverlay_})
+  for (const auto& part : {surveyOverlay_, bangriOverlay_, evalOverlay_, trenchOverlay_, userDrawOverlay_})
     if (part) strata3d::appendMesh(overlay.get(), *part);
   viewport_->setOverlay(overlay);
 }
@@ -465,14 +553,16 @@ void MainWindow::rebuildSceneMeshForTerrainMode() {
   const auto& feats = lastLoad_.features ? *lastLoad_.features : emptyFeatures;
   const bool bareEarth = bangriPanel_ && bangriPanel_->bareEarthMode();
   const bool mounds = bangriPanel_ && bangriPanel_->reconstructMounds();
-  if (bareEarth || mounds) {
+  const std::vector<QString> enabledSites = bangriPanel_ ? bangriPanel_->enabledHeritageSiteIds() : std::vector<QString>{};
+  const std::vector<QString>* siteFilter = bangriPanel_ ? &enabledSites : nullptr;
+  if (bareEarth || mounds || siteFilter) {
     std::vector<strata3d::SillaMound> collected;
     auto scene = strata3d::SillaMoundReconstructor::buildBareEarthAndMoundScene(
-        g, feats, bareEarth, mounds, &collected);
+        g, feats, bareEarth, mounds, &collected, siteFilter);
     bangriData_.mounds = std::move(collected);
     viewport_->setScene(scene);
   } else {
-    bangriData_.mounds = strata3d::SillaMoundReconstructor::collectMounds(g, feats, true);
+    bangriData_.mounds = strata3d::SillaMoundReconstructor::collectMounds(g, feats, true, siteFilter);
     if (lastLoad_.mesh) viewport_->setScene(lastLoad_.mesh);
   }
 }
@@ -547,9 +637,8 @@ void MainWindow::recomputeBangriState() {
     const strata3d::DemGrid& g = lastLoad_.tree->grid();
     const std::vector<strata3d::GeoFeature> emptyFeatures;
     const auto& feats = lastLoad_.features ? *lastLoad_.features : emptyFeatures;
-    if (bangriData_.mounds.empty()) {
-      bangriData_.mounds = strata3d::SillaMoundReconstructor::collectMounds(g, feats, true);
-    }
+    const std::vector<QString> enabledSites = bangriPanel_->enabledHeritageSiteIds();
+    bangriData_.mounds = strata3d::SillaMoundReconstructor::collectMounds(g, feats, true, &enabledSites);
     bangriData_.fossilization = strata3d::FossilizedRoadAnalyzer::analyze(bangriData_.grid, feats);
     bangriData_.validation = strata3d::BangriTerrainValidator::validate(
         g, bangriData_.grid, bangriData_.mounds);
@@ -570,7 +659,8 @@ void MainWindow::recomputeBangriState() {
       auto mesh = std::make_shared<strata3d::SceneMesh>();
       auto gridMesh = strata3d::BangriTerrainValidator::buildValidatedGridOverlay(
           g, bangriData_.grid, bangriData_.validation, bangriData_.anchors, bangriData_.residuals,
-          bangriData_.mounds, bangriPanel_->architecture3dEnabled(), bangriPanel_->gridOverlayEnabled());
+          bangriData_.mounds, bangriPanel_->architecture3dEnabled(), bangriPanel_->gridOverlayEnabled(),
+          &enabledSites);
       if (gridMesh) strata3d::appendMesh(mesh.get(), *gridMesh);
       if (bangriPanel_->gridOverlayEnabled()) {
         auto fossilMesh = strata3d::FossilizedRoadAnalyzer::buildFossilizedOverlay(
@@ -585,117 +675,31 @@ void MainWindow::recomputeBangriState() {
       bangriOverlay_.reset();
     }
 
-    // 3D 화면 위에 경주 실제 유적 위치와 1:1 일치하는 안내 이름표(CalloutLabel3D) 생성
+    rebuildUserDrawOverlay();
+
+    // 3D 화면 위에 경주 실제 유적 위치와 1:1 일치하는 안내 이름표(CalloutLabel3D) 생성 (켜진 유적만 표시)
     std::vector<KaGlTerrainViewport::CalloutLabel3D> labels;
-    auto addLonLatLabel = [&](double lon, double lat, float hAbove,
-                              const QString& cat, const QString& title, const QString& sub,
-                              const QColor& col, bool imp = true) {
-      double wx = lon, wy = lat;
-      if (strata3d::transformPoint(QStringLiteral("EPSG:4326"), g.crs, &wx, &wy)) {
-        KaGlTerrainViewport::CalloutLabel3D l;
-        l.worldX = wx;
-        l.worldY = wy;
-        l.heightAboveGroundM = hAbove;
-        l.category = cat;
-        l.title = title;
-        l.subtitle = sub;
-        l.badgeColor = col;
-        l.important = imp;
-        labels.push_back(std::move(l));
-      }
+    auto isSiteEnabled = [&](const QString& siteId) {
+      return std::find(enabledSites.begin(), enabledSites.end(), siteId) != enabledSites.end();
     };
 
     if (params.presetId.startsWith(QLatin1String("gyeongju"))) {
-      addLonLatLabel(129.233130, 35.837180, 82.0f,
-                     QStringLiteral("사적 제6호"),
-                     QStringLiteral("황룡사 9층목탑 (높이 80m)"),
-                     QStringLiteral("중금당·동서금당·강당·남문·회랑 실제 유구 위치"),
-                     QColor(205, 50, 35), true);
-      addLonLatLabel(129.233618, 35.840566, 15.0f,
-                     QStringLiteral("국보 제30호"),
-                     QStringLiteral("분황사 모전석탑 & 보광전"),
-                     QStringLiteral("신라 최고(最古) 안산암 벽돌 석탑과 돌사자"),
-                     QColor(110, 115, 125), true);
-      addLonLatLabel(129.235180, 35.840550, 8.0f,
-                     QStringLiteral("사적 제548호"),
-                     QStringLiteral("경주 구황동 원지 유적"),
-                     QStringLiteral("신라 왕경 조경 연못과 2개 인공섬"),
-                     QColor(25, 130, 175), false);
-      addLonLatLabel(129.226537, 35.834788, 18.0f,
-                     QStringLiteral("사적 제18호"),
-                     QStringLiteral("동궁과 월지 (안압지 · 임해전)"),
-                     QStringLiteral("삼신산 3개 섬 연못과 서안 제1·2·3 누각"),
-                     QColor(25, 115, 210), true);
-      addLonLatLabel(129.222080, 35.831830, 22.0f,
-                     QStringLiteral("사적 제16호"),
-                     QStringLiteral("경주 월성 (반월성 · 신라 왕궁)"),
-                     QStringLiteral("초승달 모양 왕궁 성곽과 북편 해자·왕궁 정전"),
-                     QColor(175, 45, 40), true);
-      addLonLatLabel(129.223950, 35.833140, 10.0f,
-                     QStringLiteral("보물 제66호"),
-                     QStringLiteral("경주 석빙고"),
-                     QStringLiteral("월성 북측 성루 위 화강암 홍예 얼음창고"),
-                     QColor(120, 130, 140), false);
-      addLonLatLabel(129.218984, 35.834702, 16.0f,
-                     QStringLiteral("국보 제31호"),
-                     QStringLiteral("경주 첨성대"),
-                     QStringLiteral("27단 곡선 원통형 신라 천문 관측대"),
-                     QColor(155, 110, 45), true);
-      addLonLatLabel(129.218140, 35.829250, 18.0f,
-                     QStringLiteral("사적 제457호"),
-                     QStringLiteral("경주 월정교 (남천 누각교)"),
-                     QStringLiteral("주형 석조 교각 4기와 남·북 중층 문루"),
-                     QColor(170, 65, 35), true);
-      addLonLatLabel(129.217202, 35.832566, 12.0f,
-                     QStringLiteral("사적 제19·188호"),
-                     QStringLiteral("경주 계림 & 내물왕릉"),
-                     QStringLiteral("김알지 탄강 신화 숲과 내물마립간 왕릉"),
-                     QColor(45, 145, 65), false);
-      addLonLatLabel(129.216928, 35.831253, 12.0f,
-                     QStringLiteral("보물·민속유산"),
-                     QStringLiteral("경주향교 (대성전·명륜당) & 최부자댁"),
-                     QStringLiteral("신라 국학(國學) 터의 향교와 교동 고택"),
-                     QColor(140, 85, 40), false);
-      addLonLatLabel(129.227277, 35.829891, 16.0f,
-                     QStringLiteral("국보 제29호"),
-                     QStringLiteral("성덕대왕신종 (국립경주박물관)"),
-                     QStringLiteral("에밀레종 종각 및 신라역사관·미술관"),
-                     QColor(165, 115, 30), false);
-      addLonLatLabel(129.211929, 35.838967, 26.0f,
-                     QStringLiteral("사적 제512호"),
-                     QStringLiteral("대릉원 황남대총 (높이 23m 남북 쌍분)"),
-                     QStringLiteral("신라 최대 크기 표형분(쌍분) 왕릉"),
-                     QColor(45, 150, 60), true);
-      addLonLatLabel(129.210495, 35.838574, 16.0f,
-                     QStringLiteral("대릉원"),
-                     QStringLiteral("천마총 (황남동 155호분)"),
-                     QStringLiteral("금관·천마도가 출토된 대표 적석목곽분"),
-                     QColor(45, 150, 60), true);
-      addLonLatLabel(129.213390, 35.837067, 16.0f,
-                     QStringLiteral("대릉원"),
-                     QStringLiteral("경주 미추왕릉"),
-                     QStringLiteral("김씨 최초 왕 미추이사금 능"),
-                     QColor(45, 150, 60), false);
-      addLonLatLabel(129.210629, 35.841289, 25.0f,
-                     QStringLiteral("노동동 고분군"),
-                     QStringLiteral("봉황대 (높이 22m 단일 최대 고분)"),
-                     QStringLiteral("식리총·금령총 인접 초대형 적석목곽분"),
-                     QColor(45, 150, 60), true);
-      addLonLatLabel(129.209825, 35.841140, 14.0f,
-                     QStringLiteral("노서동 고분군"),
-                     QStringLiteral("금관총 · 서봉총"),
-                     QStringLiteral("신라 금관이 최초 출토된 왕릉"),
-                     QColor(45, 150, 60), false);
-      addLonLatLabel(129.208669, 35.822158, 15.0f,
-                     QStringLiteral("사적 제172호"),
-                     QStringLiteral("경주 오릉 (五陵) & 숭덕전"),
-                     QStringLiteral("박혁거세 거서간과 초기 4왕·왕비의 5기 능"),
-                     QColor(45, 150, 60), false);
-      addLonLatLabel(129.242390, 35.832190, 14.0f,
-                     QStringLiteral("국보 제37호"),
-                     QStringLiteral("경주 황복사지 삼층석탑"),
-                     QStringLiteral("낭산 동편 왕실 사찰 3층 석탑"),
-                     QColor(130, 125, 115), false);
+      for (const auto& s : strata3d::BangriTerrainValidator::gyeongjuHeritageCatalog()) {
+        if (!isSiteEnabled(s.id)) continue;
+        double wx = s.lon, wy = s.lat;
+        if (strata3d::transformPoint(QStringLiteral("EPSG:4326"), g.crs, &wx, &wy)) {
+          KaGlTerrainViewport::CalloutLabel3D l;
+          l.worldX = wx;
+          l.worldY = wy;
+          l.heightAboveGroundM = s.labelHeightM;
+          l.category = s.category;
+          l.title = s.name;
+          l.subtitle = s.subtitle;
+          l.badgeColor = QColor::fromRgbF(s.badgeColor[0], s.badgeColor[1], s.badgeColor[2], 1.0f);
+          l.important = s.importantLabel;
+          labels.push_back(std::move(l));
+        }
+      }
     } else {
       KaGlTerrainViewport::CalloutLabel3D centerLbl;
       centerLbl.worldX = params.originEasting;
@@ -707,6 +711,41 @@ void MainWindow::recomputeBangriState() {
       centerLbl.badgeColor = QColor(195, 55, 40);
       centerLbl.important = true;
       labels.push_back(std::move(centerLbl));
+    }
+
+    // 사용자가 직접 그은 3D 선과 3D 격자의 치수·방위각 이름표도 3D 공간 위에 함께 띄운다
+    for (size_t i = 0; i < userLines_.size(); ++i) {
+      const auto& ln = userLines_[i];
+      const double lenM = std::hypot(ln.b.x - ln.a.x, ln.b.y - ln.a.y);
+      double az = std::atan2(ln.b.x - ln.a.x, ln.b.y - ln.a.y) * 180.0 / 3.14159265358979323846;
+      if (az < 0.0) az += 360.0;
+      KaGlTerrainViewport::CalloutLabel3D l;
+      l.worldX = 0.5 * (ln.a.x + ln.b.x);
+      l.worldY = 0.5 * (ln.a.y + ln.b.y);
+      l.heightAboveGroundM = 14.0f;
+      l.category = QStringLiteral("사용자 3D 선 #%1").arg(i + 1);
+      l.title = QStringLiteral("길이 %1 m (고구려척 %2척)").arg(lenM, 0, 'f', 1).arg(lenM / 0.356, 0, 'f', 0);
+      l.subtitle = QStringLiteral("방위각 %1° · 굵기 %2m").arg(az, 0, 'f', 1).arg(ln.widthM, 0, 'f', 1);
+      l.badgeColor = QColor::fromRgbF(ln.color[0] * 0.78f, ln.color[1] * 0.78f, ln.color[2] * 0.78f, 1.0f);
+      l.important = true;
+      labels.push_back(std::move(l));
+    }
+
+    for (size_t i = 0; i < userGrids_.size(); ++i) {
+      const auto& gr = userGrids_[i];
+      KaGlTerrainViewport::CalloutLabel3D l;
+      l.worldX = gr.origin.x;
+      l.worldY = gr.origin.y;
+      l.heightAboveGroundM = 18.0f;
+      l.category = QStringLiteral("사용자 3D 격자 #%1").arg(i + 1);
+      l.title = QStringLiteral("1칸 %1×%2m · %3×%4칸").arg(gr.cellWidthM, 0, 'f', 0).arg(gr.cellHeightM, 0, 'f', 0).arg(gr.cols).arg(gr.rows);
+      l.subtitle = QStringLiteral("전체 %1×%2m · 회전각 %3°")
+                       .arg(gr.cellWidthM * gr.cols, 0, 'f', 0)
+                       .arg(gr.cellHeightM * gr.rows, 0, 'f', 0)
+                       .arg(gr.azimuthDeg, 0, 'f', 1);
+      l.badgeColor = QColor::fromRgbF(gr.color[0] * 0.75f, gr.color[1] * 0.75f, gr.color[2] * 0.75f, 1.0f);
+      l.important = true;
+      labels.push_back(std::move(l));
     }
 
     if (viewport_) {
@@ -741,17 +780,306 @@ void MainWindow::autoFitBangriAnchors() {
 }
 
 void MainWindow::setTrenchMode(bool on) {
-  viewport_->setTrenchMode(on);
+  if (on) {
+    setUserDrawMode(0);
+    viewport_->setTrenchMode(true);
+  } else if (viewport_->trenchMode()) {
+    viewport_->setTrenchMode(false);
+  }
   if (trenchBtn_ && trenchBtn_->isChecked() != on) trenchBtn_->setChecked(on);
   trenchA_.reset();
   if (on) trenchInfo_->setText(QStringLiteral("시작점을 지형 위에서 누르세요."));
 }
 
-void MainWindow::keyPressEvent(QKeyEvent* e) {
-  if (e->key() == Qt::Key_Escape && viewport_->trenchMode()) {
+void MainWindow::setUserDrawMode(int drawMode) {
+  userDrawStartPt_.reset();
+  previewLine_.reset();
+  previewGrid_.reset();
+  if (drawMode != 0 && trenchBtn_ && trenchBtn_->isChecked()) {
+    trenchBtn_->blockSignals(true);
+    trenchBtn_->setChecked(false);
+    trenchBtn_->blockSignals(false);
     trenchA_.reset();
-    setTrenchMode(false);
+  }
+  if (tbLineDrawBtn_) {
+    tbLineDrawBtn_->blockSignals(true);
+    tbLineDrawBtn_->setChecked(drawMode == 2);
+    tbLineDrawBtn_->blockSignals(false);
+  }
+  if (tbGridDrawBtn_) {
+    tbGridDrawBtn_->blockSignals(true);
+    tbGridDrawBtn_->setChecked(drawMode == 3);
+    tbGridDrawBtn_->blockSignals(false);
+  }
+  if (bangriPanel_) {
+    bangriPanel_->syncDrawToolButtons(drawMode);
+    if (drawMode == 2) {
+      bangriPanel_->setUserDrawStatusText(
+          QStringLiteral("✏️ [3D 선 긋기 켜짐] 지형 위 시작점을 클릭하세요. (마우스 드래그로 3D 카메라 회전 가능)"));
+    } else if (drawMode == 3) {
+      bangriPanel_->setUserDrawStatusText(
+          QStringLiteral("📐 [3D 격자 만들기 켜짐] 격자 시작점을 지형 위에서 클릭하세요. (마우스 드래그로 3D 카메라 회전 가능)"));
+    } else {
+      bangriPanel_->setUserDrawStatusText(
+          QStringLiteral("그린 3D 선 %1개 · 3D 격자 %2개 (3D 카메라를 돌려도 지형과 함께 움직입니다).")
+              .arg(userLines_.size())
+              .arg(userGrids_.size()));
+    }
+  }
+  if (viewport_) {
+    viewport_->setDrawMode(KaGlTerrainViewport::DrawMode(drawMode));
+  }
+  rebuildUserDrawOverlay();
+}
+
+void MainWindow::onMapDrawPoint(int drawMode, const QVector3D& origin, const QVector3D& direction) {
+  if (!lastLoad_.evaluator) return;
+  strata3d::TerrainBvh::Hit hit;
+  if (!lastLoad_.evaluator->terrain().rayCast(origin, direction, 1.0e6f, &hit)) return;
+  const strata3d::DemGrid& g = lastLoad_.evaluator->dem();
+  const strata3d::Pt p{g.centerX() + hit.point.x(), g.centerY() + hit.point.y()};
+
+  if (!userDrawStartPt_) {
+    userDrawStartPt_ = p;
+    previewLine_.reset();
+    previewGrid_.reset();
+    if (bangriPanel_) {
+      if (drawMode == 2) {
+        bangriPanel_->setUserDrawStatusText(
+            QStringLiteral("✏️ 시작점 설정됨 (X %1, Y %2) — 마우스를 움직여 끝점을 클릭하세요 (우클릭/Esc: 취소)")
+                .arg(p.x, 0, 'f', 1)
+                .arg(p.y, 0, 'f', 1));
+      } else {
+        bangriPanel_->setUserDrawStatusText(
+            QStringLiteral("📐 격자 시작점 설정됨 (X %1, Y %2) — 마우스를 움직여 반대쪽 끝점을 클릭하세요")
+                .arg(p.x, 0, 'f', 1)
+                .arg(p.y, 0, 'f', 1));
+      }
+    }
+    rebuildUserDrawOverlay();
     return;
+  }
+
+  const strata3d::Pt a = *userDrawStartPt_;
+  userDrawStartPt_.reset();
+  previewLine_.reset();
+  previewGrid_.reset();
+
+  if (drawMode == 2) {
+    addUserLine(a.x, a.y, p.x, p.y);
+  } else if (drawMode == 3) {
+    if (!bangriPanel_) return;
+    strata3d::UserDrawnGrid3D gr = strata3d::BangriTerrainValidator::makeGridFromTwoPoints(
+        a, p,
+        bangriPanel_->userGridCellWidthM(),
+        bangriPanel_->userGridCellHeightM(),
+        bangriPanel_->userGridCols(),
+        bangriPanel_->userGridRows(),
+        bangriPanel_->userGridAzimuthDeg(),
+        bangriPanel_->userGridAutoAlign(),
+        bangriPanel_->userDrawLineWidthM(),
+        bangriPanel_->userGridSubdivisions(),
+        bangriPanel_->userDrawColor(),
+        false);
+    userGrids_.push_back(gr);
+    userDrawHistoryIsGrid_.push_back(true);
+    if (bangriPanel_) {
+      bangriPanel_->setUserDrawStatusText(
+          QStringLiteral("✅ 3D 격자 #%1 생성 완료 (%2×%3m, %4×%5칸). 계속 클릭하여 추가하거나 3D 화면을 회전해 보세요!")
+              .arg(userGrids_.size())
+              .arg(gr.cellWidthM, 0, 'f', 0)
+              .arg(gr.cellHeightM, 0, 'f', 0)
+              .arg(gr.cols)
+              .arg(gr.rows));
+    }
+    recomputeBangriState();
+  }
+}
+
+void MainWindow::onMapHoverRay(int drawMode, const QVector3D& origin, const QVector3D& direction) {
+  if (!userDrawStartPt_ || !lastLoad_.evaluator || !bangriPanel_) return;
+  strata3d::TerrainBvh::Hit hit;
+  if (!lastLoad_.evaluator->terrain().rayCast(origin, direction, 1.0e6f, &hit)) return;
+  const strata3d::DemGrid& g = lastLoad_.evaluator->dem();
+  const strata3d::Pt p{g.centerX() + hit.point.x(), g.centerY() + hit.point.y()};
+  const strata3d::Pt a = *userDrawStartPt_;
+
+  if (drawMode == 2) {
+    strata3d::UserDrawnLine3D ln;
+    ln.a = a;
+    ln.b = p;
+    ln.widthM = bangriPanel_->userDrawLineWidthM();
+    ln.color = bangriPanel_->userDrawColor();
+    ln.isPreview = true;
+    previewLine_ = ln;
+    previewGrid_.reset();
+    const double lenM = std::hypot(p.x - a.x, p.y - a.y);
+    bangriPanel_->setUserDrawStatusText(
+        QStringLiteral("✏️ 미리보기 길이: %1 m (고구려척 %2척) — 클릭하면 3D 선이 확정됩니다.")
+            .arg(lenM, 0, 'f', 1)
+            .arg(lenM / 0.356, 0, 'f', 0));
+  } else if (drawMode == 3) {
+    previewGrid_ = strata3d::BangriTerrainValidator::makeGridFromTwoPoints(
+        a, p,
+        bangriPanel_->userGridCellWidthM(),
+        bangriPanel_->userGridCellHeightM(),
+        bangriPanel_->userGridCols(),
+        bangriPanel_->userGridRows(),
+        bangriPanel_->userGridAzimuthDeg(),
+        bangriPanel_->userGridAutoAlign(),
+        bangriPanel_->userDrawLineWidthM(),
+        bangriPanel_->userGridSubdivisions(),
+        bangriPanel_->userDrawColor(),
+        true);
+    previewLine_.reset();
+    bangriPanel_->setUserDrawStatusText(
+        QStringLiteral("📐 미리보기 격자: %1×%2칸 (전체 %3×%4 m, 각도 %5°) — 클릭하면 3D 격자가 확정됩니다.")
+            .arg(previewGrid_->cols)
+            .arg(previewGrid_->rows)
+            .arg(previewGrid_->cols * previewGrid_->cellWidthM, 0, 'f', 0)
+            .arg(previewGrid_->rows * previewGrid_->cellHeightM, 0, 'f', 0)
+            .arg(previewGrid_->azimuthDeg, 0, 'f', 1));
+  }
+  rebuildUserDrawOverlay();
+}
+
+void MainWindow::addUserLine(double ax, double ay, double bx, double by) {
+  if (std::hypot(bx - ax, by - ay) < 1.0) return;
+  strata3d::UserDrawnLine3D ln;
+  ln.a = {ax, ay};
+  ln.b = {bx, by};
+  ln.widthM = bangriPanel_ ? bangriPanel_->userDrawLineWidthM() : 4.0f;
+  ln.color = bangriPanel_ ? bangriPanel_->userDrawColor() : std::array<float, 4>{1.0f, 0.84f, 0.16f, 1.0f};
+  userLines_.push_back(ln);
+  userDrawHistoryIsGrid_.push_back(false);
+  if (bangriPanel_) {
+    const double lenM = std::hypot(bx - ax, by - ay);
+    bangriPanel_->setUserDrawStatusText(
+        QStringLiteral("✅ 3D 선 #%1 생성 완료 (길이 %2 m / %3척). 마우스로 3D 지형을 돌려 함께 움직이는지 확인하세요!")
+            .arg(userLines_.size())
+            .arg(lenM, 0, 'f', 1)
+            .arg(lenM / 0.356, 0, 'f', 0));
+  }
+  recomputeBangriState();
+}
+
+void MainWindow::addUserGrid(double centerX, double centerY, double cellW, double cellH, int cols, int rows, double azimuthDeg) {
+  strata3d::UserDrawnGrid3D gr;
+  gr.origin = {centerX, centerY};
+  gr.cellWidthM = cellW;
+  gr.cellHeightM = cellH;
+  gr.cols = cols;
+  gr.rows = rows;
+  gr.azimuthDeg = azimuthDeg;
+  gr.centerAligned = true;
+  gr.lineWidthM = bangriPanel_ ? bangriPanel_->userDrawLineWidthM() : 3.5f;
+  gr.subDivisions = bangriPanel_ ? bangriPanel_->userGridSubdivisions() : 1;
+  gr.color = bangriPanel_ ? bangriPanel_->userDrawColor() : std::array<float, 4>{0.14f, 0.88f, 1.0f, 1.0f};
+  userGrids_.push_back(gr);
+  userDrawHistoryIsGrid_.push_back(true);
+  if (bangriPanel_) {
+    bangriPanel_->setUserDrawStatusText(
+        QStringLiteral("✅ 3D 격자 #%1 생성 완료 (%2×%3m · %4×%5칸). 우측 스핀박스로 간격·칸수·각도를 실시간 조절할 수 있습니다!")
+            .arg(userGrids_.size())
+            .arg(cellW, 0, 'f', 0)
+            .arg(cellH, 0, 'f', 0)
+            .arg(cols)
+            .arg(rows));
+  }
+  recomputeBangriState();
+}
+
+void MainWindow::addUserGridAtCameraCenter() {
+  if (!bangriPanel_) return;
+  double cx = 0.0, cy = 0.0;
+  if (!viewport_ || !viewport_->currentTargetWorld(&cx, &cy)) {
+    const auto p = bangriPanel_->currentParams();
+    cx = p.originEasting;
+    cy = p.originNorthing;
+  }
+  addUserGrid(cx, cy,
+              bangriPanel_->userGridCellWidthM(),
+              bangriPanel_->userGridCellHeightM(),
+              bangriPanel_->userGridCols(),
+              bangriPanel_->userGridRows(),
+              bangriPanel_->userGridAzimuthDeg());
+}
+
+void MainWindow::undoLastUserDrawing() {
+  if (userDrawStartPt_) {
+    userDrawStartPt_.reset();
+    previewLine_.reset();
+    previewGrid_.reset();
+    rebuildUserDrawOverlay();
+    return;
+  }
+  if (userDrawHistoryIsGrid_.empty()) return;
+  const bool wasGrid = userDrawHistoryIsGrid_.back();
+  userDrawHistoryIsGrid_.pop_back();
+  if (wasGrid && !userGrids_.empty()) userGrids_.pop_back();
+  else if (!wasGrid && !userLines_.empty()) userLines_.pop_back();
+  if (bangriPanel_) {
+    bangriPanel_->setUserDrawStatusText(
+        QStringLiteral("↩ 마지막 3D 그리기 취소됨 (남은 선 %1개 · 격자 %2개)")
+            .arg(userLines_.size())
+            .arg(userGrids_.size()));
+  }
+  recomputeBangriState();
+}
+
+void MainWindow::clearUserDrawings() {
+  userDrawStartPt_.reset();
+  previewLine_.reset();
+  previewGrid_.reset();
+  userLines_.clear();
+  userGrids_.clear();
+  userDrawHistoryIsGrid_.clear();
+  userDrawOverlay_.reset();
+  if (bangriPanel_) {
+    bangriPanel_->setUserDrawStatusText(QStringLiteral("그린 3D 선과 3D 격자를 모두 지웠습니다."));
+  }
+  recomputeBangriState();
+}
+
+void MainWindow::rebuildUserDrawOverlay() {
+  if (!lastLoad_.tree) {
+    userDrawOverlay_.reset();
+    return;
+  }
+  const strata3d::DemGrid& g = lastLoad_.tree->grid();
+  std::vector<strata3d::UserDrawnLine3D> allLines = userLines_;
+  if (previewLine_) allLines.push_back(*previewLine_);
+  std::vector<strata3d::UserDrawnGrid3D> allGrids = userGrids_;
+  if (previewGrid_) allGrids.push_back(*previewGrid_);
+
+  auto mesh = strata3d::BangriTerrainValidator::buildUserDrawingsOverlay(
+      g, bangriData_.mounds, allLines, allGrids);
+  if (userDrawStartPt_) {
+    const auto col = bangriPanel_ ? bangriPanel_->userDrawColor() : std::array<float, 4>{1.0f, 0.9f, 0.2f, 1.0f};
+    strata3d::appendPole(mesh.get(), g, *userDrawStartPt_, 3.2f, 26.0f, col);
+  }
+  userDrawOverlay_ = mesh;
+  if (viewport_) refreshOverlay();
+}
+
+void MainWindow::keyPressEvent(QKeyEvent* e) {
+  if (e->key() == Qt::Key_Escape) {
+    if (viewport_->trenchMode()) {
+      trenchA_.reset();
+      setTrenchMode(false);
+      return;
+    }
+    if (viewport_->drawMode() != KaGlTerrainViewport::DrawMode::None) {
+      if (userDrawStartPt_) {
+        userDrawStartPt_.reset();
+        previewLine_.reset();
+        previewGrid_.reset();
+        rebuildUserDrawOverlay();
+      } else {
+        setUserDrawMode(0);
+      }
+      return;
+    }
   }
   QMainWindow::keyPressEvent(e);
 }

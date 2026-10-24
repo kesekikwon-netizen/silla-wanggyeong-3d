@@ -228,6 +228,89 @@ class TestBangriGrid : public QObject {
       QVERIFY(tr.lengthM >= 14.0 && tr.lengthM <= 25.0);
     }
   }
+
+  void blenderHeritage20SitesAndPerSiteToggle() {
+    QString bundlePath;
+    QVERIFY2(BangriTerrainValidator::hasBlenderHeritageBundle(&bundlePath),
+             qPrintable(QStringLiteral("Missing Blender heritage bundle: %1").arg(bundlePath)));
+
+    const auto catalog = BangriTerrainValidator::gyeongjuHeritageCatalog();
+    QCOMPARE(int(catalog.size()), 20);
+    for (const auto& site : catalog) {
+      QVERIFY(!site.id.isEmpty());
+      QVERIFY(!site.name.isEmpty());
+      QVERIFY2(site.blenderVertexCount > 0 && site.blenderTriangleCount > 0,
+               qPrintable(QStringLiteral("Site %1 has 0 Blender triangles").arg(site.id)));
+    }
+
+    // 경주 중심 합성 DEM 생성
+    const BangriCityPreset preset = BangriGridEngine::findPreset(QStringLiteral("gyeongju_hwangnyongsa"));
+    const BangriGridResult grid = BangriGridEngine::generateGrid(preset.defaultParams);
+    DemGrid dem;
+    dem.crs = QStringLiteral("EPSG:5187");
+    dem.width = 200;
+    dem.height = 200;
+    dem.pixelSize = 60.0;
+    dem.originX = preset.defaultParams.originEasting - 6000.0;
+    dem.originY = preset.defaultParams.originNorthing + 6000.0;
+    dem.zMin = 35.0f;
+    dem.zMax = 55.0f;
+    dem.z.assign(size_t(dem.width * dem.height), 42.0f);
+
+    const BangriValidationResult val = BangriTerrainValidator::validate(dem, grid, {});
+
+    // 1) 전체 20개 유적 켜짐
+    auto meshAll = BangriTerrainValidator::buildValidatedGridOverlay(
+        dem, grid, val, {}, {}, {}, true, false, nullptr);
+    QVERIFY(meshAll != nullptr);
+    QCOMPARE(meshAll->heritagePoints, 20);
+    QVERIFY(meshAll->indices.size() > 100000);
+
+    // 2) 단일 유적 1곳(첨성대)만 켜짐
+    const std::vector<QString> onlyCheom = {QStringLiteral("cheomseongdae")};
+    auto meshOne = BangriTerrainValidator::buildValidatedGridOverlay(
+        dem, grid, val, {}, {}, {}, true, false, &onlyCheom);
+    QVERIFY(meshOne != nullptr);
+    QCOMPARE(meshOne->heritagePoints, 1);
+    QVERIFY(meshOne->indices.size() > 500 && meshOne->indices.size() < meshAll->indices.size() / 5);
+
+    // 3) 유적 전체 끄기 (빈 목록)
+    const std::vector<QString> noneEnabled;
+    auto meshNone = BangriTerrainValidator::buildValidatedGridOverlay(
+        dem, grid, val, {}, {}, {}, true, false, &noneEnabled);
+    QVERIFY(meshNone != nullptr);
+    QCOMPARE(meshNone->heritagePoints, 0);
+    QCOMPARE(int(meshNone->indices.size()), 0);
+  }
+
+  void user3dLineAndGridDrawingSync() {
+    const BangriCityPreset preset = BangriGridEngine::findPreset(QStringLiteral("gyeongju_hwangnyongsa"));
+    DemGrid dem;
+    dem.crs = QStringLiteral("EPSG:5187");
+    dem.width = 120;
+    dem.height = 120;
+    dem.pixelSize = 30.0;
+    dem.originX = preset.defaultParams.originEasting - 1800.0;
+    dem.originY = preset.defaultParams.originNorthing + 1800.0;
+    dem.zMin = 40.0f;
+    dem.zMax = 60.0f;
+    dem.z.assign(size_t(dem.width * dem.height), 45.0f);
+
+    UserDrawnLine3D line;
+    line.a = {preset.defaultParams.originEasting - 200.0, preset.defaultParams.originNorthing - 150.0};
+    line.b = {preset.defaultParams.originEasting + 250.0, preset.defaultParams.originNorthing + 180.0};
+    line.widthM = 4.0f;
+
+    UserDrawnGrid3D grid = BangriTerrainValidator::makeGridFromTwoPoints(
+        line.a, line.b, 120.0, 120.0, 4, 4, 0.0, false, 3.5f, 2, {0.2f, 0.85f, 1.0f, 1.0f}, false);
+    QVERIFY(grid.cols >= 3);
+    QVERIFY(grid.rows >= 2);
+
+    auto drawMesh = BangriTerrainValidator::buildUserDrawingsOverlay(dem, {}, {line}, {grid});
+    QVERIFY(drawMesh != nullptr);
+    QVERIFY(drawMesh->vertices.size() > 300);
+    QVERIFY(drawMesh->indices.size() > 150);
+  }
 };
 
 QTEST_MAIN(TestBangriGrid)

@@ -13,6 +13,7 @@ namespace strata3d {
 struct SillaMound {
   QString id;
   QString name;
+  QString heritageSiteId; // 경주 20대 유적 개별 ON/OFF 그룹 ID (예: "daereungwon_hwangnam", "oreung" 등)
   double x = 0.0;        // 작업 좌표계 미터 (EPSG:5187 / 5186)
   double y = 0.0;
   double radiusM = 18.0; // 등가 반경 R (m)
@@ -25,6 +26,9 @@ class SillaMoundReconstructor {
   // 지물이 고분·능묘(왕릉, 고분, 총, 능, 대릉원, 쪽샘, 봉황대 등)인지 판정한다.
   static bool isTumulusFeature(const GeoFeature& f);
 
+  // 위경도(WGS84) 및 지물 이름으로부터 경주 20대 핵심 유적 그룹 ID 를 판정한다.
+  static QString classifyGyeongjuHeritageSiteId(double lat, double lon, const QString& name = QString());
+
   // 다각형 면적 A 로부터 등가 반경 R = sqrt(A/pi) 및 봉분 높이 H = clamp(0.35*R, 4.0, 23.0)를 계산한다.
   static SillaMound moundFromFeature(const GeoFeature& f);
 
@@ -32,9 +36,11 @@ class SillaMoundReconstructor {
   static std::vector<SillaMound> builtInSillaMounds(const QString& workCrs);
 
   // 지물 목록(OSM/KHS/SHP)과 내장 실측 고분 카탈로그를 병합(중복 제거)하여 DEM 범위 안의 고분 목록을 만든다.
-  static std::vector<SillaMound> collectMounds(const DemGrid& dem,
-                                               const std::vector<GeoFeature>& features,
-                                               bool includeBuiltInCatalog = true);
+  static std::vector<SillaMound> collectMounds(
+      const DemGrid& dem,
+      const std::vector<GeoFeature>& features,
+      bool includeBuiltInCatalog = true,
+      const std::vector<QString>* enabledHeritageIds = nullptr);
 
   // 임의 좌표 (x, y)에서의 3D 고분 봉분 융기 높이(+m, 지면 위 추가 고도)를 계산한다. 쌍분(표형분) 능선도 자연스럽게 합성된다.
   static float sampleMoundHeight(double x, double y, const std::vector<SillaMound>& mounds);
@@ -51,7 +57,8 @@ class SillaMoundReconstructor {
       const std::vector<GeoFeature>& features,
       bool bareEarthMode,
       bool reconstructMounds,
-      std::vector<SillaMound>* outMounds = nullptr);
+      std::vector<SillaMound>* outMounds = nullptr,
+      const std::vector<QString>* enabledHeritageIds = nullptr);
 };
 
 }  // namespace strata3d

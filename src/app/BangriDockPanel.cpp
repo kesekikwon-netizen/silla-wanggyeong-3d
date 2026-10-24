@@ -8,6 +8,7 @@
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QListWidget>
 #include <QPushButton>
 #include <QSlider>
 #include <QSpinBox>
@@ -24,18 +25,19 @@ QString colorHex(const QColor& c) { return c.name(); }
 
 BangriDockPanel::BangriDockPanel(QWidget* parent) : QWidget(parent) {
   presets_ = strata3d::BangriGridEngine::builtInPresets();
+  heritageCatalog_ = strata3d::BangriTerrainValidator::gyeongjuHeritageCatalog();
   if (!presets_.empty()) {
     baseParams_ = presets_.front().defaultParams;
   }
 
   auto* root = new QVBoxLayout(this);
-  root->setContentsMargins(8, 8, 8, 8);
-  root->setSpacing(6);
+  root->setContentsMargins(6, 6, 6, 6);
+  root->setSpacing(5);
 
   // 1. 일반인을 위한 원클릭 경주 핵심 유적 3D 카메라 바로가기 버튼 그룹
-  auto* tourBox = new QGroupBox(QStringLiteral("① 보고 싶은 경주 유적을 클릭하세요 (실제 위치로 3D 카메라 이동)"), this);
+  auto* tourBox = new QGroupBox(QStringLiteral("① 보고 싶은 경주 유적 권역 바로가기 (실제 위치로 3D 카메라 이동)"), this);
   auto* tourGrid = new QGridLayout(tourBox);
-  tourGrid->setContentsMargins(8, 6, 8, 6);
+  tourGrid->setContentsMargins(6, 5, 6, 5);
   tourGrid->setSpacing(4);
 
   auto* btnHwang = new QPushButton(QStringLiteral("황룡사 9층목탑 · 분황사 모전석탑"), tourBox);
@@ -67,52 +69,286 @@ BangriDockPanel::BangriDockPanel(QWidget* parent) : QWidget(parent) {
     emit cameraTourRequested(int(CameraTourTarget::CapitalOverview));
   });
 
-  // 2. 직관적 화면 표시 스위치 & 글씨/창 크기 자유 조절 그룹
-  auto* modeBox = new QGroupBox(QStringLiteral("② 유적 표시 스위치 & 글씨·창 크기 자유 조절"), this);
-  auto* modeLayout = new QVBoxLayout(modeBox);
-  modeLayout->setContentsMargins(8, 6, 8, 6);
-  modeLayout->setSpacing(4);
+  // 2. 경주 20대 유적 블렌더 3D 모델 개별 켜기/끄기 목록 (사용자가 하나의 유적씩 켜고 끌 수 있음)
+  auto* heritageBox = new QGroupBox(QStringLiteral("② 경주 20대 유적 블렌더 3D 개별 켜기/끄기 (체크: 표시 · 클릭: 카메라 이동)"), this);
+  auto* heritageLayout = new QVBoxLayout(heritageBox);
+  heritageLayout->setContentsMargins(6, 5, 6, 5);
+  heritageLayout->setSpacing(4);
 
-  arch3dCheck_ = new QCheckBox(QStringLiteral("경주 핵심 유적(황룡사·분황사·동궁과 월지·월성·첨성대·월정교) 3D 입체 복원"), modeBox);
+  auto* heritageBtnRow = new QHBoxLayout();
+  heritageBtnRow->setSpacing(4);
+  auto* btnAllOn = new QPushButton(QStringLiteral("전체 켜기 (20곳)"), heritageBox);
+  auto* btnAllOff = new QPushButton(QStringLiteral("전체 끄기"), heritageBox);
+  auto* btnSoloSite = new QPushButton(QStringLiteral("선택 유적 1곳만 보기"), heritageBox);
+  heritageCountLabel_ = new QLabel(QStringLiteral("표시 중: 20/20"), heritageBox);
+  heritageBtnRow->addWidget(btnAllOn);
+  heritageBtnRow->addWidget(btnAllOff);
+  heritageBtnRow->addWidget(btnSoloSite);
+  heritageBtnRow->addWidget(heritageCountLabel_);
+  heritageLayout->addLayout(heritageBtnRow);
+
+  heritageList_ = new QListWidget(heritageBox);
+  heritageList_->setMinimumHeight(115);
+  heritageList_->setMaximumHeight(145);
+  heritageList_->setSelectionMode(QAbstractItemView::SingleSelection);
+  for (size_t i = 0; i < heritageCatalog_.size(); ++i) {
+    const auto& site = heritageCatalog_[i];
+    auto* item = new QListWidgetItem(
+        QStringLiteral("%1. %2").arg(i + 1, 2, 10, QLatin1Char('0')).arg(site.name),
+        heritageList_);
+    item->setData(Qt::UserRole, site.id);
+    item->setFlags(item->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    item->setCheckState(Qt::Checked);
+    item->setToolTip(QStringLiteral("%1\n· %2\n· 블렌더 3D 모델: 삼각형 %3개 (정점 %4개)\n· 체크박스를 끄면 이 유적만 화면에서 숨겨집니다.")
+                         .arg(site.name, site.subtitle)
+                         .arg(site.blenderTriangleCount)
+                         .arg(site.blenderVertexCount));
+  }
+  heritageLayout->addWidget(heritageList_);
+  root->addWidget(heritageBox);
+
+  auto updateHeritageCountLabel = [this] {
+    int checked = 0;
+    for (int i = 0; i < heritageList_->count(); ++i) {
+      if (heritageList_->item(i)->checkState() == Qt::Checked) ++checked;
+    }
+    if (heritageCountLabel_) {
+      heritageCountLabel_->setText(QStringLiteral("표시 중: %1/%2").arg(checked).arg(heritageList_->count()));
+    }
+  };
+
+  connect(heritageList_, &QListWidget::itemChanged, this, [this, updateHeritageCountLabel](QListWidgetItem*) {
+    if (updatingUi_) return;
+    updateHeritageCountLabel();
+    emit heritageSiteSelectionChanged();
+  });
+  connect(heritageList_, &QListWidget::itemClicked, this, [this](QListWidgetItem* item) {
+    if (!item) return;
+    emit heritageSiteFocusRequested(item->data(Qt::UserRole).toString());
+  });
+  connect(btnAllOn, &QPushButton::clicked, this, [this, updateHeritageCountLabel] {
+    setAllHeritageSitesEnabled(true, true);
+    updateHeritageCountLabel();
+  });
+  connect(btnAllOff, &QPushButton::clicked, this, [this, updateHeritageCountLabel] {
+    setAllHeritageSitesEnabled(false, true);
+    updateHeritageCountLabel();
+  });
+  connect(btnSoloSite, &QPushButton::clicked, this, [this, updateHeritageCountLabel] {
+    QListWidgetItem* cur = heritageList_->currentItem();
+    if (!cur && heritageList_->count() > 0) cur = heritageList_->item(0);
+    if (!cur) return;
+    const QString targetId = cur->data(Qt::UserRole).toString();
+    updatingUi_ = true;
+    for (int i = 0; i < heritageList_->count(); ++i) {
+      QListWidgetItem* it = heritageList_->item(i);
+      it->setCheckState(it->data(Qt::UserRole).toString() == targetId ? Qt::Checked : Qt::Unchecked);
+    }
+    updatingUi_ = false;
+    updateHeritageCountLabel();
+    emit heritageSiteSelectionChanged();
+    emit heritageSiteFocusRequested(targetId);
+  });
+
+  // 3. 사용자가 맵에 직접 3D 선을 긋고 3D 격자를 만드는 도구 (그린 뒤 3D 지형과 같이 움직임)
+  auto* drawBox = new QGroupBox(QStringLiteral("③ 3D 맵에 선 긋기 && 격자 만들기 (그린 뒤 3D 지형과 함께 회전·이동)"), this);
+  auto* drawLayout = new QVBoxLayout(drawBox);
+  drawLayout->setContentsMargins(6, 5, 6, 5);
+  drawLayout->setSpacing(4);
+
+  auto* drawBtnRow1 = new QHBoxLayout();
+  drawBtnRow1->setSpacing(4);
+  drawLineBtn_ = new QPushButton(QStringLiteral("✏️ 맵에 3D 선 긋기"), drawBox);
+  drawLineBtn_->setCheckable(true);
+  drawLineBtn_->setToolTip(QStringLiteral("켜고 3D 지형 위 두 점을 클릭하면 지형 굴곡을 따라 입체 선과 거리·방위각이 그려집니다."));
+
+  drawGridBtn_ = new QPushButton(QStringLiteral("📐 맵 클릭으로 3D 격자 만들기"), drawBox);
+  drawGridBtn_->setCheckable(true);
+  drawGridBtn_->setToolTip(QStringLiteral("켜고 3D 지형 위 두 점을 클릭하면 두 점 사이에 3D 입체 격자가 생성됩니다."));
+
+  instantGridBtn_ = new QPushButton(QStringLiteral("➕ 현위치 격자 생성"), drawBox);
+  instantGridBtn_->setToolTip(QStringLiteral("현재 바라보는 3D 화면 중심에 설정한 칸 크기·칸수로 즉시 3D 격자를 올립니다."));
+
+  drawBtnRow1->addWidget(drawLineBtn_, 1);
+  drawBtnRow1->addWidget(drawGridBtn_, 1);
+  drawBtnRow1->addWidget(instantGridBtn_);
+  drawLayout->addLayout(drawBtnRow1);
+
+  auto* drawGridCfg = new QGridLayout();
+  drawGridCfg->setContentsMargins(0, 0, 0, 0);
+  drawGridCfg->setSpacing(4);
+
+  userGridWidthSpin_ = new QDoubleSpinBox(drawBox);
+  userGridWidthSpin_->setRange(10.0, 1000.0);
+  userGridWidthSpin_->setValue(140.0);
+  userGridWidthSpin_->setDecimals(0);
+  userGridWidthSpin_->setSingleStep(10.0);
+  userGridWidthSpin_->setPrefix(QStringLiteral("가로간격 "));
+  userGridWidthSpin_->setSuffix(QStringLiteral("m"));
+
+  userGridHeightSpin_ = new QDoubleSpinBox(drawBox);
+  userGridHeightSpin_->setRange(10.0, 1000.0);
+  userGridHeightSpin_->setValue(140.0);
+  userGridHeightSpin_->setDecimals(0);
+  userGridHeightSpin_->setSingleStep(10.0);
+  userGridHeightSpin_->setPrefix(QStringLiteral("세로간격 "));
+  userGridHeightSpin_->setSuffix(QStringLiteral("m"));
+
+  userGridColsSpin_ = new QSpinBox(drawBox);
+  userGridColsSpin_->setRange(1, 50);
+  userGridColsSpin_->setValue(6);
+  userGridColsSpin_->setPrefix(QStringLiteral("가로 "));
+  userGridColsSpin_->setSuffix(QStringLiteral("칸"));
+
+  userGridRowsSpin_ = new QSpinBox(drawBox);
+  userGridRowsSpin_->setRange(1, 50);
+  userGridRowsSpin_->setValue(6);
+  userGridRowsSpin_->setPrefix(QStringLiteral("세로 "));
+  userGridRowsSpin_->setSuffix(QStringLiteral("칸"));
+
+  userGridAzimuthSpin_ = new QDoubleSpinBox(drawBox);
+  userGridAzimuthSpin_->setRange(-90.0, 90.0);
+  userGridAzimuthSpin_->setValue(0.0);
+  userGridAzimuthSpin_->setDecimals(1);
+  userGridAzimuthSpin_->setSingleStep(1.0);
+  userGridAzimuthSpin_->setPrefix(QStringLiteral("각도 "));
+  userGridAzimuthSpin_->setSuffix(QStringLiteral("°"));
+
+  userDrawLineWidthSpin_ = new QDoubleSpinBox(drawBox);
+  userDrawLineWidthSpin_->setRange(1.0, 25.0);
+  userDrawLineWidthSpin_->setValue(3.5);
+  userDrawLineWidthSpin_->setDecimals(1);
+  userDrawLineWidthSpin_->setSingleStep(0.5);
+  userDrawLineWidthSpin_->setPrefix(QStringLiteral("굵기 "));
+  userDrawLineWidthSpin_->setSuffix(QStringLiteral("m"));
+
+  userGridSubdivCombo_ = new QComboBox(drawBox);
+  userGridSubdivCombo_->addItem(QStringLiteral("기본 격자 (보조칸 없음)"), 1);
+  userGridSubdivCombo_->addItem(QStringLiteral("十자 4분할 보조격자"), 2);
+  userGridSubdivCombo_->addItem(QStringLiteral("井자 9분할 보조격자"), 3);
+
+  userDrawColorCombo_ = new QComboBox(drawBox);
+  userDrawColorCombo_->addItem(QStringLiteral("색상: 황금 노랑"), 0);
+  userDrawColorCombo_->addItem(QStringLiteral("색상: 하늘 청록"), 1);
+  userDrawColorCombo_->addItem(QStringLiteral("색상: 주홍 빨강"), 2);
+  userDrawColorCombo_->addItem(QStringLiteral("색상: 형광 연두"), 3);
+  userDrawColorCombo_->addItem(QStringLiteral("색상: 보라 자주"), 4);
+  userDrawColorCombo_->addItem(QStringLiteral("색상: 순백색"), 5);
+
+  userGridAutoAlignCheck_ = new QCheckBox(QStringLiteral("클릭한 두 점 방향으로 격자 각도 자동 회전"), drawBox);
+  userGridAutoAlignCheck_->setChecked(false);
+
+  undoDrawBtn_ = new QPushButton(QStringLiteral("↩ 마지막 취소"), drawBox);
+  clearDrawBtn_ = new QPushButton(QStringLiteral("🗑 선·격자 모두 지우기"), drawBox);
+
+  drawGridCfg->addWidget(userGridWidthSpin_, 0, 0);
+  drawGridCfg->addWidget(userGridHeightSpin_, 0, 1);
+  drawGridCfg->addWidget(userGridColsSpin_, 0, 2);
+  drawGridCfg->addWidget(userGridRowsSpin_, 0, 3);
+
+  drawGridCfg->addWidget(userGridAzimuthSpin_, 1, 0);
+  drawGridCfg->addWidget(userDrawLineWidthSpin_, 1, 1);
+  drawGridCfg->addWidget(userGridSubdivCombo_, 1, 2);
+  drawGridCfg->addWidget(userDrawColorCombo_, 1, 3);
+
+  drawGridCfg->addWidget(userGridAutoAlignCheck_, 2, 0, 1, 2);
+  drawGridCfg->addWidget(undoDrawBtn_, 2, 2);
+  drawGridCfg->addWidget(clearDrawBtn_, 2, 3);
+  drawLayout->addLayout(drawGridCfg);
+
+  userDrawStatusLabel_ = new QLabel(
+      QStringLiteral("안내: 「✏️ 맵에 3D 선 긋기」 또는 「📐 맵 클릭으로 3D 격자 만들기」를 켜고 지형 위 두 점을 클릭하세요."),
+      drawBox);
+  userDrawStatusLabel_->setWordWrap(true);
+  drawLayout->addWidget(userDrawStatusLabel_);
+  root->addWidget(drawBox);
+
+  connect(drawLineBtn_, &QPushButton::toggled, this, [this](bool on) {
+    if (updatingUi_) return;
+    if (on && drawGridBtn_->isChecked()) {
+      updatingUi_ = true;
+      drawGridBtn_->setChecked(false);
+      updatingUi_ = false;
+    }
+    emit userDrawModeRequested(on ? 2 : 0);
+  });
+  connect(drawGridBtn_, &QPushButton::toggled, this, [this](bool on) {
+    if (updatingUi_) return;
+    if (on && drawLineBtn_->isChecked()) {
+      updatingUi_ = true;
+      drawLineBtn_->setChecked(false);
+      updatingUi_ = false;
+    }
+    emit userDrawModeRequested(on ? 3 : 0);
+  });
+  connect(instantGridBtn_, &QPushButton::clicked, this, &BangriDockPanel::addUserGridAtCameraRequested);
+  connect(undoDrawBtn_, &QPushButton::clicked, this, &BangriDockPanel::undoUserDrawRequested);
+  connect(clearDrawBtn_, &QPushButton::clicked, this, &BangriDockPanel::clearUserDrawRequested);
+
+  auto emitUserStyleEdited = [this] {
+    if (updatingUi_) return;
+    emit userDrawStyleEdited();
+  };
+  connect(userGridWidthSpin_, &QDoubleSpinBox::valueChanged, this, emitUserStyleEdited);
+  connect(userGridHeightSpin_, &QDoubleSpinBox::valueChanged, this, emitUserStyleEdited);
+  connect(userGridColsSpin_, &QSpinBox::valueChanged, this, emitUserStyleEdited);
+  connect(userGridRowsSpin_, &QSpinBox::valueChanged, this, emitUserStyleEdited);
+  connect(userGridAzimuthSpin_, &QDoubleSpinBox::valueChanged, this, emitUserStyleEdited);
+  connect(userDrawLineWidthSpin_, &QDoubleSpinBox::valueChanged, this, emitUserStyleEdited);
+  connect(userGridSubdivCombo_, &QComboBox::currentIndexChanged, this, emitUserStyleEdited);
+  connect(userDrawColorCombo_, &QComboBox::currentIndexChanged, this, emitUserStyleEdited);
+
+  // 4. 직관적 화면 표시 스위치 & 글씨/창 크기 자유 조절 그룹
+  auto* modeBox = new QGroupBox(QStringLiteral("④ 전체 화면 표시 스위치 && 글씨·창 크기 자유 조절"), this);
+  auto* modeLayout = new QVBoxLayout(modeBox);
+  modeLayout->setContentsMargins(6, 5, 6, 5);
+  modeLayout->setSpacing(3);
+
+  auto* checkGrid = new QGridLayout();
+  checkGrid->setContentsMargins(0, 0, 0, 0);
+  checkGrid->setSpacing(3);
+
+  arch3dCheck_ = new QCheckBox(QStringLiteral("경주 유적 블렌더 3D 건축 복원 표시"), modeBox);
   arch3dCheck_->setChecked(true);
-  moundCheck_ = new QCheckBox(QStringLiteral("대릉원(황남대총·천마총)·봉황대·금관총·오릉 왕릉 3D 봉분 복원"), modeBox);
+  moundCheck_ = new QCheckBox(QStringLiteral("대릉원·봉황대·오릉 왕릉 3D 봉분 표시"), modeBox);
   moundCheck_->setChecked(true);
-  labelsCheck_ = new QCheckBox(QStringLiteral("3D 화면 위 유적 안내 이름표(말풍선) 표시"), modeBox);
+  labelsCheck_ = new QCheckBox(QStringLiteral("3D 화면 위 유적·측정 이름표 표시"), modeBox);
   labelsCheck_->setChecked(true);
-  topBannerCheck_ = new QCheckBox(QStringLiteral("좌측 상단 유적 색상 요약 안내창 표시"), modeBox);
+  topBannerCheck_ = new QCheckBox(QStringLiteral("좌측 상단 요약 안내창 표시"), modeBox);
   topBannerCheck_->setChecked(true);
-  bareEarthCheck_ = new QCheckBox(QStringLiteral("현대 아파트·상가 숨기기 (위성 실사 + 신라 유적만 선명히 보기)"), modeBox);
+  bareEarthCheck_ = new QCheckBox(QStringLiteral("현대 아파트·상가 숨기기"), modeBox);
   bareEarthCheck_->setChecked(true);
-  gridEnabledCheck_ = new QCheckBox(QStringLiteral("(선택) 가상 방리 도로 구획선 겹쳐 보기 (기본 꺼짐)"), modeBox);
+  gridEnabledCheck_ = new QCheckBox(QStringLiteral("(선택) 신라 방리 대로망 겹쳐 보기"), modeBox);
   gridEnabledCheck_->setChecked(false);
 
-  modeLayout->addWidget(arch3dCheck_);
-  modeLayout->addWidget(moundCheck_);
-  modeLayout->addWidget(labelsCheck_);
-  modeLayout->addWidget(topBannerCheck_);
-  modeLayout->addWidget(bareEarthCheck_);
-  modeLayout->addWidget(gridEnabledCheck_);
+  checkGrid->addWidget(arch3dCheck_, 0, 0);
+  checkGrid->addWidget(moundCheck_, 0, 1);
+  checkGrid->addWidget(labelsCheck_, 1, 0);
+  checkGrid->addWidget(topBannerCheck_, 1, 1);
+  checkGrid->addWidget(bareEarthCheck_, 2, 0);
+  checkGrid->addWidget(gridEnabledCheck_, 2, 1);
+  modeLayout->addLayout(checkGrid);
 
   // 글씨 크기 & 안내창/패널 크기 조절 슬라이더 + [- / +] 버튼
   auto* sizeGrid = new QGridLayout();
-  sizeGrid->setContentsMargins(0, 4, 0, 0);
+  sizeGrid->setContentsMargins(0, 2, 0, 0);
   sizeGrid->setSpacing(4);
 
-  auto* fontMinusBtn = new QPushButton(QStringLiteral("글씨 작게 (-)"), modeBox);
-  auto* fontPlusBtn = new QPushButton(QStringLiteral("글씨 크게 (+)"), modeBox);
+  auto* fontMinusBtn = new QPushButton(QStringLiteral("글씨 -"), modeBox);
+  auto* fontPlusBtn = new QPushButton(QStringLiteral("글씨 +"), modeBox);
   fontSlider_ = new QSlider(Qt::Horizontal, modeBox);
   fontSlider_->setRange(50, 200);
   fontSlider_->setValue(85);
   fontPctLabel_ = new QLabel(QStringLiteral("85%"), modeBox);
-  fontPctLabel_->setMinimumWidth(38);
+  fontPctLabel_->setMinimumWidth(36);
 
-  auto* boxMinusBtn = new QPushButton(QStringLiteral("창 작게 (-)"), modeBox);
-  auto* boxPlusBtn = new QPushButton(QStringLiteral("창 크게 (+)"), modeBox);
+  auto* boxMinusBtn = new QPushButton(QStringLiteral("창 -"), modeBox);
+  auto* boxPlusBtn = new QPushButton(QStringLiteral("창 +"), modeBox);
   boxSlider_ = new QSlider(Qt::Horizontal, modeBox);
   boxSlider_->setRange(50, 200);
   boxSlider_->setValue(85);
   boxPctLabel_ = new QLabel(QStringLiteral("85%"), modeBox);
-  boxPctLabel_->setMinimumWidth(38);
+  boxPctLabel_->setMinimumWidth(36);
 
   sizeGrid->addWidget(new QLabel(QStringLiteral("글씨 크기:"), modeBox), 0, 0);
   sizeGrid->addWidget(fontMinusBtn, 0, 1);
@@ -120,7 +356,7 @@ BangriDockPanel::BangriDockPanel(QWidget* parent) : QWidget(parent) {
   sizeGrid->addWidget(fontPlusBtn, 0, 3);
   sizeGrid->addWidget(fontPctLabel_, 0, 4);
 
-  sizeGrid->addWidget(new QLabel(QStringLiteral("창·이름표 크기:"), modeBox), 1, 0);
+  sizeGrid->addWidget(new QLabel(QStringLiteral("창·이름표:"), modeBox), 1, 0);
   sizeGrid->addWidget(boxMinusBtn, 1, 1);
   sizeGrid->addWidget(boxSlider_, 1, 2);
   sizeGrid->addWidget(boxPlusBtn, 1, 3);
@@ -142,11 +378,11 @@ BangriDockPanel::BangriDockPanel(QWidget* parent) : QWidget(parent) {
   connect(boxMinusBtn, &QPushButton::clicked, this, [this] { boxSlider_->setValue(boxSlider_->value() - 10); });
   connect(boxPlusBtn, &QPushButton::clicked, this, [this] { boxSlider_->setValue(boxSlider_->value() + 10); });
 
-  // 3. 도시 선택 및 쉬운 설명 브리핑 창 (가장 넓고 읽기 쉽게 배치)
-  auto* cityBox = new QGroupBox(QStringLiteral("③ 신라 수도 경주 & 전국 9주 5소경 계획도시 선택"), this);
+  // 5. 도시 선택 및 도면 저장
+  auto* cityBox = new QGroupBox(QStringLiteral("⑤ 신라 수도 경주 && 전국 9주 5소경 계획도시 선택"), this);
   auto* cityLayout = new QVBoxLayout(cityBox);
-  cityLayout->setContentsMargins(8, 6, 8, 6);
-  cityLayout->setSpacing(5);
+  cityLayout->setContentsMargins(6, 5, 6, 5);
+  cityLayout->setSpacing(4);
 
   presetCombo_ = new QComboBox(cityBox);
   for (const auto& p : presets_) {
@@ -156,21 +392,20 @@ BangriDockPanel::BangriDockPanel(QWidget* parent) : QWidget(parent) {
 
   auto* topBtns = new QHBoxLayout();
   topBtns->setSpacing(4);
-  autoFitBtn_ = new QPushButton(QStringLiteral("실제 발굴 유적에 맞춰 자동 정렬"), cityBox);
-  applyTrenchBtn_ = new QPushButton(QStringLiteral("추천 발굴지점(T1) 지형 단면 보기"), cityBox);
+  autoFitBtn_ = new QPushButton(QStringLiteral("실제 유적 자동 정렬"), cityBox);
+  applyTrenchBtn_ = new QPushButton(QStringLiteral("추천 발굴지(T1) 단면"), cityBox);
+  exportBtn_ = new QPushButton(QStringLiteral("5패널 종합 도면 저장…"), cityBox);
   topBtns->addWidget(autoFitBtn_, 1);
   topBtns->addWidget(applyTrenchBtn_, 1);
+  topBtns->addWidget(exportBtn_, 1);
   cityLayout->addLayout(topBtns);
-
-  exportBtn_ = new QPushButton(QStringLiteral("한눈에 보는 5패널 신라 계획도시 종합 도면 저장 (PNG + PDF)…"), cityBox);
-  cityLayout->addWidget(exportBtn_);
   root->addWidget(cityBox);
 
-  // 4. 일반인 눈높이 해설 + 학술 검증 요약 창
+  // 6. 일반인 눈높이 해설 + 학술 검증 요약 창
   summaryBrowser_ = new QTextBrowser(this);
   summaryBrowser_->setOpenExternalLinks(true);
   summaryBrowser_->setMinimumWidth(420);
-  summaryBrowser_->setMinimumHeight(210);
+  summaryBrowser_->setMinimumHeight(130);
   root->addWidget(summaryBrowser_, 1);
 
   // 5. 상세 치수 조절 (기본 접힘 상태로 두어 해설 창이 넓게 보이도록 하고, 버튼 클릭 시 펼쳐짐)
@@ -392,6 +627,110 @@ QString BangriDockPanel::currentPresetId() const {
 
 strata3d::BangriParams BangriDockPanel::currentParams() const {
   return collectParams();
+}
+
+std::vector<QString> BangriDockPanel::enabledHeritageSiteIds() const {
+  std::vector<QString> out;
+  if (!heritageList_) return out;
+  out.reserve(size_t(heritageList_->count()));
+  for (int i = 0; i < heritageList_->count(); ++i) {
+    QListWidgetItem* item = heritageList_->item(i);
+    if (item && item->checkState() == Qt::Checked) {
+      out.push_back(item->data(Qt::UserRole).toString());
+    }
+  }
+  return out;
+}
+
+void BangriDockPanel::setHeritageSiteEnabled(const QString& siteId, bool enabled, bool emitSignal) {
+  if (!heritageList_) return;
+  updatingUi_ = true;
+  int checkedCount = 0;
+  for (int i = 0; i < heritageList_->count(); ++i) {
+    QListWidgetItem* item = heritageList_->item(i);
+    if (!item) continue;
+    if (item->data(Qt::UserRole).toString().compare(siteId, Qt::CaseInsensitive) == 0) {
+      item->setCheckState(enabled ? Qt::Checked : Qt::Unchecked);
+    }
+    if (item->checkState() == Qt::Checked) ++checkedCount;
+  }
+  if (heritageCountLabel_) {
+    heritageCountLabel_->setText(QStringLiteral("표시 중: %1/%2").arg(checkedCount).arg(heritageList_->count()));
+  }
+  updatingUi_ = false;
+  if (emitSignal) emit heritageSiteSelectionChanged();
+}
+
+void BangriDockPanel::setAllHeritageSitesEnabled(bool enabled, bool emitSignal) {
+  if (!heritageList_) return;
+  updatingUi_ = true;
+  for (int i = 0; i < heritageList_->count(); ++i) {
+    if (QListWidgetItem* item = heritageList_->item(i)) {
+      item->setCheckState(enabled ? Qt::Checked : Qt::Unchecked);
+    }
+  }
+  if (heritageCountLabel_) {
+    heritageCountLabel_->setText(QStringLiteral("표시 중: %1/%2")
+                                     .arg(enabled ? heritageList_->count() : 0)
+                                     .arg(heritageList_->count()));
+  }
+  updatingUi_ = false;
+  if (emitSignal) emit heritageSiteSelectionChanged();
+}
+
+double BangriDockPanel::userGridCellWidthM() const {
+  return userGridWidthSpin_ ? userGridWidthSpin_->value() : 140.0;
+}
+
+double BangriDockPanel::userGridCellHeightM() const {
+  return userGridHeightSpin_ ? userGridHeightSpin_->value() : 140.0;
+}
+
+int BangriDockPanel::userGridCols() const {
+  return userGridColsSpin_ ? userGridColsSpin_->value() : 6;
+}
+
+int BangriDockPanel::userGridRows() const {
+  return userGridRowsSpin_ ? userGridRowsSpin_->value() : 6;
+}
+
+double BangriDockPanel::userGridAzimuthDeg() const {
+  return userGridAzimuthSpin_ ? userGridAzimuthSpin_->value() : 0.0;
+}
+
+bool BangriDockPanel::userGridAutoAlign() const {
+  return userGridAutoAlignCheck_ && userGridAutoAlignCheck_->isChecked();
+}
+
+float BangriDockPanel::userDrawLineWidthM() const {
+  return userDrawLineWidthSpin_ ? float(userDrawLineWidthSpin_->value()) : 3.5f;
+}
+
+int BangriDockPanel::userGridSubdivisions() const {
+  return userGridSubdivCombo_ ? userGridSubdivCombo_->currentData().toInt() : 1;
+}
+
+std::array<float, 4> BangriDockPanel::userDrawColor() const {
+  const int idx = userDrawColorCombo_ ? userDrawColorCombo_->currentData().toInt() : 0;
+  switch (idx) {
+    case 0: return {1.00f, 0.84f, 0.16f, 1.0f}; // 황금 노랑
+    case 1: return {0.14f, 0.88f, 1.00f, 1.0f}; // 하늘 청록
+    case 2: return {1.00f, 0.28f, 0.20f, 1.0f}; // 주홍 빨강
+    case 3: return {0.25f, 0.94f, 0.34f, 1.0f}; // 형광 연두
+    case 4: return {0.90f, 0.36f, 1.00f, 1.0f}; // 보라 자주
+    default: return {0.98f, 0.98f, 0.98f, 1.0f}; // 순백색
+  }
+}
+
+void BangriDockPanel::syncDrawToolButtons(int activeDrawMode) {
+  updatingUi_ = true;
+  if (drawLineBtn_) drawLineBtn_->setChecked(activeDrawMode == 2);
+  if (drawGridBtn_) drawGridBtn_->setChecked(activeDrawMode == 3);
+  updatingUi_ = false;
+}
+
+void BangriDockPanel::setUserDrawStatusText(const QString& text) {
+  if (userDrawStatusLabel_) userDrawStatusLabel_->setText(text);
 }
 
 void BangriDockPanel::setPresetById(const QString& presetId, bool emitSignals) {

@@ -21,6 +21,7 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   Q_OBJECT
  public:
   enum class Mode { Clay = 0, Elevation = 1, Slope = 2, Satellite = 3 };
+  enum class DrawMode { None = 0, Trench = 1, UserLine = 2, UserGrid = 3 };
 
   struct FrameStats {
     int chunks = 0;
@@ -62,6 +63,8 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   float hudBoxScale() const { return hudBoxScale_; }
   // 특정 세계 좌표(EPSG:5187/5186 미터)로 카메라 초점과 각도·거리를 즉시 이동한다.
   void focusOnWorld(double worldX, double worldY, float yawDeg, float pitchDeg, float distanceM);
+  // 현재 카메라가 바라보는 목표점의 세계 좌표(EPSG:5187/5186 미터)를 반환한다.
+  bool currentTargetWorld(double* worldX, double* worldY) const;
   // 위젯 크기와 상관없이 지정한 크기로 한 장 그린다(FBO). 도면용 고해상도 캡처.
   QImage renderToImage(int width, int height);
   float yawDegrees() const { return yawDeg_; }
@@ -76,7 +79,9 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   void setCameraPreset(float yawDeg, float pitchDeg, float distanceM);
   // 켜면 끌지 않은 왼쪽 클릭이 trenchPointRequested 로 나간다(카메라 돌리기는 그대로).
   void setTrenchMode(bool on);
-  bool trenchMode() const { return trenchMode_; }
+  bool trenchMode() const { return drawMode_ == DrawMode::Trench; }
+  void setDrawMode(DrawMode mode);
+  DrawMode drawMode() const { return drawMode_; }
   const FrameStats& stats() const { return stats_; }
   bool hasTerrain() const { return bool(tree_); }
   QString glInfo() const { return glInfo_; }
@@ -86,6 +91,12 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   void pickRequested(const QVector3D& origin, const QVector3D& direction);
   // 트렌치 그리기 모드에서 끌지 않고 한 번 누른 화면 점의 시선
   void trenchPointRequested(const QVector3D& origin, const QVector3D& direction);
+  // 사용자 3D 선 긋기 / 격자 만들기 모드에서 끌지 않고 누른 화면 점의 시선
+  void mapDrawPointRequested(int drawMode, const QVector3D& origin, const QVector3D& direction);
+  // 사용자 3D 선 긋기 / 격자 만들기 모드에서 마우스 이동 시 실시간 미리보기 시선
+  void mapHoverRay(int drawMode, const QVector3D& origin, const QVector3D& direction);
+  // 그리기 중 우클릭 취소 요청
+  void mapDrawCancelRequested();
   void frameRendered();
   void terrainUploaded();
   void hudScaleChanged(float fontScale, float boxScale);
@@ -131,7 +142,7 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   QPoint lastMouse_;
   QPoint pressPos_;
   bool dragged_ = false;
-  bool trenchMode_ = false;
+  DrawMode drawMode_ = DrawMode::None;
   bool hasPreset_ = false;
   float presetYaw_ = 0, presetPitch_ = 0, presetDistance_ = 0;
   bool hasPendingFocus_ = false;
