@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QFutureWatcher>
+#include <QImage>
 #include <QMainWindow>
 #include <memory>
 
@@ -22,6 +23,14 @@ class MainWindow : public QMainWindow {
     double pixelSizeM = 30;
     double featureRadiusM = 4000;  // 건물·유적을 받아 오는 반경
     bool loadFeatures = true;
+    bool loadSatellite = true;
+    int satelliteTexels = 4096;
+  };
+  struct SatelliteLoad {
+    QImage image;
+    QString source;
+    QString error;
+    double seconds = 0;
   };
   struct LoadResult {
     std::shared_ptr<const strata3d::TerrainLodTree> tree;
@@ -41,6 +50,7 @@ class MainWindow : public QMainWindow {
 
  signals:
   void loadFinished(bool ok, const QString& message);
+  void satelliteFinished(bool ok, const QString& message);
 
  private:
   void updateStatus();
@@ -49,6 +59,7 @@ class MainWindow : public QMainWindow {
   KaGlTerrainViewport* viewport_ = nullptr;
   QLabel* status_ = nullptr;
   QFutureWatcher<LoadResult> watcher_;
+  QFutureWatcher<SatelliteLoad> satWatcher_;
   LoadResult lastLoad_;
   QString summary_;
 };

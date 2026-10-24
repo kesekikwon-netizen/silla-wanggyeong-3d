@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QElapsedTimer>
+#include <QImage>
 #include <QOpenGLFunctions_3_3_Core>
 #include <QOpenGLWidget>
 #include <QPoint>
@@ -15,7 +16,7 @@
 class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
   Q_OBJECT
  public:
-  enum class Mode { Clay = 0, Elevation = 1, Slope = 2 };
+  enum class Mode { Clay = 0, Elevation = 1, Slope = 2, Satellite = 3 };
 
   struct FrameStats {
     int chunks = 0;
@@ -30,6 +31,9 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   void setTerrain(std::shared_ptr<const strata3d::TerrainLodTree> tree);
   void setScene(std::shared_ptr<const strata3d::SceneMesh> scene);
   void setSceneVisible(bool visible);
+  // DEM 격자와 같은 범위의 위성 실사(행 0 = 북). 올리면 위성 보기로 바뀐다.
+  void setSatellite(const QImage& rgb);
+  bool hasSatellite() const { return satTex_ != 0 || !pendingSat_.isNull(); }
   void setMode(Mode mode);
   void setZScale(float zScale);
   // 지형을 올린 직후의 카메라(도, 도, 미터). 재현 가능한 화면을 얻으려고 쓴다.
@@ -81,6 +85,8 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   unsigned templateEbo_ = 0;
   unsigned instanceVbo_ = 0;
   unsigned heightTex_ = 0;
+  QImage pendingSat_;
+  unsigned satTex_ = 0;
   // 건물·유적
   std::shared_ptr<const strata3d::SceneMesh> pendingScene_;
   bool sceneChanged_ = false;

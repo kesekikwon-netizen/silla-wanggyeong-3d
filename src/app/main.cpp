@@ -85,13 +85,17 @@ int main(int argc, char** argv) {
   QCommandLineOption dem(QStringLiteral("dem"), QStringLiteral("DEM 경로 또는 /vsicurl/ 주소(기본: Copernicus GLO-30)."), QStringLiteral("path"));
   QCommandLineOption lon(QStringLiteral("lon"), QStringLiteral("중심 경도(WGS84)."), QStringLiteral("deg"));
   QCommandLineOption lat(QStringLiteral("lat"), QStringLiteral("중심 위도(WGS84)."), QStringLiteral("deg"));
-  parser.addOptions({smoke, report, image, cam, dem, lon, lat});
+  QCommandLineOption noFeat(QStringLiteral("no-features"), QStringLiteral("건물·유적을 받지 않는다."));
+  QCommandLineOption noSat(QStringLiteral("no-satellite"), QStringLiteral("위성영상을 받지 않는다."));
+  parser.addOptions({smoke, report, image, cam, dem, lon, lat, noFeat, noSat});
   parser.process(app);
 
   MainWindow::Options opt;
   opt.demPath = parser.value(dem);
   if (parser.isSet(lon)) opt.lon = parser.value(lon).toDouble();
   if (parser.isSet(lat)) opt.lat = parser.value(lat).toDouble();
+  opt.loadFeatures = !parser.isSet(noFeat);
+  opt.loadSatellite = !parser.isSet(noSat);
 
   MainWindow w(opt);
   if (parser.isSet(cam)) {
@@ -113,13 +117,20 @@ int main(int argc, char** argv) {
     QCoreApplication::exit(code);
   };
   QString loadText;
+  bool satReady = !opt.loadSatellite;
   QObject::connect(&w, &MainWindow::loadFinished, &app, [&](bool ok, const QString& msg) {
     if (!ok) finish(1, QStringLiteral("DEM 불러오기 실패: ") + msg);
     loadText = msg;
   });
+  QObject::connect(&w, &MainWindow::satelliteFinished, &app, [&](bool ok, const QString& msg) {
+    if (!ok) finish(1, QStringLiteral("위성영상 실패: ") + msg);
+    loadText += QStringLiteral(" | ") + msg;
+    satReady = true;
+  });
   QObject::connect(w.viewport(), &KaGlTerrainViewport::frameRendered, &app, [&] {
     auto* vp = w.viewport();
     if (!vp->hasTerrain()) return;
+    if (!satReady) return;
     if (vp->stats().frames < 3) {  // 그리기는 update() 때만 일어나므로 몇 장 더 그리게 한다
       vp->update();
       return;

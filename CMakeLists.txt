@@ -52,7 +52,8 @@ add_library(strata_3d_engine STATIC
   src/engine/LocalVectorProvider.cpp
   src/engine/VworldKey.cpp
   src/engine/Triangulate.cpp
-  src/engine/SceneMesh.cpp)
+  src/engine/SceneMesh.cpp
+  src/engine/SatelliteProvider.cpp)
 target_include_directories(strata_3d_engine PUBLIC ${CMAKE_SOURCE_DIR}/src/engine ${S3D_GDAL_INCLUDES})
 target_link_directories(strata_3d_engine PUBLIC ${S3D_GDAL_LIBDIRS})
 target_link_libraries(strata_3d_engine PUBLIC Qt6::Core Qt6::Gui ${S3D_GDAL_LIB})

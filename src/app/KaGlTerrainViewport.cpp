@@ -89,6 +89,12 @@ void KaGlTerrainViewport::setScene(std::shared_ptr<const strata3d::SceneMesh> sc
   update();
 }
 
+void KaGlTerrainViewport::setSatellite(const QImage& rgb) {
+  pendingSat_ = rgb.convertToFormat(QImage::Format_RGB888);
+  mode_ = Mode::Satellite;
+  update();
+}
+
 void KaGlTerrainViewport::setSceneVisible(bool visible) {
   sceneVisible_ = visible;
   update();
@@ -225,6 +231,21 @@ void KaGlTerrainViewport::paintGL() {
   if (!program_) return;
   if (pendingUpload_) uploadTerrain();
   if (sceneChanged_) uploadScene();
+  if (!pendingSat_.isNull()) {
+    if (satTex_) glDeleteTextures(1, &satTex_);
+    glGenTextures(1, &satTex_);
+    glBindTexture(GL_TEXTURE_2D, satTex_);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, pendingSat_.width(), pendingSat_.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, pendingSat_.constBits());
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, 0x84FE /*GL_TEXTURE_MAX_ANISOTROPY_EXT*/, 8.0f);
+    pendingSat_ = QImage();
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+  }
   glClearColor(0.74f, 0.80f, 0.88f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   if (!tree_ || !heightTex_) return;
@@ -260,7 +281,11 @@ void KaGlTerrainViewport::paintGL() {
   glUniform1f(glGetUniformLocation(program_, "uZMin"), g.zMin);
   glUniform1f(glGetUniformLocation(program_, "uZMax"), g.zMax);
   glUniform3f(glGetUniformLocation(program_, "uSunDir"), -0.55f, 0.55f, 0.62f);  // 북서쪽 위(등고선 판독 관례)
-  glUniform1i(glGetUniformLocation(program_, "uMode"), int(mode_));
+  const Mode mode = (mode_ == Mode::Satellite && !satTex_) ? Mode::Elevation : mode_;
+  glUniform1i(glGetUniformLocation(program_, "uMode"), int(mode));
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, satTex_);
+  glUniform1i(glGetUniformLocation(program_, "uSat"), 1);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, heightTex_);
   glUniform1i(glGetUniformLocation(program_, "uHeight"), 0);

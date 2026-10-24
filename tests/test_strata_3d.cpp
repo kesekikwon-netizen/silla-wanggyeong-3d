@@ -14,6 +14,7 @@
 #include "KhsProvider.h"
 #include "LocalVectorProvider.h"
 #include "OsmProvider.h"
+#include "SatelliteProvider.h"
 #include "SceneMesh.h"
 #include "TerrainLodTree.h"
 #include "Triangulate.h"
@@ -257,6 +258,38 @@ class TestStrata3d : public QObject {
       QVERIFY(z > dem_.zMin - 5 && z < dem_.zMax + 200);
     }
     for (uint32_t idx : mesh->indices) QVERIFY(size_t(idx) * stride < mesh->vertices.size());
+  }
+
+  void satelliteTilesCoverTheWindow() {
+    SatelliteRequest sr;
+    sr.centerX = cx_;
+    sr.centerY = cy_;
+    sr.halfExtentM = 1500;
+    sr.texels = 1024;
+    sr.cacheDir = cache_.path();
+    SatelliteResult res;
+    QString err;
+    QVERIFY2(loadSatelliteImage(sr, &res, &err), qPrintable(err));
+    qInfo() << "위성 출처" << res.sourceName << "대략 타일 단계" << res.zoomLevel;
+    QCOMPARE(res.image.width(), 1024);
+    QCOMPARE(res.image.height(), 1024);
+    // 단색이 아니고, 밝기가 다양하며, 검은 빈칸이 거의 없어야 한다.
+    double sum = 0, sum2 = 0;
+    int dark = 0;
+    const int n = 1024 * 1024;
+    for (int y = 0; y < 1024; ++y) {
+      const uchar* line = res.image.constScanLine(y);
+      for (int x = 0; x < 1024; ++x) {
+        const double l = 0.299 * line[x * 3] + 0.587 * line[x * 3 + 1] + 0.114 * line[x * 3 + 2];
+        sum += l; sum2 += l * l;
+        if (l < 8) ++dark;
+      }
+    }
+    const double mean = sum / n, sd = std::sqrt(std::max(0.0, sum2 / n - mean * mean));
+    qInfo() << "위성 밝기 평균" << mean << "표준편차" << sd << "검은 픽셀 비율" << double(dark) / n;
+    QVERIFY(sd > 15);
+    QVERIFY(double(dark) / n < 0.02);
+    QVERIFY(mean > 40 && mean < 220);
   }
 
   void vworldKeyIsCheckedAgainstRealService() {

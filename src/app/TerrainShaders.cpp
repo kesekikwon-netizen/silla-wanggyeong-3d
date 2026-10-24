@@ -42,6 +42,7 @@ uniform float uZMin;
 uniform float uZMax;
 uniform vec3 uSunDir;
 uniform int uMode;
+uniform sampler2D uSat;
 out vec4 oColor;
 
 vec3 ramp(float t) {
@@ -78,7 +79,11 @@ void main() {
   float light = 0.28 + 0.72 * lambert;
   float slopeDeg = degrees(acos(clamp(normalize(vec3(-dzdx, -dzdy, 1.0)).z, 0.0, 1.0)));
   vec3 base;
-  if (uMode == 0) {
+  if (uMode == 3) {
+    // 위성 실사: 영상에 이미 들어 있는 그림자 위에 지형 기복만 살짝 얹는다.
+    vec3 albedo = pow(texture(uSat, (vPix + 0.5) / vec2(uGrid)).rgb, vec3(2.2));
+    base = albedo * clamp(0.85 + 0.55 * (lambert - 0.6), 0.5, 1.2);
+  } else if (uMode == 0) {
     base = vec3(0.78, 0.74, 0.68) * light;
   } else if (uMode == 1) {
     base = ramp((vZ - uZMin) / max(uZMax - uZMin, 1.0)) * light;

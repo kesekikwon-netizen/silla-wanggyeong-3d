@@ -19,6 +19,7 @@
 #include "KhsProvider.h"
 #include "LocalVectorProvider.h"
 #include "OsmProvider.h"
+#include "SatelliteProvider.h"
 
 namespace {
 const QString kWorkCrs = QStringLiteral("EPSG:5187");
@@ -65,6 +66,26 @@ MainWindow::LoadResult buildScene(MainWindow::Options opt) {
   out.seconds = timer.elapsed() / 1000.0;
   return out;
 }
+MainWindow::SatelliteLoad buildSatellite(MainWindow::Options opt, double centerX, double centerY, double halfExtentM) {
+  QElapsedTimer timer;
+  timer.start();
+  MainWindow::SatelliteLoad out;
+  strata3d::SatelliteRequest sr;
+  sr.centerX = centerX;
+  sr.centerY = centerY;
+  sr.halfExtentM = halfExtentM;
+  sr.workCrs = kWorkCrs;
+  sr.texels = opt.satelliteTexels;
+  sr.cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QStringLiteral("/tiles");
+  strata3d::SatelliteResult r;
+  if (strata3d::loadSatelliteImage(sr, &r, &out.error)) {
+    out.image = std::move(r.image);
+    out.source = r.sourceName;
+  }
+  out.seconds = timer.elapsed() / 1000.0;
+  return out;
+}
+
 }  // namespace
 
 MainWindow::MainWindow(const Options& options, QWidget* parent) : QMainWindow(parent), options_(options) {
@@ -76,7 +97,10 @@ MainWindow::MainWindow(const Options& options, QWidget* parent) : QMainWindow(pa
   auto* bar = addToolBar(QStringLiteral("보기"));
   bar->setMovable(false);
   auto* mode = new QComboBox(bar);
-  mode->addItems({QStringLiteral("점토 (기복 판독)"), QStringLiteral("표고 색띠"), QStringLiteral("경사도")});
+  mode->addItems({QStringLiteral("점토 (기복 판독)"), QStringLiteral("표고 색띠"), QStringLiteral("경사도"), QStringLiteral("위성 실사")});
+  connect(this, &MainWindow::satelliteFinished, mode, [mode](bool ok, const QString&) {
+    if (ok) mode->setCurrentIndex(3);
+  });
   bar->addWidget(mode);
   auto* zs = new QDoubleSpinBox(bar);
   zs->setRange(1.0, 5.0);
@@ -120,6 +144,22 @@ MainWindow::MainWindow(const Options& options, QWidget* parent) : QMainWindow(pa
     summary_ = msg;
     emit loadFinished(true, msg);
     status_->setText(msg);
+    if (options_.loadSatellite) {
+      const double cx = g.centerX(), cy = g.centerY(), half = g.width * g.pixelSize * 0.5;
+      satWatcher_.setFuture(QtConcurrent::run(buildSatellite, options_, cx, cy, half));
+    }
+  });
+  connect(&satWatcher_, &QFutureWatcher<SatelliteLoad>::finished, this, [this] {
+    const SatelliteLoad s = satWatcher_.result();
+    if (s.image.isNull()) {
+      summary_ += QStringLiteral(" | 위성 실패: ") + s.error;
+      emit satelliteFinished(false, s.error);
+      return;
+    }
+    viewport_->setSatellite(s.image);
+    const QString m = QStringLiteral("위성 %1 %2×%3, %4초").arg(s.source).arg(s.image.width()).arg(s.image.height()).arg(s.seconds, 0, 'f', 1);
+    summary_ += QStringLiteral(" | ") + m;
+    emit satelliteFinished(true, m);
   });
 }
 
