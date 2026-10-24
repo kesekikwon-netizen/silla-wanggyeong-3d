@@ -53,10 +53,17 @@ add_library(strata_3d_engine STATIC
   src/engine/VworldKey.cpp
   src/engine/Triangulate.cpp
   src/engine/SceneMesh.cpp
-  src/engine/SatelliteProvider.cpp)
+  src/engine/SatelliteProvider.cpp
+  src/engine/Kdop14Bvh.cpp
+  src/engine/KdTree3.cpp
+  src/engine/TerrainBvh.cpp
+  src/engine/Archaeology3dEvaluator.cpp)
 target_include_directories(strata_3d_engine PUBLIC ${CMAKE_SOURCE_DIR}/src/engine ${S3D_GDAL_INCLUDES})
 target_link_directories(strata_3d_engine PUBLIC ${S3D_GDAL_LIBDIRS})
 target_link_libraries(strata_3d_engine PUBLIC Qt6::Core Qt6::Gui ${S3D_GDAL_LIB})
+if(MSVC)
+  target_compile_options(strata_3d_engine PRIVATE /openmp)  # BVH 만들기 등 병렬 반복
+endif()
 
 # ---- 앱: hgis 의 KaTheme 를 그대로 컴파일 -------------------------------------------------
 include(cmake/EmbedQss.cmake)

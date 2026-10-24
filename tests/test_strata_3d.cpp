@@ -1,6 +1,8 @@
 // strata_3d_engine 시험. 모든 격자는 실제 Copernicus GLO-30 COG(/vsicurl/)에서 GDAL 로 읽는다.
 // 네트워크가 막히면 시험은 건너뛰지 않고 실패한다(가짜 값으로 통과시키지 않기 위해).
+#include <QElapsedTimer>
 #include <QMatrix4x4>
+#include <QRandomGenerator>
 #include <QTemporaryDir>
 #include <QVector2D>
 #include <QtTest>
@@ -10,8 +12,12 @@
 
 #include "CrsTransform.h"
 #include "DemProvider.h"
+#include "Archaeology3dEvaluator.h"
 #include "Frustum.h"
+#include "Kdop14Bvh.h"
+#include "KdTree3.h"
 #include "KhsProvider.h"
+#include "TerrainBvh.h"
 #include "LocalVectorProvider.h"
 #include "OsmProvider.h"
 #include "SatelliteProvider.h"
@@ -258,6 +264,177 @@ class TestStrata3d : public QObject {
       QVERIFY(z > dem_.zMin - 5 && z < dem_.zMax + 200);
     }
     for (uint32_t idx : mesh->indices) QVERIFY(size_t(idx) * stride < mesh->vertices.size());
+  }
+
+  // ---- BVH · k-d 트리 · 평가 -----------------------------------------------------------------
+  void kdopAxesMatchBlenderTable() {
+    const auto& ax = Kdop14::axes();
+    const float expect[7][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {1, 1, 1}, {1, -1, 1}, {1, 1, -1}, {1, -1, -1}};
+    for (int i = 0; i < 7; ++i)
+      for (int j = 0; j < 3; ++j) QCOMPARE(ax[i][j], expect[i][j]);
+    // Blender 의 BLI_bvhtree_balance 분기 노드 수 식 (디스어셈블리에서 확인): max(1, (n-3+4)/3)
+    QCOMPARE(Kdop14Bvh::expectedBranchNodes(1), 1);
+    QCOMPARE(Kdop14Bvh::expectedBranchNodes(100), 33);
+  }
+
+  void terrainBvhMatchesBruteForce() {
+    const auto bvh = TerrainBvh::build(dem_);
+    QVERIFY(bvh);
+    qInfo() << "지형 BVH 타일" << bvh->bvh().leafCount() << "노드" << bvh->bvh().nodeCount() << "깊이" << bvh->bvh().depth();
+    QRandomGenerator rng(12345);  // 시험 질의를 고르는 데만 쓴다(자료가 아님)
+    auto rnd = [&rng](double a, double b) { return a + (b - a) * rng.generateDouble(); };
+    const float half = float(dem_.width * dem_.pixelSize * 0.45);
+    int hits = 0, misses = 0;
+    qint64 bvhNs = 0, bruteNs = 0;
+    for (int i = 0; i < 160; ++i) {
+      const QVector3D o(float(rnd(-half, half)), float(rnd(-half, half)), dem_.zMax + float(rnd(50.0, 600.0)));
+      QVector3D d(float(rnd(-1.0, 1.0)), float(rnd(-1.0, 1.0)), float(rnd(-1.0, -0.02)));
+      d.normalize();
+      TerrainBvh::Hit a, b;
+      QElapsedTimer t;
+      t.start();
+      const bool ha = bvh->rayCast(o, d, 40000.0f, &a);
+      bvhNs += t.nsecsElapsed();
+      t.restart();
+      const bool hb = bvh->rayCastBruteForce(o, d, 40000.0f, &b);
+      bruteNs += t.nsecsElapsed();
+      QCOMPARE(ha, hb);
+      if (ha) {
+        ++hits;
+        QVERIFY2(std::abs(a.t - b.t) < 0.01f, qPrintable(QString("%1 vs %2").arg(a.t).arg(b.t)));
+      } else {
+        ++misses;
+      }
+    }
+    qInfo() << "광선 160개: 맞음" << hits << "빗나감" << misses << "BVH" << bvhNs / 1e6 << "ms, 전수" << bruteNs / 1e6 << "ms";
+    QVERIFY(hits > 100);
+    QVERIFY(bvhNs * 20 < bruteNs);  // 전수 검사보다 20배 이상 빨라야 의미가 있다
+  }
+
+  void kdTreeMatchesBruteForce() {
+    QVERIFY(!khs_.empty());
+    std::vector<KdTree3::Entry> entries;
+    for (size_t i = 0; i < khs_.size(); ++i)
+      entries.push_back({QVector3D(float(khs_[i].point.x - cx_), float(khs_[i].point.y - cy_), 0), uint32_t(i)});
+    KdTree3 tree;
+    tree.build(entries);
+    QRandomGenerator rng(777);
+    auto rnd = [&rng](double a, double b) { return a + (b - a) * rng.generateDouble(); };
+    for (int q = 0; q < 200; ++q) {
+      const QVector3D c(float(rnd(-5000.0, 5000.0)), float(rnd(-5000.0, 5000.0)), 0);
+      const float r = float(rnd(100.0, 1500.0));
+      std::vector<uint32_t> expect;
+      float bestD = 1e30f;
+      uint32_t bestId = 0;
+      for (const auto& e : entries) {
+        const float d = (e.p - c).length();
+        if (d <= r) expect.push_back(e.id);
+        if (d < bestD) { bestD = d; bestId = e.id; }
+      }
+      auto got = tree.radiusSearch(c, r);
+      std::vector<uint32_t> gotIds;
+      for (auto& p : got) gotIds.push_back(p.first);
+      std::sort(expect.begin(), expect.end());
+      std::sort(gotIds.begin(), gotIds.end());
+      QCOMPARE(gotIds, expect);
+      uint32_t nid = 0;
+      float nd = 0;
+      QVERIFY(tree.nearest(c, &nid, &nd));
+      QVERIFY(std::abs(nd - bestD) < 1e-3f);
+      Q_UNUSED(bestId);
+    }
+  }
+
+  void evaluatorBuffersAreRoundAndDistancesAgree() {
+    QVERIFY(!osm_.empty() && !khs_.empty());
+    std::vector<GeoFeature> all = osm_;
+    all.insert(all.end(), khs_.begin(), khs_.end());
+    Archaeology3dEvaluator ev(dem_, all);
+    const Pt site{cx_, cy_};
+    const Evaluation e = ev.evaluate(site);
+    QCOMPARE(int(e.radii.size()), 2);
+    for (const RadiusResult& rr : e.radii) {
+      const double circle = M_PI * rr.radiusM * rr.radiusM;
+      qInfo() << "반경" << rr.radiusM << "버퍼 넓이비" << rr.bufferAreaM2 / circle << "최대 도달" << rr.bufferMaxReachM
+              << "유산" << int(rr.heritage.size()) << "건물" << rr.buildings;
+      QVERIFY(rr.bufferAreaM2 / circle > 0.99 && rr.bufferAreaM2 / circle <= 1.0);
+      QVERIFY(std::abs(rr.bufferMaxReachM - rr.radiusM) < rr.radiusM * 0.002);  // 707 m(Miter)로 튀지 않는다
+      double prev = -1;
+      for (const NearbyItem& it : rr.heritage) {
+        QVERIFY(it.distanceM <= rr.radiusM + 1e-6);
+        QVERIFY(it.distanceM >= prev);
+        prev = it.distanceM;
+      }
+    }
+    QVERIFY(e.radii[1].heritage.size() >= e.radii[0].heritage.size());
+    QVERIFY(e.radii[1].heritage.size() >= 3);
+    // 독립 검산: 가장 가까운 국가유산청 점의 거리를 위경도 → 측지 거리(하버사인)로 다시 구해 비교한다.
+    const NearbyItem* near = nullptr;
+    for (const NearbyItem& it : e.radii[1].heritage)
+      if (it.source == "KHS") { near = &it; break; }
+    QVERIFY(near);
+    double fx = 0, fy = 0;
+    for (const GeoFeature& f : khs_) if (f.id == near->id) { fx = f.point.x; fy = f.point.y; }
+    double lon1 = cx_, lat1 = cy_, lon2 = fx, lat2 = fy;
+    QVERIFY(transformPoint("EPSG:5187", "EPSG:4326", &lon1, &lat1));
+    QVERIFY(transformPoint("EPSG:5187", "EPSG:4326", &lon2, &lat2));
+    const double R = 6371008.8, rad = M_PI / 180.0;
+    const double a = std::pow(std::sin((lat2 - lat1) * rad / 2), 2) + std::cos(lat1 * rad) * std::cos(lat2 * rad) * std::pow(std::sin((lon2 - lon1) * rad / 2), 2);
+    const double geodesic = 2 * R * std::asin(std::sqrt(a));
+    qInfo() << "가장 가까운 KHS" << near->name << near->distanceM << "m, 측지 거리" << geodesic << "m, 방위" << near->bearingName;
+    QVERIFY(std::abs(geodesic - near->distanceM) < 0.003 * near->distanceM + 0.5);
+  }
+
+  void evaluatorPolygonBufferHasNoMiterSpike() {
+    const double h = 10;
+    const std::vector<Pt> square = {{cx_ - h, cy_ - h}, {cx_ + h, cy_ - h}, {cx_ + h, cy_ + h}, {cx_ - h, cy_ + h}};
+    Archaeology3dEvaluator ev(dem_, khs_);
+    const Evaluation e = ev.evaluate({cx_, cy_}, square, {500.0});
+    const RadiusResult& rr = e.radii[0];
+    // 정사각형(반폭 10 m)에서 버퍼 꼭짓점까지의 거리는 모든 점에서 500 m 이어야 한다(Miter 면 대각선 모서리가 707 m).
+    for (const Pt& p : rr.bufferRing) {
+      const double dx = std::max(std::abs(p.x - cx_) - h, 0.0), dy = std::max(std::abs(p.y - cy_) - h, 0.0);
+      QVERIFY2(std::abs(std::hypot(dx, dy) - 500.0) < 1.0, qPrintable(QString::number(std::hypot(dx, dy))));
+    }
+  }
+
+  void evaluatorTerrainMetricsAreSane() {
+    Archaeology3dEvaluator ev(dem_, khs_);
+    const Evaluation basin = ev.evaluate({cx_, cy_}, {}, {500.0});
+    qInfo() << "첨성대 부근: 고도" << basin.terrain.elevationM << "경사" << basin.terrain.slopeDeg << "향" << basin.terrain.aspectName
+            << "분류" << basin.terrain.landform << "zS" << basin.terrain.zSmall << "zL" << basin.terrain.zLarge;
+    QVERIFY(basin.terrain.slopeDeg < 5.0);
+    QVERIFY(!basin.terrain.landform.isEmpty());
+    // 창 안 가장 높은 칸은 산정·능선이어야 한다.
+    int bc = 0, br = 0;
+    for (int r = 0; r < dem_.height; ++r)
+      for (int c = 0; c < dem_.width; ++c)
+        if (dem_.at(c, r) > dem_.at(bc, br)) { bc = c; br = r; }
+    const Evaluation top = ev.evaluate({dem_.xAt(bc + 0.5), dem_.yAt(br + 0.5)}, {}, {500.0});
+    qInfo() << "최고점:" << top.terrain.elevationM << "m" << top.terrain.landform << "zL" << top.terrain.zLarge;
+    QVERIFY(top.terrain.elevationM > 800);
+    QVERIFY(top.terrain.zLarge > 1.0);
+    QVERIFY(top.terrain.slopeDeg > basin.terrain.slopeDeg);
+  }
+
+  void evaluatorVisibilityAndProfile() {
+    QVERIFY(!khs_.empty());
+    Archaeology3dEvaluator ev(dem_, khs_);
+    const Evaluation e = ev.evaluate({cx_, cy_}, {}, {1000.0});
+    int vis = 0;
+    for (const VisibilityItem& v : e.visibility) {
+      if (v.visible) ++vis;
+      else QVERIFY(v.blockedAtM > 0 && v.blockedAtM < v.distanceM);
+    }
+    qInfo() << "시야 대상" << int(e.visibility.size()) << "곳 중 보이는 곳" << vis;
+    QVERIFY(!e.visibility.empty());
+    QVERIFY(vis >= 1);  // 평지 안에서는 가까운 사적이 지형에 가리지 않는다
+    const auto prof = ev.terrainProfile({cx_, cy_}, {cx_ + 600, cy_ + 300}, 10);
+    QVERIFY(prof.size() > 50);
+    float z0 = 0;
+    QVERIFY(dem_.sample(cx_, cy_, &z0));
+    QVERIFY(std::abs(prof.front().elevationM - z0) < 1e-3);
+    QVERIFY(std::abs(prof.back().distanceM - std::hypot(600.0, 300.0)) < 1e-6);
   }
 
   void satelliteTilesCoverTheWindow() {
