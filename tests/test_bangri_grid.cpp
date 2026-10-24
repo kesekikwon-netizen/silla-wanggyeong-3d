@@ -235,7 +235,8 @@ class TestBangriGrid : public QObject {
              qPrintable(QStringLiteral("Missing Blender heritage bundle: %1").arg(bundlePath)));
 
     const auto catalog = BangriTerrainValidator::gyeongjuHeritageCatalog();
-    QCOMPARE(int(catalog.size()), 20);
+    QVERIFY2(int(catalog.size()) >= 300,
+             qPrintable(QStringLiteral("Expected >= 300 Gyeongju heritage sites, got %1").arg(catalog.size())));
     for (const auto& site : catalog) {
       QVERIFY(!site.id.isEmpty());
       QVERIFY(!site.name.isEmpty());
@@ -259,12 +260,12 @@ class TestBangriGrid : public QObject {
 
     const BangriValidationResult val = BangriTerrainValidator::validate(dem, grid, {});
 
-    // 1) 전체 20개 유적 켜짐
+    // 1) 전체 경주 유적 켜짐 (311곳 전수)
     auto meshAll = BangriTerrainValidator::buildValidatedGridOverlay(
         dem, grid, val, {}, {}, {}, true, false, nullptr);
     QVERIFY(meshAll != nullptr);
-    QCOMPARE(meshAll->heritagePoints, 20);
-    QVERIFY(meshAll->indices.size() > 100000);
+    QCOMPARE(meshAll->heritagePoints, int(catalog.size()));
+    QVERIFY(meshAll->indices.size() > 500000);
 
     // 2) 단일 유적 1곳(첨성대)만 켜짐
     const std::vector<QString> onlyCheom = {QStringLiteral("cheomseongdae")};

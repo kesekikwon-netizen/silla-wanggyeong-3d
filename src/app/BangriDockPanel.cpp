@@ -8,6 +8,7 @@
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QListWidget>
 #include <QPushButton>
 #include <QSlider>
@@ -69,34 +70,44 @@ BangriDockPanel::BangriDockPanel(QWidget* parent) : QWidget(parent) {
     emit cameraTourRequested(int(CameraTourTarget::CapitalOverview));
   });
 
-  // 2. 경주 20대 유적 블렌더 3D 모델 개별 켜기/끄기 목록 (사용자가 하나의 유적씩 켜고 끌 수 있음)
-  auto* heritageBox = new QGroupBox(QStringLiteral("② 경주 20대 유적 블렌더 3D 개별 켜기/끄기 (체크: 표시 · 클릭: 카메라 이동)"), this);
+  // 2. 경주 전체 유적 블렌더 3D 모델 개별 켜기/끄기 목록 (사용자가 하나의 유적씩 켜고 끌 수 있음)
+  auto* heritageBox = new QGroupBox(
+      QStringLiteral("② 경주 전체 유적 블렌더 3D 개별 켜기/끄기 (총 %1곳 · 체크: 표시 · 클릭: 카메라 이동)")
+          .arg(heritageCatalog_.size()),
+      this);
   auto* heritageLayout = new QVBoxLayout(heritageBox);
   heritageLayout->setContentsMargins(6, 5, 6, 5);
   heritageLayout->setSpacing(4);
 
   auto* heritageBtnRow = new QHBoxLayout();
   heritageBtnRow->setSpacing(4);
-  auto* btnAllOn = new QPushButton(QStringLiteral("전체 켜기 (20곳)"), heritageBox);
+  auto* btnAllOn = new QPushButton(QStringLiteral("전체 켜기 (%1곳)").arg(heritageCatalog_.size()), heritageBox);
   auto* btnAllOff = new QPushButton(QStringLiteral("전체 끄기"), heritageBox);
   auto* btnSoloSite = new QPushButton(QStringLiteral("선택 유적 1곳만 보기"), heritageBox);
-  heritageCountLabel_ = new QLabel(QStringLiteral("표시 중: 20/20"), heritageBox);
+  heritageCountLabel_ = new QLabel(
+      QStringLiteral("표시 중: %1/%2").arg(heritageCatalog_.size()).arg(heritageCatalog_.size()), heritageBox);
   heritageBtnRow->addWidget(btnAllOn);
   heritageBtnRow->addWidget(btnAllOff);
   heritageBtnRow->addWidget(btnSoloSite);
   heritageBtnRow->addWidget(heritageCountLabel_);
   heritageLayout->addLayout(heritageBtnRow);
 
+  auto* searchEdit = new QLineEdit(heritageBox);
+  searchEdit->setPlaceholderText(QStringLiteral("🔍 경주 전체 유적 이름·분류 검색 (예: 불국사, 석굴암, 감은사, 석탑, 왕릉, 국보, 남산)..."));
+  searchEdit->setClearButtonEnabled(true);
+  heritageLayout->addWidget(searchEdit);
+
   heritageList_ = new QListWidget(heritageBox);
-  heritageList_->setMinimumHeight(115);
-  heritageList_->setMaximumHeight(145);
+  heritageList_->setMinimumHeight(130);
+  heritageList_->setMaximumHeight(165);
   heritageList_->setSelectionMode(QAbstractItemView::SingleSelection);
   for (size_t i = 0; i < heritageCatalog_.size(); ++i) {
     const auto& site = heritageCatalog_[i];
     auto* item = new QListWidgetItem(
-        QStringLiteral("%1. %2").arg(i + 1, 2, 10, QLatin1Char('0')).arg(site.name),
+        QStringLiteral("%1. %2").arg(i + 1, 3, 10, QLatin1Char('0')).arg(site.name),
         heritageList_);
     item->setData(Qt::UserRole, site.id);
+    item->setData(Qt::UserRole + 1, site.category + QStringLiteral(" ") + site.subtitle);
     item->setFlags(item->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     item->setCheckState(Qt::Checked);
     item->setToolTip(QStringLiteral("%1\n· %2\n· 블렌더 3D 모델: 삼각형 %3개 (정점 %4개)\n· 체크박스를 끄면 이 유적만 화면에서 숨겨집니다.")
@@ -106,6 +117,17 @@ BangriDockPanel::BangriDockPanel(QWidget* parent) : QWidget(parent) {
   }
   heritageLayout->addWidget(heritageList_);
   root->addWidget(heritageBox);
+
+  connect(searchEdit, &QLineEdit::textChanged, this, [this](const QString& q) {
+    const QString query = q.trimmed();
+    for (int i = 0; i < heritageList_->count(); ++i) {
+      QListWidgetItem* it = heritageList_->item(i);
+      const bool match = query.isEmpty() ||
+                         it->text().contains(query, Qt::CaseInsensitive) ||
+                         it->data(Qt::UserRole + 1).toString().contains(query, Qt::CaseInsensitive);
+      it->setHidden(!match);
+    }
+  });
 
   auto updateHeritageCountLabel = [this] {
     int checked = 0;

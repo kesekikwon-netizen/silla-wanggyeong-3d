@@ -110,7 +110,7 @@ const std::vector<BlenderSiteBinaryMesh>& cachedBlenderHeritageMeshes() {
   };
 
   uint32_t numSites = 0;
-  if (!readU32(&numSites) || numSites == 0 || numSites > 256) return s_cache;
+  if (!readU32(&numSites) || numSites == 0 || numSites > 4096) return s_cache;
 
   s_cache.reserve(numSites);
   for (uint32_t i = 0; i < numSites; ++i) {
@@ -843,7 +843,7 @@ std::vector<GyeongjuHeritageSiteMeta> BangriTerrainValidator::gyeongjuHeritageCa
 
   const auto& blenderSites = cachedBlenderHeritageMeshes();
   std::vector<GyeongjuHeritageSiteMeta> out;
-  out.reserve(std::size(kSpecs));
+  out.reserve(std::max<size_t>(std::size(kSpecs), blenderSites.size()));
   for (const StaticSiteSpec& s : kSpecs) {
     GyeongjuHeritageSiteMeta m;
     m.id = QString::fromLatin1(s.id);
@@ -865,6 +865,37 @@ std::vector<GyeongjuHeritageSiteMeta> BangriTerrainValidator::gyeongjuHeritageCa
         break;
       }
     }
+    out.push_back(std::move(m));
+  }
+
+  // 블렌더 번들(gyeongju_blender_heritage.s3dmesh)에 포함된 경주시 전체 국가유산청(KHS) 지정·등록 유산 전수 추가
+  for (const BlenderSiteBinaryMesh& bm : blenderSites) {
+    bool already = false;
+    for (const auto& ex : out) {
+      if (ex.id == bm.id) {
+        already = true;
+        break;
+      }
+    }
+    if (already) continue;
+    GyeongjuHeritageSiteMeta m;
+    m.id = bm.id;
+    m.name = bm.name;
+    m.category = bm.category;
+    m.subtitle = bm.subtitle;
+    m.lat = bm.lat;
+    m.lon = bm.lon;
+    m.focusYawDeg = bm.camYaw;
+    m.focusPitchDeg = bm.camPitch;
+    m.focusDistM = bm.camDist;
+    m.labelHeightM = bm.labelH;
+    m.badgeColor = {bm.badgeRgba[0] / 255.0f,
+                    bm.badgeRgba[1] / 255.0f,
+                    bm.badgeRgba[2] / 255.0f,
+                    bm.badgeRgba[3] / 255.0f};
+    m.importantLabel = false;
+    m.blenderVertexCount = bm.vCount;
+    m.blenderTriangleCount = bm.iCount / 3;
     out.push_back(std::move(m));
   }
   return out;
@@ -923,11 +954,16 @@ std::shared_ptr<SceneMesh> BangriTerrainValidator::buildValidatedGridOverlay(
           if (!isSiteEnabled(bm.id)) continue;
           if (bm.vCount == 0 || bm.iCount == 0) continue;
 
-          // 유적 기준점(WGS84 -> dem.crs) 변환 및 DEM 범위 내 유적인지 확인
+          // 유적 기준점(WGS84 -> dem.crs) 변환 및 지형 표고 샘플링 (외곽 경주 유적도 경계 표고로 모두 3D 배치)
           double anchorX = bm.lon, anchorY = bm.lat;
-          float anchorGz = 0.0f;
-          if (!tr.valid() || !tr.transform(&anchorX, &anchorY) || !dem.sample(anchorX, anchorY, &anchorGz)) {
+          if (!tr.valid() || !tr.transform(&anchorX, &anchorY)) {
             continue;
+          }
+          float anchorGz = 0.5f * (dem.zMin + dem.zMax);
+          if (!dem.sample(anchorX, anchorY, &anchorGz)) {
+            const double clampedX = std::clamp(anchorX, dem.originX, dem.originX + (dem.width - 1) * dem.pixelSize);
+            const double clampedY = std::clamp(anchorY, dem.originY - (dem.height - 1) * dem.pixelSize, dem.originY);
+            dem.sample(clampedX, clampedY, &anchorGz);
           }
 
           const uint32_t baseVertIdx = uint32_t(mesh->vertices.size() / SceneMesh::kFloatsPerVertex);

@@ -85,7 +85,11 @@ void KaGlTerrainViewport::focusOnWorld(double worldX, double worldY, float yawDe
   if (tree_) {
     const strata3d::DemGrid& g = tree_->grid();
     float zAt = (g.zMin + g.zMax) * 0.5f;
-    g.sample(worldX, worldY, &zAt);
+    if (!g.sample(worldX, worldY, &zAt)) {
+      const double clampedX = std::clamp(worldX, g.originX, g.originX + (g.width - 1) * g.pixelSize);
+      const double clampedY = std::clamp(worldY, g.originY - (g.height - 1) * g.pixelSize, g.originY);
+      g.sample(clampedX, clampedY, &zAt);
+    }
     targetBaseZ_ = zAt;
     target_ = QVector3D(float(worldX - g.centerX()), float(worldY - g.centerY()), targetBaseZ_ * zScale_);
   }
@@ -471,9 +475,29 @@ void KaGlTerrainViewport::paintHudAnnotations(QPainter* p, int w, int h) const {
   QFontMetrics fmTitle(titleFont);
   QFontMetrics fmSub(subFont);
 
-  for (const CalloutLabel3D& lbl : calloutLabels_) {
-    float groundZ = 45.0f;
-    if (!g.sample(lbl.worldX, lbl.worldY, &groundZ)) continue;
+  // 카메라 목표점(target_)에 가까운 유적 이름표를 우선 배치하여 311개 전체 유적 중 현재 화면에 맞는 라벨이 깔끔하게 표시되도록 정렬
+  std::vector<size_t> order(calloutLabels_.size());
+  for (size_t i = 0; i < order.size(); ++i) order[i] = i;
+  const double tgtWorldX = cx + double(target_.x());
+  const double tgtWorldY = cy + double(target_.y());
+  std::stable_sort(order.begin(), order.end(), [&](size_t a, size_t b) {
+    const auto& la = calloutLabels_[a];
+    const auto& lb = calloutLabels_[b];
+    const double da = std::hypot(la.worldX - tgtWorldX, la.worldY - tgtWorldY) - (la.important ? 350.0 : 0.0);
+    const double db = std::hypot(lb.worldX - tgtWorldX, lb.worldY - tgtWorldY) - (lb.important ? 350.0 : 0.0);
+    return da < db;
+  });
+
+  int drawnLabels = 0;
+  for (size_t idx : order) {
+    if (drawnLabels >= 28) break;  // 한 화면 최대 28개 말풍선으로 가독성 유지
+    const CalloutLabel3D& lbl = calloutLabels_[idx];
+    float groundZ = 0.5f * (g.zMin + g.zMax);
+    if (!g.sample(lbl.worldX, lbl.worldY, &groundZ)) {
+      const double clampedX = std::clamp(lbl.worldX, g.originX, g.originX + (g.width - 1) * g.pixelSize);
+      const double clampedY = std::clamp(lbl.worldY, g.originY - (g.height - 1) * g.pixelSize, g.originY);
+      g.sample(clampedX, clampedY, &groundZ);
+    }
 
     const QVector3D localAnchor(float(lbl.worldX - cx),
                                 float(lbl.worldY - cy),
@@ -523,8 +547,9 @@ void KaGlTerrainViewport::paintHudAnnotations(QPainter* p, int w, int h) const {
         break;
       }
     }
-    if (!Placed && !lbl.important) continue;
+    if (!Placed) continue;
     placedRects.push_back(candidate);
+    ++drawnLabels;
 
     // 3D 목표점 동그라미 핀 + 지시선
     const QPoint boxConnect(std::clamp(sx, candidate.left() + 8, candidate.right() - 8),

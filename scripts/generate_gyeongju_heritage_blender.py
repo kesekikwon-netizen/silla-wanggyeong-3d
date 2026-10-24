@@ -817,7 +817,269 @@ def build_all_gyeongju_sites() -> list[BlenderSiteBuilder]:
     s20.add_silla_hall(mx, my, 9.5, 9.5, 5.2, 3.6, 0.0)
     sites.append(s20)
 
+    # -----------------------------------------------------------------------
+    # 21 ~ 315+. 국가유산청(KHS) 경주시 전체 지정·등록 문화유산 전수 3D 모델링
+    # (국보·보물·사적·천연기념물·국가민속문화유산·시도유형문화유산·시도기념물·문화유산자료 등)
+    # -----------------------------------------------------------------------
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    khs_json_path = os.path.join(repo_root, "data", "models", "gyeongju_khs_source.json")
+    if os.path.exists(khs_json_path):
+        with open(khs_json_path, "r", encoding="utf-8") as kf:
+            khs_records = json.load(kf)
+
+        # 이미 1~20번 대표 복합유적의 중심점으로 직접 생성된 핵심 항목 명칭은 중복 방지
+        covered_exact_names = {
+            "경주 황룡사지", "경주 분황사 모전석탑", "경주 분황사지",
+            "경주 구황동 원지 유적 일원", "경주 동궁과 월지", "경주 월성",
+            "경주 석빙고", "경주 첨성대", "경주 춘양교지와 월정교지",
+            "경주 계림", "경주 내물왕릉", "경주향교 대성전",
+            "성덕대왕신종", "경주 대릉원 일원", "경주 미추왕릉",
+            "경주 오릉", "경주 나정", "경주 포석정지",
+            "경주 황복사지 삼층석탑", "경주 무열왕릉", "경주 김유신묘",
+            "경주읍성"
+        }
+
+        coord_counts = {}
+        for rec in khs_records:
+            rname = rec["name"].strip()
+            if rname in covered_exact_names:
+                continue
+            rcat = rec["category"].strip()
+            rlat = float(rec["lat"])
+            rlon = float(rec["lon"])
+            kid = rec["khs_id"]
+
+            # 동일 좌표(예: 국립경주박물관 소장 국보·보물 또는 동일 경내 유산)는 원형/격자 오프셋 배치
+            ckey = (round(rlat, 4), round(rlon, 4))
+            cidx = coord_counts.get(ckey, 0)
+            coord_counts[ckey] = cidx + 1
+            if cidx > 0:
+                ring = (cidx - 1) // 8 + 1
+                slot = (cidx - 1) % 8
+                ang = (2.0 * math.pi * slot) / 8.0 + ring * 0.25
+                dist_m = 16.0 * ring
+                rlat += (dist_m * math.sin(ang)) / 110950.0
+                rlon += (dist_m * math.cos(ang)) / (111319.5 * math.cos(math.radians(35.835)))
+
+            # 카테고리별 배지 색상
+            if "국보" in rcat:
+                badge = (205, 55, 40)
+            elif "보물" in rcat:
+                badge = (185, 115, 35)
+            elif "사적" in rcat:
+                badge = (45, 140, 85)
+            elif "천연기념물" in rcat:
+                badge = (40, 155, 70)
+            elif "민속" in rcat:
+                badge = (145, 95, 50)
+            else:
+                badge = (70, 125, 175)
+
+            display_title = f"[{rcat}] {rname}"
+            sb = classify_and_build_khs_site(kid, display_title, rcat, rname, rlat, rlon, badge)
+            sites.append(sb)
+
     return sites
+
+
+def classify_and_build_khs_site(site_id: str, display_title: str, rcat: str, rname: str,
+                                lat: float, lon: float, badge: tuple[int, int, int]) -> BlenderSiteBuilder:
+    """Build an authentic archetype-matched 3D monument in Blender BMesh for any Gyeongju KHS record."""
+    # 1. 다보탑 / 석탑 / 모전석탑 / 사리탑 / 부도탑
+    if any(k in rname for k in ("다보탑", "석탑", "사리탑", "부도탑", "탑신석")):
+        stories = 3
+        if "십삼층" in rname or "13층" in rname:
+            stories = 13
+        elif "오층" in rname or "5층" in rname:
+            stories = 5
+        elif "사리탑" in rname or "부도" in rname or "탑신석" in rname:
+            stories = 1
+        sub = f"경주 {rcat} · 신라 화강암 {stories}층 불탑 및 이중기단·상륜부 3D 복원"
+        b = BlenderSiteBuilder(site_id, display_title, rcat, sub, lat, lon, 14.0, badge, 15.0, 28.0, 220.0)
+        if "다보탑" in rname:
+            # 국보 제20호 불국사 다보탑 (십자형 계단 기단 + 대나무형 기둥 + 팔각 난간·옥개 + 상륜)
+            b.add_box(0, 0, 0.0, 1.8, 6.2, 6.2, 0.0, GRANITE_LIGHT)
+            for ang_d in (0.0, 90.0):
+                b.add_box(0, 0, 0.4, 1.4, 8.2, 2.2, ang_d, GRANITE_MID)
+            for px in (-1.5, 1.5):
+                for py in (-1.5, 1.5):
+                    b.add_box(px, py, 1.8, 2.8, 0.55, 0.55, 0.0, GRANITE_LIGHT)
+            b.add_box(0, 0, 4.6, 0.8, 4.6, 4.6, 0.0, GRANITE_MID)
+            b.add_cylinder(0, 0, 5.4, 7.2, 2.1, 1.9, 8, GRANITE_LIGHT)
+            b.add_cylinder(0, 0, 7.2, 8.4, 3.0, 0.6, 8, GRANITE_MID)
+            b.add_cylinder(0, 0, 8.4, 10.6, 0.5, 0.15, 8, GOLD_SPIRE)
+        elif stories == 1:
+            b.add_cylinder(0, 0, 0.0, 1.2, 2.6, 2.2, 8, GRANITE_MID)
+            b.add_cylinder(0, 0, 1.2, 3.2, 1.4, 1.4, 8, GRANITE_LIGHT)
+            b.add_cylinder(0, 0, 3.2, 4.2, 2.2, 0.4, 8, GRANITE_DARK)
+            b.add_cylinder(0, 0, 4.2, 5.4, 0.35, 0.1, 8, GOLD_SPIRE)
+        else:
+            is_twin = ("동·서" in rname or "동ㆍ서" in rname)
+            offsets = (-10.0, 10.0) if is_twin else (0.0,)
+            for ox in offsets:
+                base_w = 7.2 if stories >= 5 else 5.8
+                b.add_box(ox, 0, 0.0, 1.1, base_w, base_w, 0.0, GRANITE_MID)
+                b.add_box(ox, 0, 1.1, 1.3, base_w * 0.74, base_w * 0.74, 0.0, GRANITE_LIGHT)
+                pz = 2.4
+                for st in range(stories):
+                    ratio = max(0.32, 1.0 - (0.58 * st) / max(1, stories))
+                    w = base_w * 0.48 * ratio
+                    h = (1.65 if stories <= 5 else 0.92) * ratio
+                    b.add_box(ox, 0, pz, h, w, w, 0.0, GRANITE_LIGHT)
+                    pz += h
+                    b.add_box(ox, 0, pz, 0.55 if stories <= 5 else 0.38, w * 1.38, w * 1.38, 0.0, GRANITE_DARK)
+                    pz += (0.55 if stories <= 5 else 0.38)
+                b.add_cylinder(ox, 0, pz, pz + 2.2, 0.38, 0.12, 8, GOLD_SPIRE)
+        return b
+
+    # 2. 불국사 청운교·백운교 / 연화교·칠보교 / 가구식 석축
+    if any(k in rname for k in ("청운교", "연화교", "석축", "효불효교")):
+        sub = f"경주 {rcat} · 신라 화강암 홍예 석교 및 석축 계단 3D 복원"
+        b = BlenderSiteBuilder(site_id, display_title, rcat, sub, lat, lon, 13.0, badge, 12.0, 28.0, 240.0)
+        b.add_box(0, 0, 0.0, 4.8, 28.0, 8.0, 0.0, GRANITE_MID)
+        for st in range(6):
+            b.add_box(0, -4.0 - st * 1.2, st * 0.75, 0.8, 5.2, 1.4, 0.0, GRANITE_LIGHT)
+        b.add_silla_hall(0, 2.0, 14.0, 8.0, 5.2, 3.8, 0.0, z_offset=4.8)
+        return b
+
+    # 3. 석굴암 석굴
+    if "석굴암 석굴" in rname:
+        sub = "국보 제24호 · 토함산 화강암 원형 돔 주실·본존불 및 목조 전실 3D 복원"
+        b = BlenderSiteBuilder(site_id, display_title, rcat, sub, lat, lon, 15.0, badge, 20.0, 28.0, 260.0)
+        b.add_cylinder(0, 4.0, 0.0, 6.8, 7.5, 5.2, 16, MOUND_GRASS_TOP)
+        b.add_cylinder(0, 4.0, 0.0, 4.5, 4.8, 4.2, 12, GRANITE_LIGHT)
+        b.add_silla_hall(0, -3.5, 13.5, 8.5, 5.4, 3.8, 0.0)
+        return b
+
+    # 4. 문무대왕릉 (수중릉 대왕암)
+    if "문무대왕릉" in rname:
+        sub = "사적 제158호 · 동해 대왕암 바위섬 및 십자형 수로·수중 석실 3D 복원"
+        b = BlenderSiteBuilder(site_id, display_title, rcat, sub, lat, lon, 14.0, badge, 25.0, 32.0, 360.0)
+        for ang_i in range(8):
+            ang = (2.0 * math.pi * ang_i) / 8.0
+            rx, ry = 14.0 * math.cos(ang), 14.0 * math.sin(ang)
+            b.add_cylinder(rx, ry, 0.0, 4.2, 8.5, 5.2, 7, GRANITE_MID)
+        b.add_cylinder(0, 0, 0.0, 1.2, 9.0, 9.0, 12, POND_WATER)
+        b.add_box(0, 0, 0.8, 1.4, 3.8, 2.6, 0.0, GRANITE_LIGHT)
+        return b
+
+    # 5. 왕릉 · 고분군 · 방형분 · 묘
+    if any(k in rname for k in ("왕릉", "여왕릉", "고분", "방형분", "삼릉", "삼안총", "간묘", "유신묘", "인문묘", "김양묘", "설총묘", "부조묘")):
+        sub = f"경주 {rcat} · 신라 봉토분·호석(둘레돌)·상석 및 능역 3D 복원"
+        b = BlenderSiteBuilder(site_id, display_title, rcat, sub, lat, lon, 16.0, badge, 18.0, 30.0, 340.0)
+        if "방형분" in rname:
+            b.add_box(0, 0, 0.0, 1.8, 13.0, 13.0, 0.0, GRANITE_MID)
+            b.add_box(0, 0, 1.8, 4.5, 11.0, 11.0, 0.0, MOUND_GRASS_TOP)
+        elif "삼릉" in rname:
+            for ox in (-24.0, 0.0, 24.0):
+                b.add_royal_tomb_mound(ox, 0.0, 11.5, 5.8, has_curbstone=True, has_table=(ox == 0.0))
+        elif "고분군" in rname:
+            for ox, oy, rm, hm in ((-22.0, -12.0, 15.0, 7.2), (0.0, 0.0, 18.5, 8.8),
+                                   (24.0, 10.0, 14.0, 6.5), (-10.0, 22.0, 12.5, 5.8)):
+                b.add_royal_tomb_mound(ox, oy, rm, hm, has_curbstone=True)
+        else:
+            b.add_royal_tomb_mound(0.0, 0.0, 17.5, 8.4, has_curbstone=True, has_table=True)
+            # 문인석·무인석·석주 (원성왕릉·성덕왕릉·흥덕왕릉 등)
+            for side in (-5.5, 5.5):
+                b.add_box(side, -22.0, 0.0, 2.6, 0.9, 0.9, 0.0, GRANITE_LIGHT)
+                b.add_box(side, -26.0, 0.0, 2.5, 0.9, 0.9, 0.0, GRANITE_MID)
+        return b
+
+    # 6. 당간지주
+    if "당간지주" in rname:
+        sub = f"경주 {rcat} · 신라 사찰 화강암 당간지주 쌍기둥 및 간대석 3D 복원"
+        b = BlenderSiteBuilder(site_id, display_title, rcat, sub, lat, lon, 12.0, badge, 15.0, 26.0, 180.0)
+        b.add_box(0, 0, 0.0, 0.6, 3.2, 2.2, 0.0, GRANITE_MID)
+        b.add_box(-0.75, 0, 0.6, 4.5, 0.65, 1.05, 0.0, GRANITE_LIGHT)
+        b.add_box(0.75, 0, 0.6, 4.5, 0.65, 1.05, 0.0, GRANITE_LIGHT)
+        b.add_cylinder(0, 0, 0.6, 6.2, 0.22, 0.14, 8, BRONZE_BELL)
+        return b
+
+    # 7. 마애불 · 석조여래 · 보살 · 사면불 · 석불 · 불상
+    if any(k in rname for k in ("마애", "불상", "여래", "보살", "석불", "입불", "사면불", "육존불", "칠불암")):
+        sub = f"경주 {rcat} · 신라 화강암 연화대좌·광배·불상 3D 복원"
+        b = BlenderSiteBuilder(site_id, display_title, rcat, sub, lat, lon, 12.0, badge, 15.0, 26.0, 190.0)
+        if "사면불" in rname or "마애" in rname or "칠불암" in rname or "탑곡" in rname:
+            b.add_box(0, 1.2, 0.0, 5.2, 5.6, 3.8, 0.0, GRANITE_MID)
+        is_triad = ("삼존" in rname or "칠불" in rname)
+        offsets = (-2.2, 0.0, 2.2) if is_triad else (0.0,)
+        for ox in offsets:
+            sc = 1.0 if ox == 0.0 else 0.75
+            b.add_cylinder(ox, 0, 0.0, 1.1 * sc, 1.6 * sc, 1.3 * sc, 8, GRANITE_DARK)
+            b.add_cylinder(ox, 0, 1.1 * sc, 3.4 * sc, 0.95 * sc, 0.72 * sc, 10, GRANITE_LIGHT)
+            b.add_cylinder(ox, 0, 3.4 * sc, 4.3 * sc, 0.52 * sc, 0.42 * sc, 10, GRANITE_LIGHT)
+            b.add_box(ox, 0.35 * sc, 1.2 * sc, 3.4 * sc, 2.1 * sc, 0.28 * sc, 0.0, GRANITE_MID)
+        return b
+
+    # 8. 산성 · 성곽 · 남고루 · 관문성 · 명활성 · 부산성
+    if any(k in rname for k in ("명활성", "남산신성", "부산성", "관문성", "남고루")):
+        sub = f"경주 {rcat} · 신라 석축 산성 성벽·여장 및 망루 3D 복원"
+        b = BlenderSiteBuilder(site_id, display_title, rcat, sub, lat, lon, 16.0, badge, 20.0, 30.0, 420.0)
+        b.add_wall_segment(-45.0, 0.0, 45.0, 0.0, 5.5, 6.2, GRANITE_MID, GRANITE_LIGHT)
+        b.add_silla_hall(0.0, 0.0, 14.0, 10.0, 6.5, 4.5, 0.0, two_story=True, z_offset=5.2)
+        return b
+
+    # 9. 사지(절터) · 사찰 · 대웅전 · 대적광전 · 약사전 · 응진전 · 진남루
+    if any(k in rname for k in ("사지", "불국사", "기림사", "백률사", "석굴암", "사적지대")):
+        sub = f"경주 {rcat} · 신라 사찰 금당 기단·목조 불전 및 가람 3D 복원"
+        b = BlenderSiteBuilder(site_id, display_title, rcat, sub, lat, lon, 15.0, badge, 16.0, 30.0, 320.0)
+        if "사지" in rname:
+            b.add_box(0, 8.0, 0.0, 1.4, 24.0, 15.0, 0.0, GRANITE_LIGHT)
+            b.add_silla_hall(0, 8.0, 20.0, 12.0, 7.2, 4.8, 0.0)
+            b.add_box(0, -8.0, 0.0, 3.6, 2.2, 2.2, 0.0, GRANITE_MID)
+        else:
+            b.add_silla_hall(0, 0, 22.0, 14.0, 7.8, 5.2, 0.0, golden_chimi=True)
+        return b
+
+    # 10. 비석 · 귀부 · 석조 · 석정 · 서출지 · 요지 · 암각화 · 천연기념물 노거수
+    if any(k in rname for k in ("비", "귀부", "석조", "석정", "서출지", "요지", "암각화", "표암")) or "천연기념물" in rcat:
+        sub = f"경주 {rcat} · 실측 위치 3D 입체 복원"
+        b = BlenderSiteBuilder(site_id, display_title, rcat, sub, lat, lon, 11.0, badge, 15.0, 28.0, 200.0)
+        if "천연기념물" in rcat or "나무" in rname:
+            if "주상절리" in rname:
+                for i in range(12):
+                    ang = (2.0 * math.pi * i) / 12.0
+                    b.add_cylinder(6.0 * math.cos(ang), 6.0 * math.sin(ang), 0.0, 4.5, 1.6, 1.4, 6, ANDESITE_BRICK)
+            else:
+                b.add_sacred_tree(0, 0, 14.0, 6.8)
+        elif "서출지" in rname:
+            b.add_pond_polygon([(-14, -10), (14, -10), (16, 10), (-14, 12)], 0.5, POND_WATER, GRANITE_MID)
+            b.add_silla_hall(-12.0, 6.0, 9.5, 7.0, 5.0, 3.6, 0.0, pillar_col=HANOK_TIMBER)
+        elif "석조" in rname or "석정" in rname:
+            b.add_box(0, 0, 0.0, 1.6, 4.2, 2.8, 0.0, GRANITE_LIGHT)
+            b.add_box(0, 0, 1.2, 0.5, 3.2, 1.9, 0.0, POND_WATER)
+        elif "요지" in rname:
+            for st in range(5):
+                b.add_cylinder(0, st * 3.2 - 6.0, st * 0.6, st * 0.6 + 1.8, 2.4, 1.8, 8, EARTH_RAMPART)
+        elif "암각화" in rname or "표암" in rname:
+            b.add_box(0, 0, 0.0, 3.8, 7.5, 4.2, 12.0, GRANITE_DARK)
+        else:
+            # 귀부·이수·비신 및 비각
+            b.add_box(0, 0, 0.0, 1.1, 2.8, 3.6, 0.0, GRANITE_MID)
+            b.add_box(0, 0, 1.1, 3.2, 1.5, 0.45, 0.0, GRANITE_DARK)
+            b.add_box(0, 0, 4.3, 0.9, 1.8, 0.75, 0.0, GRANITE_LIGHT)
+        return b
+
+    # 11. 박물관 소장 국보·보물 유물 (금관·관모·허리띠·뿔잔·환두대도·성덕대왕신종 권역 등)
+    if any(k in rname for k in ("금관", "관모", "관식", "허리띠", "귀걸이", "목걸이", "유리잔", "환두대도",
+                                "자루솥", "고배", "팔뚝", "드리개", "유리구슬", "보검", "명기", "뿔잔",
+                                "발걸이", "청동기", "서기석", "사리장엄구", "묘법연화경", "삼국사기",
+                                "수고본", "유묵", "전적", "책판", "논상록권", "분재기", "영정", "불회도", "소장유물")):
+        sub = f"경주 {rcat} · 신라 왕실 출토 유물 및 석조 전시대 3D 복원"
+        b = BlenderSiteBuilder(site_id, display_title, rcat, sub, lat, lon, 9.0, badge, 15.0, 26.0, 150.0)
+        b.add_box(0, 0, 0.0, 1.6, 3.2, 3.2, 0.0, GRANITE_LIGHT)
+        b.add_cylinder(0, 0, 1.6, 3.6, 1.1, 1.25, 10, GOLD_SPIRE)
+        for sp in range(5):
+            ang = (2.0 * math.pi * sp) / 5.0
+            b.add_box(0.95 * math.cos(ang), 0.95 * math.sin(ang), 3.4, 1.8, 0.28, 0.28, 0.0, GOLD_SPIRE)
+        return b
+
+    # 12. 기본: 양동마을 고택 · 종택 · 서원 · 서당 · 정자 · 향교 · 전(숭덕전·숭신전·숭혜전) 등 전통 목조 한옥
+    sub = f"경주 {rcat} · 전통 목조 기와 건축 및 담장·정문 3D 복원"
+    b = BlenderSiteBuilder(site_id, display_title, rcat, sub, lat, lon, 13.0, badge, 16.0, 30.0, 260.0)
+    b.add_silla_hall(0.0, 2.0, 16.5, 10.5, 5.8, 4.0, 0.0, pillar_col=HANOK_TIMBER)
+    b.add_silla_hall(0.0, -8.5, 12.0, 6.0, 4.2, 2.8, 0.0, pillar_col=HANOK_TIMBER)
+    return b
 
 
 def main():
@@ -854,9 +1116,10 @@ def main():
             total_verts += n_verts
             total_tris += n_idxs // 3
 
-            # Export standalone PLY file for this heritage site
-            ply_path = os.path.join(ply_dir, f"{s.site_id}.ply")
-            s.export_ply(ply_path, verts, idxs)
+            # Export standalone PLY file for flagship complex sites
+            if not s.site_id.startswith("khs_"):
+                ply_path = os.path.join(ply_dir, f"{s.site_id}.ply")
+                s.export_ply(ply_path, verts, idxs)
 
             # Write binary site record
             def write_str(text: str):
