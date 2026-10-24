@@ -42,6 +42,35 @@ import {
   generateArchaeologicalMarkdownReport,
 } from '../src/bridge/blender_exporter.js';
 
+import {
+  BLI_BVHTREE_KDOP_AXES_13,
+  compute14DopHull,
+  test14DopOverlap,
+  hilbertIndex2D,
+  evaluateNishitaSunIrradiance,
+  computeEeveeHorizonScanAO,
+  triangulatePolygon2D,
+} from '../src/engine/decompiled_blender_kernels.js';
+
+import {
+  KA_THEMES,
+  resolveKaThemeTokens,
+  contrastRatio,
+} from '../src/app/ka_theme.js';
+
+import {
+  scaleBarSegmentM,
+  northAzimuthDeg,
+  exportToHgisDemScene,
+  buildMeshFromHgisDemScene,
+  buildComposeSheetSpec,
+  exportEvaluationToHgisGeoJson,
+  buildLifecycleSyncManifest,
+} from '../src/bridge/hgis_share_protocol.js';
+
+import { Hgis3DEngineCore } from '../src/engine/engine_core.js';
+import { HgisEngineClient } from '../src/app/engine_client.js';
+
 test('1. CRS: EPSG:4326 <-> EPSG:5187 & Local 3D round-trip precision at Gyeongju', () => {
   const { lat, lon } = GYEONGJU_ORIGIN_WGS84;
   const p5187 = wgs84ToEpsg5187(lat, lon);
@@ -152,4 +181,115 @@ test('4. Gyeongju 3D Archaeological Evaluator & Blender 4.2 Bridge Export', () =
   assert.equal(blds.length, 200);
   const grid = generateSillaBangrijeGrid3D();
   assert.ok(grid.roads.length > 20);
+});
+
+test('5. Decompiled Blender 4.2 Kernels & Web REA Spatial Algorithms', () => {
+  assert.equal(BLI_BVHTREE_KDOP_AXES_13.length, 13);
+
+  const hullA = compute14DopHull([[0, 0, 0], [10, 0, 0], [0, 10, 10]]);
+  const hullB = compute14DopHull([[5, 2, 2], [12, 8, 8]]);
+  const hullC = compute14DopHull([[100, 100, 100], [120, 120, 120]]);
+  assert.equal(hullA.length, 14);
+  assert.equal(test14DopOverlap(hullA, hullB), true);
+  assert.equal(test14DopOverlap(hullA, hullC), false);
+
+  const h0 = hilbertIndex2D(0.1, 0.1);
+  const h1 = hilbertIndex2D(0.1 + 1 / 65535, 0.1);
+  assert.ok(h0 > 0 && h1 > 0 && Math.abs(h0 - h1) <= 16, `Adjacent Hilbert grid cells should differ by <= 16, got ${Math.abs(h0 - h1)}`);
+
+  const nishitaNoon = evaluateNishitaSunIrradiance(Math.PI / 3, 45.0, 1.0, 1.1, 1.0);
+  const nishitaSunset = evaluateNishitaSunIrradiance(0.08, 45.0, 1.0, 1.1, 1.0);
+  assert.ok(nishitaNoon.airMass < nishitaSunset.airMass);
+  assert.ok(
+    nishitaNoon.sunColorLinear[2] > nishitaSunset.sunColorLinear[2],
+    'Noon sun has higher blue transmittance than sunset'
+  );
+
+  const aoBasin = computeEeveeHorizonScanAO(sampleGyeongjuElevation, 0, 0, 120, 4);
+  assert.ok(aoBasin > 0.7 && aoBasin <= 1.0);
+
+  const squareIndices = triangulatePolygon2D([[0, 0], [10, 0], [10, 10], [0, 10]]);
+  assert.equal(squareIndices.length, 6);
+});
+
+test('6. KaTheme 1:1 Design System Parity (5 Looks, High Contrast, WCAG 2.0)', () => {
+  assert.equal(Object.keys(KA_THEMES).length, 5);
+
+  const defPalette = resolveKaThemeTokens({ themeKey: 'default', highContrast: false, largeText: false });
+  assert.equal(defPalette.desk, '#F4F6F8');
+  assert.equal(defPalette.accent, '#1F6FB2');
+  assert.equal(defPalette.bodyFontSizePx, 13);
+
+  const paperPalette = resolveKaThemeTokens({ themeKey: 'paper', highContrast: false, largeText: true });
+  assert.equal(paperPalette.desk, '#F5F4ED');
+  assert.equal(paperPalette.accent, '#B5573A');
+  assert.equal(paperPalette.bodyFontSizePx, 15);
+
+  const hcPalette = resolveKaThemeTokens({ themeKey: 'bolt', highContrast: true });
+  assert.equal(hcPalette.border, hcPalette.borderStrong);
+  const ratio = contrastRatio(hcPalette.ink, hcPalette.surface);
+  assert.ok(ratio >= 10.0, `Expected high-contrast ratio >= 10, got ${ratio}`);
+});
+
+test('7. HGIS Bidirectional Share Protocol (Terrain3dService::DemScene, composeSheet, EPSG:5187 GeoJSON)', () => {
+  assert.equal(scaleBarSegmentM(2400), 500);
+  assert.equal(scaleBarSegmentM(8400), 1000);
+  assert.equal(northAzimuthDeg([0, 1, 0, 0, 0, -1]), 0);
+
+  const demScene = exportToHgisDemScene({ width: 16, height: 16, groundWidthM: 3200, groundHeightM: 3200 });
+  assert.equal(demScene.schema, 'hgis.Terrain3dService.DemScene.v1');
+  assert.equal(demScene.width, 16);
+  assert.equal(demScene.height, 16);
+  assert.equal(demScene.z.length, 256);
+  assert.ok(demScene.zMax > demScene.zMin);
+
+  const rebuiltMesh = buildMeshFromHgisDemScene(demScene, 1.35);
+  assert.equal(rebuiltMesh.positions.length, 256 * 3);
+  assert.equal(rebuiltMesh.indices.length, 15 * 15 * 6);
+
+  const qt = new GyeongjuTerrainQuadtree({ extentM: 4000, maxDepth: 1, chunkGridSegments: 8 }).build();
+  const evaluator = new GyeongjuArchaeologyEvaluator(qt.bvh);
+  const evaluation = evaluator.evaluateSite({ lat: 35.8347, lon: 129.2190, surveyName: 'HGIS 동기화 테스트' });
+
+  const sheetSpec = buildComposeSheetSpec(evaluation, { visibleWidthM: 8400, yawDegFromNorth: 12 });
+  assert.equal(sheetSpec.schema, 'hgis.Terrain3dService.ComposeSheet.v1');
+  assert.equal(sheetSpec.scaleBarSegmentM, 1000);
+  assert.equal(sheetSpec.elevationLegend.stops.length, 5);
+
+  const geojson = exportEvaluationToHgisGeoJson(evaluation);
+  assert.equal(geojson.hgisMetadata.nativeWorkCrs, 'EPSG:5187');
+  assert.ok(geojson.features.length >= 6);
+
+  const manifest = buildLifecycleSyncManifest(evaluation);
+  assert.equal(manifest.protocolVersion, '2.0.0');
+  assert.equal(manifest.stages.length, 5);
+});
+
+test('8. Engine vs. App Separation (Hgis3DEngineCore & HgisEngineClient non-blocking RPC)', async () => {
+  const client = new HgisEngineClient({ useWorker: false });
+  const initRes = await client.dispatch('GET_INITIAL_SCENE_BUNDLE');
+  assert.equal(initRes.ok, true);
+  assert.ok(initRes.chunks.length > 0);
+  assert.ok(initRes.sites.length >= 12);
+  assert.equal(initRes.engineStats.kdop14RootHull.length, 14);
+
+  const evalBundle = await client.dispatch('EVALUATE_SITE', {
+    lat: 35.8347,
+    lon: 129.2190,
+    surveyName: '엔진 분리 평가 검증',
+  });
+  assert.equal(evalBundle.ok, true);
+  assert.ok(evalBundle.report.assessmentSummary.archaeologicalPotentialScore >= 85);
+  assert.equal(evalBundle.geojson.type, 'FeatureCollection');
+  assert.equal(evalBundle.lifecycleManifest.stages.length, 5);
+
+  const hitRes = await client.dispatch('RAYCAST_TERRAIN', {
+    origin: [0, 1000, 0],
+    direction: [0, -1, 0],
+    maxDistance: 2000,
+  });
+  assert.equal(hitRes.ok, true);
+  assert.equal(hitRes.hit.hit, true);
+
+  client.terminate();
 });

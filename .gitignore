@@ -2,7 +2,10 @@
 artifacts/*.zip
 artifacts/*.7z
 artifacts/*.exe
+artifacts/web-rea-targets/
+artifacts/_rea_extract/
 docs/rea/blender-4.2.3-rea-evidence-bundle.json
+shared_gis_bus/
 node_modules/
 dist/
 *.log

@@ -3,240 +3,283 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HGIS 3D Engine — 경주 실사 지형·신라 왕경·고고학 정밀 평가 스튜디오 (Blender 4.2 REA Architecture)</title>
+  <title>HGIS 3D Companion Studio — 경주 실사 지형 · 신라 왕경 · 고고학 정밀 평가 (KaTheme & Blender 4.2 REA Engine)</title>
   <style>
     :root {
-      --bg-panel: rgba(18, 22, 28, 0.92);
-      --bg-card: rgba(28, 34, 44, 0.88);
-      --border-subtle: rgba(255, 255, 255, 0.12);
-      --accent-gold: #f0b429;
-      --accent-blue: #3b82f6;
-      --accent-green: #10b981;
-      --accent-red: #ef4444;
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
+      --ka-accent: #1F6FB2;
+      --ka-accent-hover: #185E99;
+      --ka-accent-deep: #12558D;
+      --ka-accent-wash: #E3EEF8;
+      --ka-ink: #1D2733;
+      --ka-ink-muted: #5B6875;
+      --ka-ink-disabled: #596874;
+      --ka-surface: #FFFFFF;
+      --ka-desk: #F4F6F8;
+      --ka-alt-row: #F7F9FB;
+      --ka-stripe: #F2F6FA;
+      --ka-hover: #EEF4FA;
+      --ka-selected: #E6F0FA;
+      --ka-pressed: #E1ECF7;
+      --ka-border: #DCE3EA;
+      --ka-border-strong: #B8C4CF;
+      --ka-danger: #B42318;
+      --ka-danger-surface: #FBEDEA;
+      --ka-ok: #256B42;
+      --ka-success-surface: #EAF4EE;
+      --ka-warn: #7A4A00;
+      --ka-warn-surface: #FFF4DB;
+      --ka-rail: #0B3A63;
+      --ka-rail-text: #FFFFFF;
+      --ka-rail-muted: #D5E6F5;
+      --ka-chrome: #FFFFFF;
+      --ka-tile: #EEF4FA;
+      --ka-tile-hover: #E3EEF8;
+      --ka-tile-on: #1F6FB2;
+      --ka-glyph: #1D2733;
+      --ka-glyph-on: #FFFFFF;
+      --ka-font-body: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+      --ka-font-title: 'Malgun Gothic', sans-serif;
+      --ka-font-size: 13px;
+      --ka-font-dense: 11px;
+      --ka-paper-radius: 3px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
-      background: #0b0e14;
-      color: var(--text-main);
+      font-family: var(--ka-font-body);
+      font-size: var(--ka-font-size);
+      background: var(--ka-desk);
+      color: var(--ka-ink);
       overflow: hidden;
       width: 100vw;
       height: 100vh;
       user-select: none;
     }
-    #viewport-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    /* Top Header Bar (Blender 4.2 Header Style) */
-    .topbar {
+    /* Strata Navy Rail Banner (`KaTheme: rail #0B3A63`) */
+    .ka-rail-bar {
       position: absolute;
       top: 0; left: 0; right: 0;
-      height: 46px;
-      background: rgba(15, 18, 24, 0.95);
-      border-bottom: 1px solid var(--border-subtle);
+      height: 36px;
+      background: var(--ka-rail);
+      color: var(--ka-rail-text);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
-      z-index: 20;
-      backdrop-filter: blur(10px);
+      padding: 0 12px;
+      z-index: 25;
+      border-bottom: 1px solid var(--ka-border-strong);
     }
-    .brand {
+    .ka-rail-brand {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      font-family: var(--ka-font-title);
       font-weight: 700;
-      font-size: 14px;
-      letter-spacing: -0.2px;
+      font-size: var(--ka-font-size);
     }
-    .brand-badge {
-      background: linear-gradient(135deg, #ea580c, #f59e0b);
-      color: #fff;
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 4px;
+    /* KaChip (`chipHeight = 22, chipRadius = 11`) */
+    .ka-chip {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      border-radius: 11px;
+      padding: 0 9px;
+      font-size: var(--ka-font-dense);
       font-weight: 700;
+      gap: 4px;
     }
-    .shader-modes {
+    .ka-chip-accent { background: var(--ka-accent-wash); color: var(--ka-accent-deep); border: 1px solid var(--ka-accent); }
+    .ka-chip-ok { background: var(--ka-success-surface); color: var(--ka-ok); border: 1px solid var(--ka-ok); }
+    .ka-chip-warn { background: var(--ka-warn-surface); color: var(--ka-warn); border: 1px solid var(--ka-warn); }
+    .ka-chip-danger { background: var(--ka-danger-surface); color: var(--ka-danger); border: 1px solid var(--ka-danger); }
+
+    /* Strata Chrome Ribbon Toolbar (`KaTheme: chrome / tile / 32px metrics`) */
+    .ka-ribbon-bar {
+      position: absolute;
+      top: 36px; left: 0; right: 0;
+      height: 44px;
+      background: var(--ka-chrome);
+      border-bottom: 1px solid var(--ka-border);
       display: flex;
-      gap: 6px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      z-index: 24;
+      gap: 8px;
     }
-    .btn {
-      background: rgba(255, 255, 255, 0.07);
-      color: var(--text-main);
-      border: 1px solid var(--border-subtle);
-      padding: 5px 11px;
-      border-radius: 5px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.15s;
+    .ka-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
-    .btn:hover { background: rgba(255, 255, 255, 0.15); }
-    .btn.active {
-      background: var(--accent-blue);
-      border-color: #60a5fa;
-      color: #fff;
+    .ka-btn {
+      background: var(--ka-tile);
+      color: var(--ka-glyph);
+      border: 1px solid var(--ka-border);
+      border-bottom-width: 2px;
+      border-radius: var(--ka-paper-radius);
+      padding: 4px 10px;
+      font-family: var(--ka-font-body);
+      font-size: var(--ka-font-dense);
       font-weight: 600;
+      cursor: pointer;
+      transition: background 0.12s;
     }
-    .btn-gold {
-      background: rgba(240, 180, 41, 0.18);
-      border-color: rgba(240, 180, 41, 0.55);
-      color: #fcd34d;
+    .ka-btn:hover { background: var(--ka-tile-hover); }
+    .ka-btn.active, .ka-btn-primary {
+      background: var(--ka-tile-on);
+      color: var(--ka-glyph-on);
+      border-color: var(--ka-accent-deep);
     }
-    .btn-gold.active {
-      background: #d97706;
-      color: #fff;
+    select.ka-select {
+      background: var(--ka-surface);
+      color: var(--ka-ink);
+      border: 1px solid var(--ka-border-strong);
+      border-radius: var(--ka-paper-radius);
+      padding: 3px 8px;
+      font-family: var(--ka-font-body);
+      font-size: var(--ka-font-dense);
     }
-    /* Left Control Sidebar */
-    .left-panel {
+
+    #viewport-canvas {
       position: absolute;
-      top: 56px;
-      left: 12px;
-      width: 330px;
-      max-height: calc(100vh - 68px);
+      top: 80px;
+      left: 0;
+      width: 100vw;
+      height: calc(100vh - 80px);
+      display: block;
+    }
+
+    /* Left & Right Strata Docks (`KaTheme: desk / surface / border`) */
+    .ka-dock-left {
+      position: absolute;
+      top: 88px;
+      left: 8px;
+      width: 340px;
+      max-height: calc(100vh - 96px);
       overflow-y: auto;
-      background: var(--bg-panel);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 14px;
-      z-index: 15;
-      backdrop-filter: blur(12px);
+      background: var(--ka-desk);
+      border: 1px solid var(--ka-border-strong);
+      border-radius: var(--ka-paper-radius);
+      padding: 8px;
+      z-index: 18;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
     }
-    /* Right Archaeological Evaluation Report Dock */
-    .right-panel {
+    .ka-dock-right {
       position: absolute;
-      top: 56px;
-      right: 12px;
-      width: 420px;
-      max-height: calc(100vh - 68px);
+      top: 88px;
+      right: 8px;
+      width: 430px;
+      max-height: calc(100vh - 96px);
       overflow-y: auto;
-      background: var(--bg-panel);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 14px;
-      z-index: 15;
-      backdrop-filter: blur(12px);
+      background: var(--ka-desk);
+      border: 1px solid var(--ka-border-strong);
+      border-radius: var(--ka-paper-radius);
+      padding: 8px;
+      z-index: 18;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
       user-select: text;
     }
-    .section-title {
-      font-size: 12px;
+    .ka-card {
+      background: var(--ka-surface);
+      border: 1px solid var(--ka-border);
+      border-radius: var(--ka-paper-radius);
+      padding: 9px 10px;
+    }
+    .ka-card-header {
+      font-family: var(--ka-font-title);
+      font-size: var(--ka-font-dense);
       font-weight: 700;
-      text-transform: uppercase;
-      color: var(--accent-gold);
-      letter-spacing: 0.4px;
+      color: var(--ka-accent-deep);
+      border-bottom: 1px solid var(--ka-border);
+      padding-bottom: 4px;
       margin-bottom: 6px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      padding: 10px;
-      font-size: 12px;
-      line-height: 1.5;
-    }
-    .control-row {
+    .ka-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin: 6px 0;
-      font-size: 12px;
+      margin: 4px 0;
+      font-size: var(--ka-font-dense);
     }
-    .control-row input[type="range"] {
-      width: 150px;
-      accent-color: var(--accent-gold);
+    .ka-row input[type="range"] {
+      width: 145px;
+      accent-color: var(--ka-accent);
     }
     .preset-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 5px;
+      gap: 4px;
     }
     .preset-btn {
       text-align: left;
-      font-size: 11px;
-      padding: 5px 8px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .score-banner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: linear-gradient(135deg, rgba(220, 38, 38, 0.22), rgba(245, 158, 11, 0.18));
-      border: 1px solid rgba(245, 158, 11, 0.45);
-      border-radius: 6px;
-      padding: 10px 12px;
-    }
-    .score-num {
-      font-size: 26px;
-      font-weight: 800;
-      color: #fbbf24;
-    }
-    table.data-table {
+    table.ka-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 11px;
-      margin-top: 4px;
+      font-size: var(--ka-font-dense);
     }
-    table.data-table th, table.data-table td {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    table.ka-table th, table.ka-table td {
+      border-bottom: 1px solid var(--ka-border);
       padding: 4px 5px;
       text-align: left;
     }
-    table.data-table th {
-      color: var(--text-muted);
-      font-weight: 600;
+    table.ka-table tr:nth-child(even) { background: var(--ka-stripe); }
+    table.ka-table th {
+      background: var(--ka-alt-row);
+      color: var(--ka-ink-muted);
+      font-weight: 700;
     }
-    .strat-layer {
+    .strat-box {
       display: flex;
-      align-items: stretch;
-      gap: 8px;
-      margin-top: 5px;
-      padding: 6px;
-      border-radius: 4px;
-      background: rgba(0, 0, 0, 0.25);
+      gap: 7px;
+      padding: 5px;
+      margin-top: 4px;
+      background: var(--ka-alt-row);
+      border: 1px solid var(--ka-border);
+      border-radius: var(--ka-paper-radius);
+      font-size: var(--ka-font-dense);
     }
-    .strat-swatch {
-      width: 10px;
+    .strat-bar {
+      width: 8px;
       border-radius: 2px;
       flex-shrink: 0;
     }
-    .hud-stats {
-      position: absolute;
-      bottom: 12px;
-      left: 356px;
-      background: rgba(12, 15, 20, 0.85);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 11px;
-      color: var(--text-muted);
-      z-index: 15;
+    .lifecycle-step {
       display: flex;
-      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 3px 6px;
+      margin-top: 3px;
+      background: var(--ka-alt-row);
+      border-left: 3px solid var(--ka-ok);
+      font-size: var(--ka-font-dense);
     }
-    .status-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent-green);
-      margin-right: 4px;
+    .hud-bottom {
+      position: absolute;
+      bottom: 8px;
+      left: 356px;
+      background: var(--ka-surface);
+      color: var(--ka-ink);
+      border: 1px solid var(--ka-border-strong);
+      border-radius: var(--ka-paper-radius);
+      padding: 5px 10px;
+      font-size: var(--ka-font-dense);
+      z-index: 18;
+      display: flex;
+      gap: 12px;
+      align-items: center;
     }
   </style>
   <script type="importmap">
@@ -249,134 +292,168 @@
   </script>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <span class="brand-badge">BLENDER 4.2 REA</span>
-      <span>경주(慶州) 3D 실사 지형 · 신라 왕경 복원 · 고고학 정밀 평가 엔진</span>
+  <!-- 1. Strata Navy Rail Bar (`KaTheme::rail`) -->
+  <div class="ka-rail-bar">
+    <div class="ka-rail-brand">
+      <span class="ka-chip ka-chip-accent">HGIS ↔ 3D ENGINE</span>
+      <span>경주(慶州) 3D 입체지형 · 신라 왕경 복원 · 매장유산 정밀 평가 스튜디오 (Blender 4.2 REA 디컴파일 엔진)</span>
     </div>
-    <div class="shader-modes">
-      <button class="btn active" data-shader="0">0. 위성실사 PBR + AgX</button>
-      <button class="btn" data-shader="1">1. EEVEE Sculpt 미기복(Clay)</button>
-      <button class="btn" data-shader="2">2. 매장유산 입지 적합도 히트맵</button>
-      <button class="btn" data-shader="3">3. 경사도(Slope) · TPI 지형학</button>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span id="chip-engine-mode" class="ka-chip ka-chip-ok">엔진 분리: Web Worker 오프로드</span>
+      <label style="font-size:11px;">테마 ▾
+        <select id="sel-ka-theme" class="ka-select">
+          <option value="default">Strata 기본 (네이비·블루)</option>
+          <option value="paper">새 모양 · 조용한 도판 (Paper)</option>
+          <option value="sky">하늘 눈밭 (Sky Snow)</option>
+          <option value="bolt">번개 노랑 (Bolt Yellow)</option>
+          <option value="blossom">벚꽃 파스텔 (Blossom Pastel)</option>
+        </select>
+      </label>
+      <label style="font-size:11px;"><input id="chk-high-contrast" type="checkbox" /> 고대비</label>
+      <label style="font-size:11px;"><input id="chk-large-text" type="checkbox" /> 큰 글씨(15px)</label>
     </div>
-    <div style="display:flex; gap:6px;">
-      <button id="btn-toggle-silla" class="btn btn-gold active">신라 왕경(8세기 방리제·9층목탑) 복원 ON</button>
-      <button id="btn-export-blender" class="btn">Blender 4.2 (.py) 내보내기</button>
-      <button id="btn-export-report" class="btn">고고학 평가서 (.md) 저장</button>
-    </div>
-  </header>
+  </div>
 
+  <!-- 2. Strata Chrome Ribbon Bar (`KaTheme::chrome`) -->
+  <div class="ka-ribbon-bar">
+    <div class="ka-btn-group">
+      <button class="ka-btn active" data-shader="0">0. 위성실사 PBR + AgX</button>
+      <button class="ka-btn" data-shader="1">1. EEVEE Sculpt 미기복(Clay)</button>
+      <button class="ka-btn" data-shader="2">2. 매장유산 적합도 히트맵</button>
+      <button class="ka-btn" data-shader="3">3. 경사도(Slope) · TPI 지형학</button>
+    </div>
+    <div class="ka-btn-group">
+      <button id="btn-toggle-silla" class="ka-btn active">신라 왕경(8세기 방리제·9층목탑) 복원 ON</button>
+      <button id="btn-sync-hgis" class="ka-btn ka-btn-primary">HGIS 앱 실시간 공유·동기화</button>
+      <button id="btn-export-sheet" class="ka-btn">입체지형 도면(composeSheet) PNG</button>
+      <button id="btn-export-geojson" class="ka-btn">HGIS GeoJSON(5187)</button>
+      <button id="btn-export-blender" class="ka-btn">Blender 4.2 (.py)</button>
+      <button id="btn-export-report" class="ka-btn">평가보고서 (.md)</button>
+    </div>
+  </div>
+
+  <!-- 3. 3D WebGL2 Viewport -->
   <canvas id="viewport-canvas"></canvas>
 
-  <!-- Left Control Dock -->
-  <aside class="left-panel">
-    <div>
-      <div class="section-title">
-        <span>1. 경주 주요 고고학 거점 즉시 이동</span>
-        <span style="font-size:10px; color:var(--text-muted);">클릭 시 3D 평가</span>
+  <!-- 4. Left Dock: HGIS Lifecycle Sync + Gyeongju Presets + Decompiled Engine Controls -->
+  <aside class="ka-dock-left">
+    <div class="ka-card">
+      <div class="ka-card-header">
+        <span>1. HGIS ↔ 3D 앱 전 주기(계획~도면) 공유 상태</span>
+        <span id="lbl-sync-status" class="ka-chip ka-chip-ok">동기화 완료</span>
       </div>
-      <div id="preset-sites-grid" class="preset-grid card"></div>
+      <div id="lifecycle-stages-list"></div>
     </div>
 
-    <div>
-      <div class="section-title">2. Nishita 태양 대기 · 지형 · 레이어 제어</div>
-      <div class="card">
-        <div class="control-row">
-          <span>태양 시각 (KST)</span>
-          <span id="lbl-sun-hour">14:30</span>
-        </div>
-        <input id="rng-sun-hour" type="range" min="5.5" max="19.5" step="0.1" value="14.5" style="width:100%;" />
+    <div class="ka-card">
+      <div class="ka-card-header">
+        <span>2. 경주 왕경 주요 고고학 거점 이동</span>
+        <span style="font-weight:400; color:var(--ka-ink-muted);">클릭 시 즉시 평가</span>
+      </div>
+      <div id="preset-sites-grid" class="preset-grid"></div>
+    </div>
 
-        <div class="control-row" style="margin-top:8px;">
-          <span>절기 (하지~동지 일조각)</span>
-          <span id="lbl-sun-day">추분(265일)</span>
-        </div>
-        <input id="rng-sun-day" type="range" min="1" max="365" step="1" value="265" style="width:100%;" />
+    <div class="ka-card">
+      <div class="ka-card-header">
+        <span>3. SKY_nishita 태양 · 지형 · 가시권 제어</span>
+      </div>
+      <div class="ka-row">
+        <span>태양 시각 (KST)</span>
+        <b id="lbl-sun-hour">14:30</b>
+      </div>
+      <input id="rng-sun-hour" type="range" min="5.5" max="19.5" step="0.1" value="14.5" style="width:100%;" />
 
-        <div class="control-row" style="margin-top:8px;">
-          <span>지형 기복 과장 배율 (Z-Scale)</span>
-          <span id="lbl-z-scale">1.35x</span>
-        </div>
-        <input id="rng-z-scale" type="range" min="1.0" max="3.0" step="0.05" value="1.35" style="width:100%;" />
+      <div class="ka-row" style="margin-top:4px;">
+        <span>절기 (하지~동지 일조각)</span>
+        <b id="lbl-sun-day">265일(추분)</b>
+      </div>
+      <input id="rng-sun-day" type="range" min="1" max="365" step="1" value="265" style="width:100%;" />
 
-        <div class="control-row" style="margin-top:8px;">
-          <label><input id="chk-buildings" type="checkbox" checked /> 현대 경주 건물·한옥지구 (Instanced)</label>
-        </div>
-        <div class="control-row">
-          <label><input id="chk-viewshed" type="checkbox" checked /> 3D 가시권(Viewshed) 시선 광선 표시</label>
-        </div>
-        <div class="control-row">
-          <label><input id="chk-buffers" type="checkbox" checked /> 반경 500m / 1,000m 영향검토 링 표시</label>
-        </div>
+      <div class="ka-row" style="margin-top:4px;">
+        <span>지형 기복 배율 (Z-Exaggeration)</span>
+        <b id="lbl-z-scale">1.35x</b>
+      </div>
+      <input id="rng-z-scale" type="range" min="1.0" max="3.0" step="0.05" value="1.35" style="width:100%;" />
+
+      <div class="ka-row" style="margin-top:6px;">
+        <label><input id="chk-buildings" type="checkbox" checked /> 현대 경주 건물·황리단길 한옥지구 (950동)</label>
+      </div>
+      <div class="ka-row">
+        <label><input id="chk-viewshed" type="checkbox" checked /> 왕경 6대 거점 3D 가시권 광선</label>
+      </div>
+      <div class="ka-row">
+        <label><input id="chk-buffers" type="checkbox" checked /> 반경 500m / 1,000m 영향검토 링</label>
       </div>
     </div>
 
-    <div>
-      <div class="section-title">3. Blender 4.2 REA 가속 아키텍처 상태</div>
-      <div class="card" style="font-size:11px; color:var(--text-muted);">
-        <div>• <b>PBVHTree (BLI_kdopbvh)</b>: <span id="stat-bvh-nodes">-</span> AABB 노드</div>
-        <div>• <b>KDTree3D (kdtree_3d.c)</b>: 20개 왕경 핵심 유적 색인</div>
-        <div>• <b>Quadtree CDLOD</b>: 64개 무균열 스커트 지형 청크</div>
-        <div>• <b>GPU Instancing</b>: 950동 경주 한옥·도시 건물 단일 드로우콜</div>
-        <div>• <b>최근 레이캐스트</b>: <span id="stat-raycast-visits">-</span> 노드 탐색 ($O(\log N)$)</div>
+    <div class="ka-card">
+      <div class="ka-card-header">
+        <span>4. Blender 4.2 REA 디컴파일 엔진 텔레메트리</span>
+      </div>
+      <div style="font-size:var(--ka-font-dense); color:var(--ka-ink-muted); line-height:1.55;">
+        <div>• <b>BLI_kdopbvh (14-DOP + PBVH)</b>: <span id="stat-bvh-nodes">-</span> 노드</div>
+        <div>• <b>EEVEE Horizon-Scan GTAO</b>: <span id="stat-horizon-ao">-</span></div>
+        <div>• <b>비동기 엔진 처리시간</b>: <span id="stat-compute-ms">-</span> ms</div>
+        <div>• <b>최근 레이캐스트 탐색</b>: <span id="stat-raycast-visits">-</span> 노드 ($O(\log N)$)</div>
       </div>
     </div>
   </aside>
 
-  <!-- Right Archaeological Evaluation Dock -->
-  <aside class="right-panel">
-    <div>
-      <div class="section-title">
+  <!-- 5. Right Dock: Archaeological Evaluation & Stratigraphy & ComposeSheet -->
+  <aside class="ka-dock-right">
+    <div class="ka-card">
+      <div class="ka-card-header">
         <span>고고학 입지 · 매장유산 영향 정밀 평가</span>
-        <span style="font-size:10px; color:#60a5fa;">지형 더블클릭으로 조사지점 변경</span>
+        <span id="eval-risk-chip" class="ka-chip ka-chip-danger">CRITICAL</span>
       </div>
-      <div class="score-banner">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <div id="eval-site-title" style="font-weight:700; font-size:13px;">경주 첨성대·월성 북편 조사구역</div>
-          <div id="eval-coords" style="font-size:11px; color:var(--text-muted); margin-top:2px;">-</div>
-          <div id="eval-grade" style="font-size:11px; color:#fca5a5; font-weight:700; margin-top:4px;">-</div>
+          <div id="eval-site-title" style="font-weight:700; font-size:14px;">경주 왕경 중심 조사구역</div>
+          <div id="eval-coords" style="font-size:var(--ka-font-dense); color:var(--ka-ink-muted); margin-top:2px;">-</div>
+          <div id="eval-grade" style="font-size:var(--ka-font-dense); color:var(--ka-danger); font-weight:700; margin-top:3px;">-</div>
         </div>
         <div style="text-align:right;">
-          <div style="font-size:10px; color:var(--text-muted);">포장 가능성</div>
-          <div id="eval-score" class="score-num">95</div>
+          <div style="font-size:10px; color:var(--ka-ink-muted);">포장 가능성</div>
+          <div id="eval-score" style="font-size:26px; font-weight:800; color:var(--ka-accent-deep);">95</div>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="section-title">1. 지형·수계 및 신라 왕경 방리제(坊里制) 분석</div>
-      <div id="eval-geomorph" style="font-size:11.5px;"></div>
-      <div id="eval-synthesis" style="margin-top:8px; padding:7px; background:rgba(59,130,246,0.12); border-left:3px solid #3b82f6; font-size:11px;"></div>
+    <div class="ka-card">
+      <div class="ka-card-header">
+        <span>1. 지형·수계 및 신라 왕경 방리제(坊里制) 구획</span>
+      </div>
+      <div id="eval-geomorph" style="font-size:var(--ka-font-dense); line-height:1.55;"></div>
+      <div id="eval-synthesis" style="margin-top:6px; padding:6px 8px; background:var(--ka-accent-wash); border-left:3px solid var(--ka-accent); font-size:var(--ka-font-dense); line-height:1.45;"></div>
     </div>
 
-    <div class="card">
-      <div class="section-title">
-        <span>2. 반경 500m / 1,000m 인접 유적 (KDTree3D)</span>
-        <span id="eval-nearby-count" style="color:#fcd34d;">-</span>
+    <div class="ka-card">
+      <div class="ka-card-header">
+        <span>2. 반경 500m / 1,000m 인접 유적 (BLI_kdtree_3d)</span>
+        <span id="eval-nearby-count" class="ka-chip ka-chip-warn">-</span>
       </div>
-      <table class="data-table">
+      <table class="ka-table">
         <thead>
           <tr>
             <th>유적명</th>
             <th>이격거리(방위)</th>
-            <th>시대/권역</th>
+            <th>영향권</th>
           </tr>
         </thead>
         <tbody id="eval-nearby-tbody"></tbody>
       </table>
     </div>
 
-    <div class="card">
-      <div class="section-title">
-        <span>3. 왕경 6대 거점 3D 가시권 (PBVH Line-of-Sight)</span>
-        <span id="eval-viewshed-count" style="color:#34d399;">-</span>
+    <div class="ka-card">
+      <div class="ka-card-header">
+        <span>3. 왕경 6대 거점 3D 상호 가시권 (PBVH Raycast)</span>
+        <span id="eval-viewshed-count" class="ka-chip ka-chip-ok">-</span>
       </div>
-      <table class="data-table">
+      <table class="ka-table">
         <thead>
           <tr>
             <th>거점 랜드마크</th>
-            <th>가시 여부</th>
+            <th>3D 가시 판정</th>
             <th>거리 / 앙각</th>
           </tr>
         </thead>
@@ -384,17 +461,20 @@
       </table>
     </div>
 
-    <div class="card">
-      <div class="section-title">4. 가상 시굴 트렌치(T-1·T-2) 추정 층위 단면</div>
+    <div class="ka-card">
+      <div class="ka-card-header">
+        <span>4. 가상 시굴 트렌치(T-1·T-2) 추정 층위 단면</span>
+      </div>
       <div id="eval-stratigraphy"></div>
     </div>
   </aside>
 
-  <div class="hud-stats">
-    <span><span class="status-dot"></span>WebGL2 EEVEE-Next Pipeline</span>
-    <span id="hud-fps">60 FPS (Frame Time: < 2.5ms)</span>
+  <!-- 6. Bottom Status HUD -->
+  <div class="hud-bottom">
+    <span id="hud-fps" style="font-weight:700; color:var(--ka-ok);">60 FPS</span>
     <span id="hud-sun">태양 고도: -° / 방위각: -°</span>
-    <span>조작: 좌클릭 회전 · 우클릭 이동 · 휠 줌 · <b>지형 더블클릭: 해당 지점 고고학 정밀 평가 & 트렌치 시굴</b></span>
+    <span id="hud-crs">작업 좌표계: EPSG:5187 (Korea 2000 동부원점)</span>
+    <span><b>지형 더블클릭</b>: 해당 지점 3D 시굴 트렌치 및 반경 500m/1km 고고학 평가 실행</span>
   </div>
 
   <script type="module" src="/src/ui/studio_app.js"></script>
