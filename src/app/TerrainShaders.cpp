@@ -43,6 +43,9 @@ uniform float uZMax;
 uniform vec3 uSunDir;
 uniform int uMode;
 uniform sampler2D uSat;
+uniform sampler2D uSatDetail;
+uniform vec4 uDetailRect;
+uniform int uHasDetail;
 out vec4 oColor;
 
 vec3 ramp(float t) {
@@ -81,7 +84,14 @@ void main() {
   vec3 base;
   if (uMode == 3) {
     // 위성 실사: 영상에 이미 들어 있는 그림자 위에 지형 기복만 살짝 얹는다.
-    vec3 albedo = pow(texture(uSat, (vPix + 0.5) / vec2(uGrid)).rgb, vec3(2.2));
+    vec2 uv = (vPix + 0.5) / vec2(uGrid);
+    vec3 sat = texture(uSat, uv).rgb;
+    if (uHasDetail == 1) {
+      vec2 duv = (uv - uDetailRect.xy) / (uDetailRect.zw - uDetailRect.xy);
+      float edge = min(min(duv.x, 1.0 - duv.x), min(duv.y, 1.0 - duv.y));  // 가장자리에서 부드럽게 섞는다
+      sat = mix(sat, texture(uSatDetail, duv).rgb, smoothstep(0.0, 0.06, edge));
+    }
+    vec3 albedo = pow(sat, vec3(2.2));
     base = albedo * clamp(0.85 + 0.55 * (lambert - 0.6), 0.5, 1.2);
   } else if (uMode == 0) {
     base = vec3(0.78, 0.74, 0.68) * light;
@@ -119,8 +129,8 @@ void main() {
   vec3 n = normalize(vNormal);
   if (!gl_FrontFacing) n = -n;
   float lambert = max(dot(n, normalize(uSunDir)), 0.0);
-  float hemi = 0.5 + 0.5 * n.z;
-  vec3 c = vColor.rgb * (0.30 * hemi + 0.70 * lambert);
+  float hemi = 0.6 + 0.4 * n.z;
+  vec3 c = vColor.rgb * (0.50 * hemi + 0.55 * lambert);
   oColor = vec4(pow(c, vec3(1.0 / 2.2)), 1.0);
 }
 )GLSL";

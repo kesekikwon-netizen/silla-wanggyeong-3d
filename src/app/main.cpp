@@ -2,6 +2,7 @@
 #include <QCommandLineParser>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QImage>
 #include <QSurfaceFormat>
 #include <QTextStream>
@@ -87,7 +88,9 @@ int main(int argc, char** argv) {
   QCommandLineOption lat(QStringLiteral("lat"), QStringLiteral("중심 위도(WGS84)."), QStringLiteral("deg"));
   QCommandLineOption noFeat(QStringLiteral("no-features"), QStringLiteral("건물·유적을 받지 않는다."));
   QCommandLineOption noSat(QStringLiteral("no-satellite"), QStringLiteral("위성영상을 받지 않는다."));
-  parser.addOptions({smoke, report, image, cam, dem, lon, lat, noFeat, noSat});
+  QCommandLineOption evalCenter(QStringLiteral("eval-center"), QStringLiteral("불러온 뒤 지형 한가운데(첨성대 부근)를 평가한다."));
+  QCommandLineOption sheetOut(QStringLiteral("sheet-out"), QStringLiteral("스모크 끝에 입체지형 도면 PNG(+같은 이름 PDF)를 저장."), QStringLiteral("file.png"));
+  parser.addOptions({smoke, report, image, cam, dem, lon, lat, noFeat, noSat, evalCenter, sheetOut});
   parser.process(app);
 
   MainWindow::Options opt;
@@ -118,6 +121,21 @@ int main(int argc, char** argv) {
   };
   QString loadText;
   bool satReady = !opt.loadSatellite;
+  bool evalReady = !parser.isSet(evalCenter);
+  bool evalStarted = false;
+  QString evalText;
+  auto maybeEvaluate = [&] {
+    if (evalReady || evalStarted || !satReady || !w.lastLoad().tree) return;
+    evalStarted = true;
+    const strata3d::DemGrid& g = w.lastLoad().tree->grid();
+    w.evaluateAt(g.centerX(), g.centerY());
+  };
+  QObject::connect(&w, &MainWindow::evaluationFinished, &app, [&](bool ok, const QString& msg) {
+    if (!ok) finish(1, QStringLiteral("평가 실패: ") + msg);
+    evalText = msg;
+    evalReady = true;
+    w.viewport()->update();
+  });
   QObject::connect(&w, &MainWindow::loadFinished, &app, [&](bool ok, const QString& msg) {
     if (!ok) finish(1, QStringLiteral("DEM 불러오기 실패: ") + msg);
     loadText = msg;
@@ -126,11 +144,14 @@ int main(int argc, char** argv) {
     if (!ok) finish(1, QStringLiteral("위성영상 실패: ") + msg);
     loadText += QStringLiteral(" | ") + msg;
     satReady = true;
+    maybeEvaluate();
   });
   QObject::connect(w.viewport(), &KaGlTerrainViewport::frameRendered, &app, [&] {
     auto* vp = w.viewport();
     if (!vp->hasTerrain()) return;
     if (!satReady) return;
+    maybeEvaluate();
+    if (!evalReady) return;
     if (vp->stats().frames < 3) {  // 그리기는 update() 때만 일어나므로 몇 장 더 그리게 한다
       vp->update();
       return;
@@ -138,7 +159,20 @@ int main(int argc, char** argv) {
     const QImage frame = vp->grabFramebuffer();
     if (parser.isSet(image)) frame.save(parser.value(image));
     const FrameCheck c = checkFrame(frame);
-    finish(c.ok ? 0 : 1, loadText + QStringLiteral(" | ") + c.text + QStringLiteral(" | ") + vp->glInfo());
+    QString text = loadText + QStringLiteral(" | ") + c.text + QStringLiteral(" | ") + vp->glInfo();
+    if (!evalText.isEmpty()) text += QStringLiteral(" | 평가: ") + evalText;
+    if (!c.ok || !parser.isSet(sheetOut)) {
+      finish(c.ok ? 0 : 1, text);
+      return;
+    }
+    QTimer::singleShot(0, &app, [&, text] {  // 그리는 도중이 아니라 한 박자 뒤에 도면을 만든다
+      const QString png = parser.value(sheetOut);
+      QString pdf = png;
+      pdf.replace(QStringLiteral(".png"), QStringLiteral(".pdf"));
+      const bool ok = w.exportSheet(png, pdf);
+      const qint64 pngSize = QFileInfo(png).size(), pdfSize = QFileInfo(pdf).size();
+      finish(ok && pngSize > 200000 && pdfSize > 20000 ? 0 : 1, text + QStringLiteral(" | 도면 PNG %1 KB, PDF %2 KB").arg(pngSize / 1024).arg(pdfSize / 1024));
+    });
   });
   QTimer::singleShot(180000, &app, [&] { finish(2, QStringLiteral("180초 안에 끝나지 않았습니다.")); });
   return app.exec();

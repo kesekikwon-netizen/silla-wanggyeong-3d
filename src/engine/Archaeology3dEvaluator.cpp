@@ -16,6 +16,30 @@ constexpr int kLargeCells = 20;  // ±600 m
 
 QString u(const char16_t* s) { return QString::fromUtf16(s); }
 
+// 현장 용어로: OSM 의 historic= 값을 한국어 분류로. 모르는 값은 원문을 그대로 둔다.
+QString fieldCategory(const GeoFeature& f) {
+  if (f.source != QLatin1String("OSM")) return f.category;
+  const QString h = f.attrs.value(QStringLiteral("historic"));
+  if (h == QLatin1String("tomb")) return u(u"고분(OSM)");
+  if (h == QLatin1String("archaeological_site")) return u(u"유적지(OSM)");
+  if (h == QLatin1String("monument")) return u(u"기념물(OSM)");
+  if (h == QLatin1String("memorial")) return u(u"기념비(OSM)");
+  if (h == QLatin1String("ruins")) return u(u"폐허(OSM)");
+  if (h == QLatin1String("castle") || h == QLatin1String("fort")) return u(u"성곽(OSM)");
+  if (h == QLatin1String("wayside_shrine")) return u(u"사당·표석(OSM)");
+  if (f.kind == FeatureKind::Building && f.heritage) return u(u"유산 건물(OSM)");
+  return f.category;
+}
+
+QString fieldName(const GeoFeature& f) {
+  if (!f.name.isEmpty()) return f.name;
+  for (const char* k : {"name:ko", "alt_name", "old_name", "name:en"}) {
+    const QString v = f.attrs.value(QLatin1String(k));
+    if (!v.isEmpty()) return v;
+  }
+  return u(u"(이름 없음)");
+}
+
 std::unique_ptr<OGRGeometry> makeGeometry(const Pt& p, const std::vector<Pt>& ring) {
   if (ring.size() >= 3) {
     auto poly = std::make_unique<OGRPolygon>();
@@ -211,8 +235,8 @@ Evaluation Archaeology3dEvaluator::evaluate(const Pt& site, const std::vector<Pt
       }
       NearbyItem it;
       it.id = f.id;
-      it.name = f.name;
-      it.category = f.category;
+      it.name = fieldName(f);
+      it.category = fieldCategory(f);
       it.source = f.source;
       it.kind = f.kind;
       it.distanceM = d;

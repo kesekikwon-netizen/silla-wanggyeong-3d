@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -30,6 +31,12 @@ struct SceneStyle {
   float markerWidthM = 5.0f;
   float ribbonWidthM = 3.0f;
 };
+
+// 경계(닫힌 고리 또는 열린 선)를 지형에 붙는 띠로 덧붙인다. DEM 밖 점이 있으면 false.
+bool appendDrapedRibbon(SceneMesh* mesh, const DemGrid& dem, const std::vector<Pt>& line, bool closed, float widthM,
+                        const std::array<float, 4>& color, float liftM = 1.0f);
+// 땅에서 솟은 사각 기둥 표지. DEM 밖이면 false.
+bool appendPole(SceneMesh* mesh, const DemGrid& dem, const Pt& at, float widthM, float heightM, const std::array<float, 4>& color);
 
 // 표고는 DEM 에서 읽는다(범위 밖이면 그 지물은 건너뜀). 좌표는 DEM 중심 기준 지역 미터.
 std::shared_ptr<const SceneMesh> buildSceneMesh(const DemGrid& dem, const std::vector<GeoFeature>& features,

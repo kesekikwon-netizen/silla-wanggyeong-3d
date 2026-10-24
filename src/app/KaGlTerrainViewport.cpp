@@ -2,6 +2,8 @@
 
 #include <QMatrix4x4>
 #include <QMouseEvent>
+#include <QOpenGLFramebufferObject>
+#include <QVector4D>
 #include <QWheelEvent>
 #include <algorithm>
 #include <cmath>
@@ -89,8 +91,10 @@ void KaGlTerrainViewport::setScene(std::shared_ptr<const strata3d::SceneMesh> sc
   update();
 }
 
-void KaGlTerrainViewport::setSatellite(const QImage& rgb) {
+void KaGlTerrainViewport::setSatellite(const QImage& rgb, const QImage& detail, double detailHalfM) {
   pendingSat_ = rgb.convertToFormat(QImage::Format_RGB888);
+  pendingDetail_ = detail.isNull() ? QImage() : detail.convertToFormat(QImage::Format_RGB888);
+  detailHalfM_ = detail.isNull() ? 0.0 : detailHalfM;
   mode_ = Mode::Satellite;
   update();
 }
@@ -100,19 +104,22 @@ void KaGlTerrainViewport::setSceneVisible(bool visible) {
   update();
 }
 
-void KaGlTerrainViewport::uploadScene() {
-  sceneChanged_ = false;
-  const auto scene = std::move(pendingScene_);
-  pendingScene_.reset();
-  if (!sceneVao_) {
-    glGenVertexArrays(1, &sceneVao_);
-    glGenBuffers(1, &sceneVbo_);
-    glGenBuffers(1, &sceneEbo_);
+void KaGlTerrainViewport::setOverlay(std::shared_ptr<const strata3d::SceneMesh> overlay) {
+  pendingOverlay_ = std::move(overlay);
+  overlayChanged_ = true;
+  update();
+}
+
+void KaGlTerrainViewport::uploadMesh(GlMesh* gm, const std::shared_ptr<const strata3d::SceneMesh>& mesh) {
+  if (!gm->vao) {
+    glGenVertexArrays(1, &gm->vao);
+    glGenBuffers(1, &gm->vbo);
+    glGenBuffers(1, &gm->ebo);
   }
-  glBindVertexArray(sceneVao_);
-  glBindBuffer(GL_ARRAY_BUFFER, sceneVbo_);
-  const size_t vb = scene ? scene->vertices.size() * sizeof(float) : 0;
-  glBufferData(GL_ARRAY_BUFFER, GLsizeiptr(vb), scene ? scene->vertices.data() : nullptr, GL_STATIC_DRAW);
+  glBindVertexArray(gm->vao);
+  glBindBuffer(GL_ARRAY_BUFFER, gm->vbo);
+  const size_t vb = mesh ? mesh->vertices.size() * sizeof(float) : 0;
+  glBufferData(GL_ARRAY_BUFFER, GLsizeiptr(vb), mesh ? mesh->vertices.data() : nullptr, GL_STATIC_DRAW);
   const GLsizei stride = strata3d::SceneMesh::kFloatsPerVertex * sizeof(float);
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
@@ -120,11 +127,45 @@ void KaGlTerrainViewport::uploadScene() {
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(3 * sizeof(float)));
   glEnableVertexAttribArray(2);
   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(6 * sizeof(float)));
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sceneEbo_);
-  const size_t ib = scene ? scene->indices.size() * sizeof(uint32_t) : 0;
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, GLsizeiptr(ib), scene ? scene->indices.data() : nullptr, GL_STATIC_DRAW);
-  sceneIndexCount_ = scene ? int(scene->indices.size()) : 0;
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gm->ebo);
+  const size_t ib = mesh ? mesh->indices.size() * sizeof(uint32_t) : 0;
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, GLsizeiptr(ib), mesh ? mesh->indices.data() : nullptr, GL_STATIC_DRAW);
+  gm->count = mesh ? int(mesh->indices.size()) : 0;
   glBindVertexArray(0);
+}
+
+float KaGlTerrainViewport::visibleWidthAtTargetM(float aspect) const {
+  // 수직 시야 45° 투시에서 목표점 거리에서 보이는 지상 폭
+  return 2.0f * distance_ * std::tan(qDegreesToRadians(45.0f) * 0.5f) * aspect;
+}
+
+void KaGlTerrainViewport::mouseDoubleClickEvent(QMouseEvent* e) {
+  if (!tree_ || e->button() != Qt::LeftButton) return;
+  // 화면 점 → 시선(역투영). 마지막으로 그린 투영·시점 행렬을 쓴다.
+  const float nx = 2.0f * float(e->position().x()) / float(width()) - 1.0f;
+  const float ny = 1.0f - 2.0f * float(e->position().y()) / float(height());
+  bool ok = false;
+  const QMatrix4x4 inv = lastViewProj_.inverted(&ok);
+  if (!ok) return;
+  const QVector4D p0 = inv * QVector4D(nx, ny, -1.0f, 1.0f), p1 = inv * QVector4D(nx, ny, 1.0f, 1.0f);
+  const QVector3D a = p0.toVector3DAffine(), b = p1.toVector3DAffine();
+  emit pickRequested(lastEye_, (b - a).normalized());
+}
+
+QImage KaGlTerrainViewport::renderToImage(int w, int h) {
+  makeCurrent();
+  QOpenGLFramebufferObjectFormat fmt;
+  fmt.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+  fmt.setSamples(4);
+  QOpenGLFramebufferObject fbo(w, h, fmt);
+  fbo.bind();
+  glViewport(0, 0, w, h);
+  drawFrame(w, h);
+  fbo.release();
+  const QImage img = fbo.toImage(false);
+  doneCurrent();
+  update();
+  return img;
 }
 
 void KaGlTerrainViewport::buildTemplate() {
@@ -229,8 +270,23 @@ QVector3D KaGlTerrainViewport::eyePosition() const {
 
 void KaGlTerrainViewport::paintGL() {
   if (!program_) return;
+  drawFrame(width(), height());
+  ++stats_.frames;
+  emit frameRendered();
+}
+
+void KaGlTerrainViewport::drawFrame(int w, int h) {
   if (pendingUpload_) uploadTerrain();
-  if (sceneChanged_) uploadScene();
+  if (sceneChanged_) {
+    sceneChanged_ = false;
+    uploadMesh(&sceneMesh_, pendingScene_);
+    pendingScene_.reset();
+  }
+  if (overlayChanged_) {
+    overlayChanged_ = false;
+    uploadMesh(&overlayMesh_, pendingOverlay_);
+    pendingOverlay_.reset();
+  }
   if (!pendingSat_.isNull()) {
     if (satTex_) glDeleteTextures(1, &satTex_);
     glGenTextures(1, &satTex_);
@@ -246,6 +302,21 @@ void KaGlTerrainViewport::paintGL() {
     pendingSat_ = QImage();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
   }
+  if (!pendingDetail_.isNull()) {
+    if (detailTex_) glDeleteTextures(1, &detailTex_);
+    glGenTextures(1, &detailTex_);
+    glBindTexture(GL_TEXTURE_2D, detailTex_);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, pendingDetail_.width(), pendingDetail_.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, pendingDetail_.constBits());
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, 0x84FE, 8.0f);
+    pendingDetail_ = QImage();
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+  }
   glClearColor(0.74f, 0.80f, 0.88f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   if (!tree_ || !heightTex_) return;
@@ -255,9 +326,11 @@ void KaGlTerrainViewport::paintGL() {
   const QVector3D eye = eyePosition();
   QMatrix4x4 view, proj;
   view.lookAt(eye, target_, QVector3D(0, 0, 1));
-  const float aspect = float(width()) / float(std::max(1, height()));
+  const float aspect = float(w) / float(std::max(1, h));
   proj.perspective(45.0f, aspect, std::max(2.0f, distance_ * 0.01f), distance_ + extent * 3.0f);
   const QMatrix4x4 vp = proj * view;
+  lastViewProj_ = vp;
+  lastEye_ = eye;
   const strata3d::Frustum frustum(vp);
 
   QElapsedTimer t;
@@ -283,6 +356,13 @@ void KaGlTerrainViewport::paintGL() {
   glUniform3f(glGetUniformLocation(program_, "uSunDir"), -0.55f, 0.55f, 0.62f);  // 북서쪽 위(등고선 판독 관례)
   const Mode mode = (mode_ == Mode::Satellite && !satTex_) ? Mode::Elevation : mode_;
   glUniform1i(glGetUniformLocation(program_, "uMode"), int(mode));
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, detailTex_);
+  glUniform1i(glGetUniformLocation(program_, "uSatDetail"), 2);
+  const float span = float(g.width * g.pixelSize);
+  const float half = detailTex_ ? float(detailHalfM_ / span) : 0.0f;  // uv 에서 절반 폭(창은 DEM 한가운데)
+  glUniform4f(glGetUniformLocation(program_, "uDetailRect"), 0.5f - half, 0.5f - half, 0.5f + half, 0.5f + half);
+  glUniform1i(glGetUniformLocation(program_, "uHasDetail"), detailTex_ ? 1 : 0);
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, satTex_);
   glUniform1i(glGetUniformLocation(program_, "uSat"), 1);
@@ -296,16 +376,18 @@ void KaGlTerrainViewport::paintGL() {
   glDrawElementsInstanced(GL_TRIANGLES, templateIndexCount_, GL_UNSIGNED_INT, nullptr, GLsizei(chunks.size()));
   glBindVertexArray(0);
 
-  if (sceneVisible_ && sceneIndexCount_ > 0) {
-    glUseProgram(sceneProgram_);
-    glUniformMatrix4fv(glGetUniformLocation(sceneProgram_, "uViewProj"), 1, GL_FALSE, vp.constData());
-    glUniform3f(glGetUniformLocation(sceneProgram_, "uSunDir"), -0.55f, 0.55f, 0.62f);
-    glBindVertexArray(sceneVao_);
-    glDrawElements(GL_TRIANGLES, sceneIndexCount_, GL_UNSIGNED_INT, nullptr);
-    glBindVertexArray(0);
+  glUseProgram(sceneProgram_);
+  glUniformMatrix4fv(glGetUniformLocation(sceneProgram_, "uViewProj"), 1, GL_FALSE, vp.constData());
+  glUniform3f(glGetUniformLocation(sceneProgram_, "uSunDir"), -0.55f, 0.55f, 0.62f);
+  if (sceneVisible_ && sceneMesh_.count > 0) {
+    glBindVertexArray(sceneMesh_.vao);
+    glDrawElements(GL_TRIANGLES, sceneMesh_.count, GL_UNSIGNED_INT, nullptr);
   }
-  ++stats_.frames;
-  emit frameRendered();
+  if (overlayMesh_.count > 0) {  // 평가 겹침은 건물 켜고 끔과 상관없이 보인다
+    glBindVertexArray(overlayMesh_.vao);
+    glDrawElements(GL_TRIANGLES, overlayMesh_.count, GL_UNSIGNED_INT, nullptr);
+  }
+  glBindVertexArray(0);
 }
 
 void KaGlTerrainViewport::mousePressEvent(QMouseEvent* e) { lastMouse_ = e->pos(); }

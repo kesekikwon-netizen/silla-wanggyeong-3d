@@ -57,7 +57,8 @@ add_library(strata_3d_engine STATIC
   src/engine/Kdop14Bvh.cpp
   src/engine/KdTree3.cpp
   src/engine/TerrainBvh.cpp
-  src/engine/Archaeology3dEvaluator.cpp)
+  src/engine/Archaeology3dEvaluator.cpp
+  src/engine/EvaluationOverlay.cpp)
 target_include_directories(strata_3d_engine PUBLIC ${CMAKE_SOURCE_DIR}/src/engine ${S3D_GDAL_INCLUDES})
 target_link_directories(strata_3d_engine PUBLIC ${S3D_GDAL_LIBDIRS})
 target_link_libraries(strata_3d_engine PUBLIC Qt6::Core Qt6::Gui ${S3D_GDAL_LIB})
@@ -84,6 +85,8 @@ add_executable(strata-3d WIN32
   src/app/MainWindow.h
   src/app/KaGlTerrainViewport.cpp
   src/app/KaGlTerrainViewport.h
+  src/app/SheetComposer.cpp
+  src/app/SheetComposer.h
   src/app/TerrainShaders.cpp
   src/app/TerrainShaders.h)
 target_include_directories(strata-3d PRIVATE ${CMAKE_SOURCE_DIR}/src/app ${HGIS_ROOT}/src/app ${CMAKE_BINARY_DIR}/generated)

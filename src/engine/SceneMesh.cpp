@@ -86,51 +86,76 @@ std::shared_ptr<const SceneMesh> buildSceneMesh(const DemGrid& dem, const std::v
       else if (f.heightSource == HeightSource::FromLevels) ++mesh->heightFromLevels;
       else ++mesh->heightUnknown;
     } else if (f.kind == FeatureKind::HeritageArea) {
-      // 경계를 지형에 붙여 깔리는 띠로 그린다(5 m 간격으로 잘게 나눔).
-      std::vector<QVector3D> line;
-      bool inside = true;
-      for (size_t i = 0; i < f.ring.size() && inside; ++i) {
-        const Pt& a = f.ring[i];
-        const Pt& b = f.ring[(i + 1) % f.ring.size()];
-        const int steps = std::max(1, int(std::hypot(b.x - a.x, b.y - a.y) / 5.0));
-        for (int s = 0; s < steps; ++s) {
-          const double X = a.x + (b.x - a.x) * s / steps, Y = a.y + (b.y - a.y) * s / steps;
-          float z = 0;
-          if (!dem.sample(X, Y, &z)) { inside = false; break; }
-          line.push_back(local(X, Y, z + 1.0f));
-        }
-      }
-      if (!inside || line.size() < 3) { ++mesh->skipped; continue; }
-      const Color col = {0.90f, 0.20f, 0.18f, 1};
-      const float hw = style.ribbonWidthM * 0.5f;
-      for (size_t i = 0; i < line.size(); ++i) {
-        const QVector3D &p = line[i], &q = line[(i + 1) % line.size()];
-        QVector3D d = q - p;
-        d.setZ(0);
-        if (d.length() < 1e-4f) continue;
-        d.normalize();
-        const QVector3D side(-d.y() * hw, d.x() * hw, 0);
-        w.quad(p - side, q - side, q + side, p + side, col);
+      if (!appendDrapedRibbon(mesh.get(), dem, f.ring, true, style.ribbonWidthM, {0.90f, 0.20f, 0.18f, 1}, 1.0f)) {
+        ++mesh->skipped;
+        continue;
       }
       ++mesh->heritageAreas;
     } else {  // HeritagePoint
-      float z = 0;
-      if (!dem.sample(f.point.x, f.point.y, &z)) { ++mesh->skipped; continue; }
-      const float h = style.markerWidthM * 0.5f;
-      const QVector3D c = local(f.point.x, f.point.y, z);
-      const Color col = markerColor(f.category);
-      const float z0 = z - 2.0f, z1 = z + style.markerHeightM;
-      const QVector3D p00(c.x() - h, c.y() - h, z0), p10(c.x() + h, c.y() - h, z0), p11(c.x() + h, c.y() + h, z0), p01(c.x() - h, c.y() + h, z0);
-      auto up = [&](const QVector3D& p) { return QVector3D(p.x(), p.y(), z1); };
-      w.quad(p00, p10, up(p10), up(p00), col);
-      w.quad(p10, p11, up(p11), up(p10), col);
-      w.quad(p11, p01, up(p01), up(p11), col);
-      w.quad(p01, p00, up(p00), up(p01), col);
-      w.quad(up(p00), up(p10), up(p11), up(p01), col);
+      if (!appendPole(mesh.get(), dem, f.point, style.markerWidthM, style.markerHeightM, markerColor(f.category))) {
+        ++mesh->skipped;
+        continue;
+      }
       ++mesh->heritagePoints;
     }
   }
   return mesh;
+}
+
+bool appendDrapedRibbon(SceneMesh* mesh, const DemGrid& dem, const std::vector<Pt>& pts, bool closed, float widthM,
+                        const std::array<float, 4>& color, float liftM) {
+  // 5 m 간격으로 잘게 나눠 지형 표고를 따라가게 한다.
+  const double cx = dem.centerX(), cy = dem.centerY();
+  std::vector<QVector3D> line;
+  const size_t segs = closed ? pts.size() : (pts.empty() ? 0 : pts.size() - 1);
+  for (size_t i = 0; i < segs; ++i) {
+    const Pt& a = pts[i];
+    const Pt& b = pts[(i + 1) % pts.size()];
+    const int steps = std::max(1, int(std::hypot(b.x - a.x, b.y - a.y) / 5.0));
+    for (int s = 0; s < steps; ++s) {
+      const double X = a.x + (b.x - a.x) * s / steps, Y = a.y + (b.y - a.y) * s / steps;
+      float z = 0;
+      if (!dem.sample(X, Y, &z)) return false;
+      line.push_back(QVector3D(float(X - cx), float(Y - cy), z + liftM));
+    }
+  }
+  if (!closed && !pts.empty()) {
+    float z = 0;
+    if (!dem.sample(pts.back().x, pts.back().y, &z)) return false;
+    line.push_back(QVector3D(float(pts.back().x - cx), float(pts.back().y - cy), z + liftM));
+  }
+  if (line.size() < 2) return false;
+  MeshWriter w(mesh);
+  const float hw = widthM * 0.5f;
+  const size_t n = closed ? line.size() : line.size() - 1;
+  for (size_t i = 0; i < n; ++i) {
+    const QVector3D &p = line[i], &q = line[(i + 1) % line.size()];
+    QVector3D d = q - p;
+    d.setZ(0);
+    if (d.length() < 1e-4f) continue;
+    d.normalize();
+    const QVector3D side(-d.y() * hw, d.x() * hw, 0);
+    w.quad(p - side, q - side, q + side, p + side, Color(color));
+  }
+  return true;
+}
+
+bool appendPole(SceneMesh* mesh, const DemGrid& dem, const Pt& at, float widthM, float heightM, const std::array<float, 4>& color) {
+  float z = 0;
+  if (!dem.sample(at.x, at.y, &z)) return false;
+  MeshWriter w(mesh);
+  const float h = widthM * 0.5f;
+  const QVector3D c(float(at.x - dem.centerX()), float(at.y - dem.centerY()), z);
+  const float z0 = z - 2.0f, z1 = z + heightM;
+  const QVector3D p00(c.x() - h, c.y() - h, z0), p10(c.x() + h, c.y() - h, z0), p11(c.x() + h, c.y() + h, z0), p01(c.x() - h, c.y() + h, z0);
+  auto up = [&](const QVector3D& p) { return QVector3D(p.x(), p.y(), z1); };
+  const Color col(color);
+  w.quad(p00, p10, up(p10), up(p00), col);
+  w.quad(p10, p11, up(p11), up(p10), col);
+  w.quad(p11, p01, up(p01), up(p11), col);
+  w.quad(p01, p00, up(p00), up(p01), col);
+  w.quad(up(p00), up(p10), up(p11), up(p01), col);
+  return true;
 }
 
 }  // namespace strata3d

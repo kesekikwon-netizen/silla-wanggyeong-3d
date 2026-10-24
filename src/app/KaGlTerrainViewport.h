@@ -2,6 +2,7 @@
 
 #include <QElapsedTimer>
 #include <QImage>
+#include <QMatrix4x4>
 #include <QOpenGLFunctions_3_3_Core>
 #include <QOpenGLWidget>
 #include <QPoint>
@@ -31,8 +32,15 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   void setTerrain(std::shared_ptr<const strata3d::TerrainLodTree> tree);
   void setScene(std::shared_ptr<const strata3d::SceneMesh> scene);
   void setSceneVisible(bool visible);
+  // 평가 결과 띠·기둥(버퍼 고리 등). nullptr 이면 지운다.
+  void setOverlay(std::shared_ptr<const strata3d::SceneMesh> overlay);
+  // 위젯 크기와 상관없이 지정한 크기로 한 장 그린다(FBO). 도면용 고해상도 캡처.
+  QImage renderToImage(int width, int height);
+  float yawDegrees() const { return yawDeg_; }
+  float visibleWidthAtTargetM(float aspect) const;
   // DEM 격자와 같은 범위의 위성 실사(행 0 = 북). 올리면 위성 보기로 바뀐다.
-  void setSatellite(const QImage& rgb);
+  // detail 은 같은 중심의 고해상도 창(한 변 절반 detailHalfM 미터). 비어 있으면 쓰지 않는다.
+  void setSatellite(const QImage& rgb, const QImage& detail = QImage(), double detailHalfM = 0);
   bool hasSatellite() const { return satTex_ != 0 || !pendingSat_.isNull(); }
   void setMode(Mode mode);
   void setZScale(float zScale);
@@ -43,6 +51,8 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   QString glInfo() const { return glInfo_; }
 
  signals:
+  // 더블클릭한 화면 점에서 나가는 시선(지역 미터 좌표, 방향은 정규화)
+  void pickRequested(const QVector3D& origin, const QVector3D& direction);
   void frameRendered();
   void terrainUploaded();
 
@@ -53,10 +63,16 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   void mousePressEvent(QMouseEvent* e) override;
   void mouseMoveEvent(QMouseEvent* e) override;
   void wheelEvent(QWheelEvent* e) override;
+  void mouseDoubleClickEvent(QMouseEvent* e) override;
 
  private:
+  struct GlMesh {
+    unsigned vao = 0, vbo = 0, ebo = 0;
+    int count = 0;
+  };
   void uploadTerrain();
-  void uploadScene();
+  void uploadMesh(GlMesh* gm, const std::shared_ptr<const strata3d::SceneMesh>& mesh);
+  void drawFrame(int w, int h);
   void resetCamera();
   QVector3D eyePosition() const;
   unsigned buildProgram(const char* vertexSrc, const char* fragmentSrc);
@@ -86,16 +102,21 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   unsigned instanceVbo_ = 0;
   unsigned heightTex_ = 0;
   QImage pendingSat_;
+  QImage pendingDetail_;
+  double detailHalfM_ = 0;
   unsigned satTex_ = 0;
+  unsigned detailTex_ = 0;
   // 건물·유적
   std::shared_ptr<const strata3d::SceneMesh> pendingScene_;
   bool sceneChanged_ = false;
   bool sceneVisible_ = true;
   unsigned sceneProgram_ = 0;
-  unsigned sceneVao_ = 0;
-  unsigned sceneVbo_ = 0;
-  unsigned sceneEbo_ = 0;
-  int sceneIndexCount_ = 0;
+  GlMesh sceneMesh_;
+  GlMesh overlayMesh_;
+  std::shared_ptr<const strata3d::SceneMesh> pendingOverlay_;
+  bool overlayChanged_ = false;
+  QMatrix4x4 lastViewProj_;
+  QVector3D lastEye_;
   int templateIndexCount_ = 0;
   std::vector<float> instanceData_;
 };
