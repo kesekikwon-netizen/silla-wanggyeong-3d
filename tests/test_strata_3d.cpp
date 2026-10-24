@@ -14,6 +14,7 @@
 
 #include "CrsTransform.h"
 #include "DemProvider.h"
+#include "AgxView.h"
 #include "Archaeology3dEvaluator.h"
 #include "Frustum.h"
 #include "Kdop14Bvh.h"
@@ -495,6 +496,40 @@ class TestStrata3d : public QObject {
     QVERIFY(!QFile::exists(src + "-wal") && !QFile::exists(src + "-shm"));
     QVERIFY(!loadStrataSurvey(cache_.path() + "/없는파일.gpkg", "EPSG:5187", &s, &err));
     QVERIFY(!err.isEmpty());
+  }
+
+  void agxMatchesBlenderOcioReference() {
+    AgxView agx;
+    QString err;
+    QVERIFY2(agx.loadCube(QStringLiteral(S3D_SOURCE_DIR) + "/data/colormanagement/AgX_Base_sRGB.cube", &err), qPrintable(err));
+    QCOMPARE(agx.size(), 57);
+    QFile f(QStringLiteral(S3D_SOURCE_DIR) + "/tests/data/agx_reference.csv");
+    QVERIFY(f.open(QIODevice::ReadOnly | QIODevice::Text));
+    int rows = 0;
+    double maxErr = 0, sumErr = 0;
+    QString worst;
+    while (!f.atEnd()) {
+      const QString line = QString::fromUtf8(f.readLine()).trimmed();
+      if (line.isEmpty() || line.startsWith('#') || line.startsWith("r,")) continue;
+      const QStringList p = line.split(',');
+      QCOMPARE(p.size(), 6);
+      const float in[3] = {p[0].toFloat(), p[1].toFloat(), p[2].toFloat()};
+      float out[3];
+      agx.apply(in, out);
+      for (int c = 0; c < 3; ++c) {
+        const double e = std::abs(double(out[c]) - p[3 + c].toDouble());
+        sumErr += e;
+        if (e > maxErr) { maxErr = e; worst = line; }
+      }
+      ++rows;
+    }
+    qInfo() << "AgX 기준표" << rows << "행, 최대 오차" << maxErr << "평균 오차" << sumErr / (rows * 3) << "최악:" << worst;
+    QVERIFY(rows >= 1000);
+    QVERIFY2(maxErr < 0.002, qPrintable(worst));  // 8비트 한 단계(0.0039)의 절반보다 작다
+    const float grey[3] = {0.18f, 0.18f, 0.18f};
+    float g[3];
+    agx.apply(grey, g);
+    QVERIFY(std::abs(g[0] - 0.4613) < 0.002);  // OCIO 에서 읽은 중간 회색
   }
 
   void satelliteTilesCoverTheWindow() {

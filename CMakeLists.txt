@@ -60,7 +60,8 @@ add_library(strata_3d_engine STATIC
   src/engine/Archaeology3dEvaluator.cpp
   src/engine/EvaluationOverlay.cpp
   src/engine/EvaluationJson.cpp
-  src/engine/StrataSurvey.cpp)
+  src/engine/StrataSurvey.cpp
+  src/engine/AgxView.cpp)
 target_include_directories(strata_3d_engine PUBLIC ${CMAKE_SOURCE_DIR}/src/engine ${S3D_GDAL_INCLUDES})
 target_link_directories(strata_3d_engine PUBLIC ${S3D_GDAL_LIBDIRS})
 target_link_libraries(strata_3d_engine PUBLIC Qt6::Core Qt6::Gui ${S3D_GDAL_LIB})
@@ -123,3 +124,11 @@ set_tests_properties(strata_bridge_e2e PROPERTIES TIMEOUT 600)
 
 # 조사 파일 읽기 시험은 엔진 시험에 넣는다(hgis 의 시험용 표본을 읽기 전용으로).
 target_compile_definitions(test_strata_3d PRIVATE S3D_HGIS_ROOT="${HGIS_ROOT}")
+
+# 색 관리 자료(AgX LUT)와 시험 기준표 위치
+target_compile_definitions(test_strata_3d PRIVATE S3D_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+# 앱 옆에 data/ 를 복사한다(AgX LUT 를 실행 파일 옆에서 찾는다)
+add_custom_command(TARGET strata-3d POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:strata-3d>/data)
+add_custom_command(TARGET test_strata_3d POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:test_strata_3d>/data)
