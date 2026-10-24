@@ -62,10 +62,17 @@ add_library(strata_3d_engine STATIC
   src/engine/EvaluationJson.cpp
   src/engine/StrataSurvey.cpp
   src/engine/AgxView.cpp
-  src/engine/NishitaSky.cpp)
+  src/engine/NishitaSky.cpp
+  src/engine/DbpiaBangriLedger.cpp
+  src/engine/SillaMoundReconstructor.cpp
+  src/engine/BangriGridEngine.cpp
+  src/engine/FossilizedRoadAnalyzer.cpp
+  src/engine/BangriTerrainValidator.cpp
+  src/engine/BangriSurveyEvaluator.cpp)
 target_include_directories(strata_3d_engine PUBLIC ${CMAKE_SOURCE_DIR}/src/engine ${S3D_GDAL_INCLUDES})
 target_link_directories(strata_3d_engine PUBLIC ${S3D_GDAL_LIBDIRS})
 target_link_libraries(strata_3d_engine PUBLIC Qt6::Core Qt6::Gui ${S3D_GDAL_LIB})
+target_compile_definitions(strata_3d_engine PUBLIC S3D_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 if(MSVC)
   target_compile_options(strata_3d_engine PRIVATE /openmp)  # BVH 만들기 등 병렬 반복
 endif()
@@ -87,6 +94,8 @@ add_executable(strata-3d WIN32
   src/app/main.cpp
   src/app/MainWindow.cpp
   src/app/MainWindow.h
+  src/app/BangriDockPanel.cpp
+  src/app/BangriDockPanel.h
   src/app/ProfilePlot.cpp
   src/app/ProfilePlot.h
   src/app/KaGlTerrainViewport.cpp
@@ -116,6 +125,12 @@ target_link_libraries(test_strata_3d PRIVATE strata_3d_engine Qt6::Test)
 set_target_properties(test_strata_3d PROPERTIES WIN32_EXECUTABLE FALSE)
 add_test(NAME strata_3d_engine COMMAND test_strata_3d)
 set_tests_properties(strata_3d_engine PROPERTIES TIMEOUT 300)
+
+add_executable(test_bangri_grid tests/test_bangri_grid.cpp)
+target_link_libraries(test_bangri_grid PRIVATE strata_3d_engine Qt6::Test)
+set_target_properties(test_bangri_grid PROPERTIES WIN32_EXECUTABLE FALSE)
+add_test(NAME bangri_grid_unit COMMAND test_bangri_grid)
+set_tests_properties(bangri_grid_unit PROPERTIES TIMEOUT 120)
 
 # ---- 연동 시험: 실제 strata-3d.exe 를 띄워 파이프로 말을 건다 -----------------------------------
 add_executable(test_strata_bridge tests/test_strata_bridge.cpp src/bridge/StrataBridgeClient.cpp)

@@ -7,11 +7,15 @@
 #include <optional>
 
 #include "Archaeology3dEvaluator.h"
+#include "BangriGridEngine.h"
+#include "DbpiaBangriLedger.h"
 #include "GeoFeature.h"
 #include "SceneMesh.h"
+#include "SheetComposer.h"
 #include "StrataSurvey.h"
 #include "TerrainLodTree.h"
 
+class BangriDockPanel;
 class KaGlTerrainViewport;
 class ProfilePlot;
 class QLabel;
@@ -32,6 +36,7 @@ class MainWindow : public QMainWindow {
     bool loadSatellite = true;
     int satelliteTexels = 4096;
     QString workCrs = QStringLiteral("EPSG:5187");  // 조사를 열면 조사 파일의 좌표계(5186/5187)를 따른다
+    QString bangriPresetId;  // 비어 있지 않으면 시작 시 해당 방리 프리셋 좌표·제원을 적용한다
   };
   struct SatelliteLoad {
     QImage image;
@@ -61,6 +66,8 @@ class MainWindow : public QMainWindow {
   // 그려 둔 시굴 트렌치의 단면(점 두 개를 찍기 전에는 비어 있다)
   const std::vector<strata3d::ProfilePoint>& trenchProfile() const { return trenchProfile_; }
   const QString& imageryName() const { return imageryName_; }
+  BangriDockPanel* bangriPanel() const { return bangriPanel_; }
+  const BangriSheetData& bangriData() const { return bangriData_; }
 
  public slots:
   void loadScene();
@@ -72,6 +79,14 @@ class MainWindow : public QMainWindow {
   void evaluateSurvey();
   // 3072×3072 입체지형 도면(PNG, pdfPath 가 비어 있지 않으면 PDF 도)을 저장한다.
   bool exportSheet(const QString& pngPath, const QString& pdfPath = QString());
+  // 3400×2400 5패널 신라왕경·9주5소경 방리구획 정밀 고고학 도면(PNG + 선택적 A3 PDF)을 저장한다.
+  bool exportBangriSheet(const QString& pngPath, const QString& pdfPath = QString());
+  // 신라왕경·9주5소경 프리셋을 선택하고 필요하면 해당 지역 DEM 을 불러온다.
+  void selectBangriPreset(const QString& presetId, bool allowSceneReload = true);
+  // 현재 DEM·지물·파라메트릭 방리 제원으로 3D 고지형·봉분·방리 격자·화석화·직교 트렌치를 다시 계산한다.
+  void recomputeBangriState();
+  // 발굴 기준점(Anchor)들에 대해 원점·방위각 RMSE 최소제곱 자동 정합을 수행한다.
+  void autoFitBangriAnchors();
   // 시굴 트렌치: 지형에서 두 점(작업 좌표계)을 이어 단면과 3D 띠를 만든다. 화면에서 찍는 것과 같은 길이다.
   void setTrench(double ax, double ay, double bx, double by);
   void clearTrench();
@@ -91,7 +106,8 @@ class MainWindow : public QMainWindow {
   void onPick(const QVector3D& origin, const QVector3D& direction);
   void showEvaluation();
   void onTrenchPoint(const QVector3D& origin, const QVector3D& direction);
-  void refreshOverlay();  // 조사 + 평가 + 트렌치 겹침을 한 메시로 합쳐 올린다
+  void refreshOverlay();  // 조사 + 평가 + 트렌치 + 방리구획 겹침을 한 메시로 합쳐 올린다
+  void rebuildSceneMeshForTerrainMode();
   void keyPressEvent(QKeyEvent* e) override;
 
   Options options_;
@@ -101,10 +117,14 @@ class MainWindow : public QMainWindow {
   std::optional<strata3d::Pt> trenchA_;  // 첫 점만 찍은 상태
   std::vector<strata3d::ProfilePoint> trenchProfile_;
   QString trenchSummary_;
-  std::shared_ptr<const strata3d::SceneMesh> evalOverlay_, trenchOverlay_;
+  std::shared_ptr<const strata3d::SceneMesh> evalOverlay_, trenchOverlay_, bangriOverlay_;
   KaGlTerrainViewport* viewport_ = nullptr;
   QLabel* status_ = nullptr;
   QTextBrowser* report_ = nullptr;
+  BangriDockPanel* bangriPanel_ = nullptr;
+  strata3d::DbpiaBangriLedger dbpiaLedger_;
+  BangriSheetData bangriData_;
+  float zScale_ = 1.0f;
   QFutureWatcher<LoadResult> watcher_;
   QFutureWatcher<SatelliteLoad> satWatcher_;
   QFutureWatcher<strata3d::Evaluation> evalWatcher_;

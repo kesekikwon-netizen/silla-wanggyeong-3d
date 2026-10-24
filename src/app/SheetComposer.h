@@ -3,6 +3,14 @@
 #include <QImage>
 #include <QString>
 #include <QStringList>
+#include <vector>
+
+#include "BangriGridEngine.h"
+#include "BangriSurveyEvaluator.h"
+#include "BangriTerrainValidator.h"
+#include "DbpiaBangriLedger.h"
+#include "FossilizedRoadAnalyzer.h"
+#include "SillaMoundReconstructor.h"
 
 struct SheetInfo {
   QString title;
@@ -19,9 +27,30 @@ struct SheetInfo {
   QString generated;             // 만든 날짜 문자열
 };
 
+// 신라왕경·9주5소경 방리구획 5패널 정밀 고고학 도면 제작용 통합 데이터
+struct BangriSheetData {
+  SheetInfo baseInfo;
+  strata3d::BangriCityPreset preset;
+  strata3d::BangriGridResult grid;
+  std::vector<strata3d::BangriAnchor> anchors;
+  std::vector<strata3d::BangriAnchorResidual> residuals;
+  double anchorRmseM = 0.0;
+  strata3d::FossilizationResult fossilization;
+  strata3d::BangriValidationResult validation;
+  strata3d::BangriSurveyEvaluation surveyEval;
+  std::vector<strata3d::SillaMound> mounds;
+  std::vector<strata3d::DbpiaPaperEntry> citations;
+  bool bareEarthMode = true;
+  bool reconstructMounds = true;
+  float zExaggeration = 1.5f;
+};
+
 // 입체지형 도면: 화면 + 제목·축척자·방위표·고도/출처 범례·좌표계·평가 요약.
 // 색과 글꼴은 KaTheme 토큰만 쓴다(hgis 도면 스튜디오와 같은 디자인 언어).
 QImage composeSheet(const QImage& view, const SheetInfo& info);
+
+// 신라왕경·9주5소경 5패널 정밀 방리구획 고고학 도면(3400×2400px급 A3 가로 레이아웃)을 합성한다.
+QImage composeBangriSheet(const QImage& view, const BangriSheetData& data);
 
 // 도면 PNG 를 A3 가로 PDF 한 쪽으로 저장한다.
 bool saveSheetPdf(const QImage& sheet, const QString& path, const QString& title);

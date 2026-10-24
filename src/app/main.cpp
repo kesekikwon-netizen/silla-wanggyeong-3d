@@ -93,6 +93,8 @@ int main(int argc, char** argv) {
   QCommandLineOption noSat(QStringLiteral("no-satellite"), QStringLiteral("위성영상을 받지 않는다."));
   QCommandLineOption evalCenter(QStringLiteral("eval-center"), QStringLiteral("불러온 뒤 지형 한가운데(첨성대 부근)를 평가한다."));
   QCommandLineOption sheetOut(QStringLiteral("sheet-out"), QStringLiteral("스모크 끝에 입체지형 도면 PNG(+같은 이름 PDF)를 저장."), QStringLiteral("file.png"));
+  QCommandLineOption bangriPreset(QStringLiteral("bangri-preset"), QStringLiteral("신라왕경·9주5소경 프리셋 ID(예: gyeongju_hwangnyongsa)."), QStringLiteral("id"));
+  QCommandLineOption exportBangriSheet(QStringLiteral("export-bangri-sheet"), QStringLiteral("스모크 끝에 5패널 신라 방리구획 정밀 도면 PNG(+PDF)를 저장."), QStringLiteral("file.png"));
   QCommandLineOption noInitial(QStringLiteral("no-initial-scene"), QStringLiteral("시작할 때 경주 기본 장면을 불러오지 않는다(연동으로 조사를 받을 때)."));
   QCommandLineOption noAo(QStringLiteral("no-ao"), QStringLiteral("환경 차폐(GTAO)를 끈다."));
   QCommandLineOption modeOpt(QStringLiteral("mode"), QStringLiteral("보기 방식 0 점토 1 표고 2 경사 3 위성."), QStringLiteral("n"));
@@ -100,11 +102,12 @@ int main(int argc, char** argv) {
   QCommandLineOption bridgePipe(QStringLiteral("bridge-pipe"), QStringLiteral("연동 파이프 이름(기본 strata-3d-bridge-v1)."), QStringLiteral("name"));
   QCommandLineOption trenchClicks(QStringLiteral("trench-clicks"), QStringLiteral("스모크: 트렌치 모드를 켜고 뷰포트 비율 좌표(0~1)에서 실제 마우스 클릭 두 번."), QStringLiteral("x1,y1,x2,y2"));
   QCommandLineOption windowShot(QStringLiteral("window-shot"), QStringLiteral("스모크 끝에 KaTheme 가 적용된 전체 창을 PNG 로 저장."), QStringLiteral("file.png"));
-  parser.addOptions({smoke, report, image, cam, dem, lon, lat, noFeat, noSat, evalCenter, sheetOut, noBridge, bridgePipe, noInitial, noAo, modeOpt, trenchClicks, windowShot});
+  parser.addOptions({smoke, report, image, cam, dem, lon, lat, noFeat, noSat, evalCenter, sheetOut, bangriPreset, exportBangriSheet, noBridge, bridgePipe, noInitial, noAo, modeOpt, trenchClicks, windowShot});
   parser.process(app);
 
   MainWindow::Options opt;
   opt.demPath = parser.value(dem);
+  if (parser.isSet(bangriPreset)) opt.bangriPresetId = parser.value(bangriPreset);
   if (parser.isSet(lon)) opt.lon = parser.value(lon).toDouble();
   if (parser.isSet(lat)) opt.lat = parser.value(lat).toDouble();
   opt.loadFeatures = !parser.isSet(noFeat);
@@ -158,6 +161,13 @@ int main(int argc, char** argv) {
   });
   QObject::connect(&w, &MainWindow::loadFinished, &app, [&](bool ok, const QString& msg) {
     if (!ok) finish(1, QStringLiteral("DEM 불러오기 실패: ") + msg);
+    if (parser.isSet(bangriPreset)) {
+      w.autoFitBangriAnchors();
+      if (!w.bangriData().surveyEval.recommendedTrenches.empty()) {
+        const auto& t1 = w.bangriData().surveyEval.recommendedTrenches.front();
+        w.setTrench(t1.startPt.x, t1.startPt.y, t1.endPt.x, t1.endPt.y);
+      }
+    }
     loadText = msg;
   });
   QObject::connect(&w, &MainWindow::satelliteFinished, &app, [&](bool ok, const QString& msg) {
@@ -204,17 +214,40 @@ int main(int argc, char** argv) {
     const FrameCheck c = checkFrame(frame);
     QString text = loadText + QStringLiteral(" | ") + c.text + QStringLiteral(" | ") + vp->glInfo();
     if (!evalText.isEmpty()) text += QStringLiteral(" | 평가: ") + evalText;
-    if (!c.ok || !parser.isSet(sheetOut)) {
+    const bool wantStandardSheet = parser.isSet(sheetOut);
+    const bool wantBangriSheet = parser.isSet(exportBangriSheet);
+    if (!c.ok || (!wantStandardSheet && !wantBangriSheet)) {
       finish(c.ok ? 0 : 1, text);
       return;
     }
-    QTimer::singleShot(0, &app, [&, text] {  // 그리는 도중이 아니라 한 박자 뒤에 도면을 만든다
-      const QString png = parser.value(sheetOut);
-      QString pdf = png;
-      pdf.replace(QStringLiteral(".png"), QStringLiteral(".pdf"));
-      const bool ok = w.exportSheet(png, pdf);
-      const qint64 pngSize = QFileInfo(png).size(), pdfSize = QFileInfo(pdf).size();
-      finish(ok && pngSize > 200000 && pdfSize > 20000 ? 0 : 1, text + QStringLiteral(" | 도면 PNG %1 KB, PDF %2 KB").arg(pngSize / 1024).arg(pdfSize / 1024));
+    QTimer::singleShot(0, &app, [&, text, wantStandardSheet, wantBangriSheet] {  // 그리는 도중이 아니라 한 박자 뒤에 도면을 만든다
+      QString extraMsg;
+      bool allOk = true;
+      if (wantStandardSheet) {
+        const QString png = parser.value(sheetOut);
+        QFileInfo(png).dir().mkpath(QStringLiteral("."));
+        QString pdf = png;
+        pdf.replace(QStringLiteral(".png"), QStringLiteral(".pdf"));
+        const bool ok = w.exportSheet(png, pdf);
+        const qint64 pngSize = QFileInfo(png).size(), pdfSize = QFileInfo(pdf).size();
+        allOk = allOk && ok && pngSize > 200000 && pdfSize > 20000;
+        extraMsg += QStringLiteral(" | 도면 PNG %1 KB, PDF %2 KB").arg(pngSize / 1024).arg(pdfSize / 1024);
+      }
+      if (wantBangriSheet) {
+        const QString png = parser.value(exportBangriSheet);
+        QFileInfo(png).dir().mkpath(QStringLiteral("."));
+        QString pdf = png;
+        pdf.replace(QStringLiteral(".png"), QStringLiteral(".pdf"));
+        const bool ok = w.exportBangriSheet(png, pdf);
+        const qint64 pngSize = QFileInfo(png).size(), pdfSize = QFileInfo(pdf).size();
+        allOk = allOk && ok && pngSize > 200000 && pdfSize > 20000;
+        extraMsg += QStringLiteral(" | 5패널 방리도면 PNG %1 KB, PDF %2 KB (RMSE %3 m, 화석화 %4%)")
+                        .arg(pngSize / 1024)
+                        .arg(pdfSize / 1024)
+                        .arg(w.bangriData().anchorRmseM, 0, 'f', 2)
+                        .arg(w.bangriData().fossilization.fossilizationScorePct, 0, 'f', 1);
+      }
+      finish(allOk ? 0 : 1, text + extraMsg);
     });
   });
   QTimer::singleShot(180000, &app, [&] { finish(2, QStringLiteral("180초 안에 끝나지 않았습니다.")); });

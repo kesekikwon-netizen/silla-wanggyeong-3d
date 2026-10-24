@@ -121,12 +121,14 @@ layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec4 aColor;
 uniform mat4 uViewProj;
+uniform float uZScale;
 out vec3 vNormal;
 out vec4 vColor;
 void main() {
-  vNormal = aNormal;
+  float zs = max(uZScale, 0.1);
+  vNormal = normalize(vec3(aNormal.xy * zs, aNormal.z));
   vColor = aColor;
-  gl_Position = uViewProj * vec4(aPos, 1.0);
+  gl_Position = uViewProj * vec4(aPos.xy, aPos.z * zs, 1.0);
 }
 )GLSL";
 
