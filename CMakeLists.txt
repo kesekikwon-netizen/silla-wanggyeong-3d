@@ -58,7 +58,9 @@ add_library(strata_3d_engine STATIC
   src/engine/KdTree3.cpp
   src/engine/TerrainBvh.cpp
   src/engine/Archaeology3dEvaluator.cpp
-  src/engine/EvaluationOverlay.cpp)
+  src/engine/EvaluationOverlay.cpp
+  src/engine/EvaluationJson.cpp
+  src/engine/StrataSurvey.cpp)
 target_include_directories(strata_3d_engine PUBLIC ${CMAKE_SOURCE_DIR}/src/engine ${S3D_GDAL_INCLUDES})
 target_link_directories(strata_3d_engine PUBLIC ${S3D_GDAL_LIBDIRS})
 target_link_libraries(strata_3d_engine PUBLIC Qt6::Core Qt6::Gui ${S3D_GDAL_LIB})
@@ -86,10 +88,14 @@ add_executable(strata-3d WIN32
   src/app/KaGlTerrainViewport.cpp
   src/app/KaGlTerrainViewport.h
   src/app/SheetComposer.cpp
+  src/app/StrataBridge.cpp
+  src/app/StrataBridge.h
+  src/bridge/StrataBridgeClient.cpp
+  src/bridge/StrataBridgeClient.h
   src/app/SheetComposer.h
   src/app/TerrainShaders.cpp
   src/app/TerrainShaders.h)
-target_include_directories(strata-3d PRIVATE ${CMAKE_SOURCE_DIR}/src/app ${HGIS_ROOT}/src/app ${CMAKE_BINARY_DIR}/generated)
+target_include_directories(strata-3d PRIVATE ${CMAKE_SOURCE_DIR}/src/app ${CMAKE_SOURCE_DIR}/src/bridge ${HGIS_ROOT}/src/app ${CMAKE_BINARY_DIR}/generated)
 target_link_libraries(strata-3d PRIVATE strata_3d_engine Qt6::Widgets Qt6::OpenGLWidgets Qt6::OpenGL Qt6::Network Qt6::Concurrent)
 if(WIN32)
   target_link_libraries(strata-3d PRIVATE dwmapi)
@@ -102,3 +108,18 @@ target_link_libraries(test_strata_3d PRIVATE strata_3d_engine Qt6::Test)
 set_target_properties(test_strata_3d PROPERTIES WIN32_EXECUTABLE FALSE)
 add_test(NAME strata_3d_engine COMMAND test_strata_3d)
 set_tests_properties(strata_3d_engine PROPERTIES TIMEOUT 300)
+
+# ---- 연동 시험: 실제 strata-3d.exe 를 띄워 파이프로 말을 건다 -----------------------------------
+add_executable(test_strata_bridge tests/test_strata_bridge.cpp src/bridge/StrataBridgeClient.cpp)
+target_include_directories(test_strata_bridge PRIVATE ${CMAKE_SOURCE_DIR}/src/bridge)
+target_compile_definitions(test_strata_bridge PRIVATE
+  S3D_HGIS_ROOT="${HGIS_ROOT}"
+  S3D_APP_EXE="$<TARGET_FILE:strata-3d>")
+target_link_libraries(test_strata_bridge PRIVATE Qt6::Test Qt6::Network Qt6::Gui)
+set_target_properties(test_strata_bridge PROPERTIES WIN32_EXECUTABLE FALSE)
+add_dependencies(test_strata_bridge strata-3d)
+add_test(NAME strata_bridge_e2e COMMAND test_strata_bridge)
+set_tests_properties(strata_bridge_e2e PROPERTIES TIMEOUT 600)
+
+# 조사 파일 읽기 시험은 엔진 시험에 넣는다(hgis 의 시험용 표본을 읽기 전용으로).
+target_compile_definitions(test_strata_3d PRIVATE S3D_HGIS_ROOT="${HGIS_ROOT}")

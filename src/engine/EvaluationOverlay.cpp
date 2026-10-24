@@ -21,3 +21,26 @@ std::shared_ptr<const SceneMesh> buildProfileOverlay(const DemGrid& dem, const s
 }
 
 }  // namespace strata3d
+
+namespace strata3d {
+
+void appendMesh(SceneMesh* dst, const SceneMesh& src) {
+  const uint32_t base = uint32_t(dst->vertices.size() / SceneMesh::kFloatsPerVertex);
+  dst->vertices.insert(dst->vertices.end(), src.vertices.begin(), src.vertices.end());
+  for (uint32_t i : src.indices) dst->indices.push_back(base + i);
+}
+
+std::shared_ptr<const SceneMesh> buildSurveyOverlay(const DemGrid& dem, const StrataSurvey& s) {
+  auto mesh = std::make_shared<SceneMesh>();
+  const std::array<float, 4> green{0.15f, 0.75f, 0.30f, 1}, orange{1.0f, 0.55f, 0.05f, 1}, red{0.90f, 0.20f, 0.18f, 1}, teal{0.05f, 0.65f, 0.70f, 1};
+  for (const auto& r : s.surveyAreas) appendDrapedRibbon(mesh.get(), dem, r, true, 5.0f, green, 3.0f);
+  for (const auto& r : s.trenches) appendDrapedRibbon(mesh.get(), dem, r, r.size() >= 3, 4.0f, orange, 3.5f);
+  for (const auto& r : s.featurePolys) appendDrapedRibbon(mesh.get(), dem, r, true, 3.0f, red, 3.2f);
+  for (const auto& l : s.featureLines) appendDrapedRibbon(mesh.get(), dem, l, false, 3.0f, teal, 3.2f);
+  for (const auto& l : s.sectionLines) appendDrapedRibbon(mesh.get(), dem, l, false, 3.0f, teal, 3.4f);
+  for (const Pt& p : s.controlPoints) appendPole(mesh.get(), dem, p, 2.0f, 25.0f, {0.2f, 0.2f, 0.9f, 1});
+  for (const Pt& p : s.artifactPoints) appendPole(mesh.get(), dem, p, 2.0f, 18.0f, {0.8f, 0.2f, 0.8f, 1});
+  return mesh;
+}
+
+}  // namespace strata3d

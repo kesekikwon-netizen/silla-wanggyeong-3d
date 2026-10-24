@@ -57,6 +57,7 @@ struct Evaluation {
   std::vector<RadiusResult> radii;
   std::vector<VisibilityItem> visibility;
   QStringList notes;  // 계산에 쓰지 못한 것, 가정 등
+  QString crs;        // 이 결과의 좌표계(DEM 격자와 같다)
   QString summary;    // 한국어 요약(계산값만 서술)
 };
 

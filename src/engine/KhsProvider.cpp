@@ -99,3 +99,22 @@ bool loadKhsHeritage(const FeatureRequest& req, std::vector<GeoFeature>* out, QS
 }
 
 }  // namespace strata3d
+
+namespace strata3d {
+
+bool loadKhsHeritageNearby(const FeatureRequest& req, std::vector<GeoFeature>* out, QString* errorOut) {
+  // 국가유산청 시도 코드(ccbaCtcd): 서울 11, 부산 21, 대구 22, 인천 23, 광주 24, 대전 25, 울산 26, 세종 45,
+  // 경기 31, 강원 32, 충북 33, 충남 34, 전북 35, 전남 36, 경북 37, 경남 38, 제주 50
+  static const char* kProvinces[] = {"11", "21", "22", "23", "24", "25", "26", "45", "31", "32", "33", "34", "35", "36", "37", "38", "50"};
+  QStringList errors;
+  int ok = 0;
+  for (const char* code : kProvinces) {
+    QString err;
+    if (loadKhsHeritage(req, out, &err, QString(), QString::fromLatin1(code))) ++ok;
+    else errors << QStringLiteral("시도 %1: %2").arg(QString::fromLatin1(code), err);
+  }
+  if (errorOut) *errorOut = errors.join(QStringLiteral("; "));
+  return ok > 0;
+}
+
+}  // namespace strata3d

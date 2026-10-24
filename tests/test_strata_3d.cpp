@@ -1,6 +1,8 @@
 // strata_3d_engine 시험. 모든 격자는 실제 Copernicus GLO-30 COG(/vsicurl/)에서 GDAL 로 읽는다.
 // 네트워크가 막히면 시험은 건너뛰지 않고 실패한다(가짜 값으로 통과시키지 않기 위해).
+#include <QCryptographicHash>
 #include <QElapsedTimer>
+#include <QFile>
 #include <QMatrix4x4>
 #include <QRandomGenerator>
 #include <QTemporaryDir>
@@ -22,6 +24,7 @@
 #include "OsmProvider.h"
 #include "SatelliteProvider.h"
 #include "SceneMesh.h"
+#include "StrataSurvey.h"
 #include "TerrainLodTree.h"
 #include "Triangulate.h"
 #include "VworldKey.h"
@@ -208,6 +211,24 @@ class TestStrata3d : public QObject {
     QCOMPARE(cheom->category, QString::fromUtf16(u"국보"));
     // 요청 중심(첨성대 위경도 어림값)에서 300 m 이내여야 한다.
     QVERIFY(std::hypot(cheom->point.x - cx_, cheom->point.y - cy_) < 300);
+  }
+
+  void khsNearbyWorksNationwide() {
+    // 전국 목록에서 창 안만 고른다: 경주 6 km 창에서 경북만 받은 결과(khs_)와 같은 수·같은 id 여야 하고,
+    // 경주와 먼 다른 지역 창에서도 지정유산이 나와야 한다(경북·경주 고정이 아님).
+    std::vector<GeoFeature> nat;
+    QString err;
+    QVERIFY2(loadKhsHeritageNearby(featureRequest(6000), &nat, &err), qPrintable(err));
+    QCOMPARE(nat.size(), khs_.size());
+    FeatureRequest seoul = featureRequest(3000);
+    double sx = 126.9769, sy = 37.5796;  // 경복궁 부근(WGS84)
+    QVERIFY(transformPoint("EPSG:4326", "EPSG:5187", &sx, &sy));
+    seoul.centerX = sx;
+    seoul.centerY = sy;
+    std::vector<GeoFeature> far;
+    QVERIFY2(loadKhsHeritageNearby(seoul, &far, &err), qPrintable(err));
+    qInfo() << "서울 경복궁 3 km 안 국가유산청" << int(far.size()) << "건";
+    QVERIFY(far.size() > 10);
   }
 
   void osmAndKhsAgreeOnCheomseongdae() {
@@ -435,6 +456,45 @@ class TestStrata3d : public QObject {
     QVERIFY(dem_.sample(cx_, cy_, &z0));
     QVERIFY(std::abs(prof.front().elevationM - z0) < 1e-3);
     QVERIFY(std::abs(prof.back().distanceM - std::hypot(600.0, 300.0)) < 1e-6);
+  }
+
+  void strataSurveyIsReadOnlyAndTransformed() {
+    const QString src = QStringLiteral(S3D_HGIS_ROOT) + QStringLiteral("/samples/demo_survey/demo.gpkg");
+    QVERIFY2(QFile::exists(src), qPrintable(src));
+    auto sha = [](const QString& p) {
+      QFile f(p);
+      (void)f.open(QIODevice::ReadOnly);
+      return QCryptographicHash::hash(f.readAll(), QCryptographicHash::Sha256);
+    };
+    const QByteArray before = sha(src);
+    StrataSurvey s;
+    QString err;
+    QVERIFY2(loadStrataSurvey(src, "auto", &s, &err), qPrintable(err));
+    QCOMPARE(s.workCrs, QString("EPSG:5186"));  // 표본 파일은 중부원점(5186)이다 — 파일의 좌표계를 따른다
+    qInfo() << "조사 레이어" << s.presentLayers << "중심" << s.center.x << s.center.y << "반폭" << s.halfExtentM;
+    QVERIFY(s.presentLayers.contains("survey_area"));
+    QVERIFY(s.presentLayers.contains("trial_trench"));
+    QCOMPARE(int(s.surveyAreas.size()), 1);
+    QCOMPARE(int(s.surveyAreas[0].size()), 4);  // 닫는 점은 뺀다
+    QVERIFY(std::abs(s.center.x - 200050.0) < 100 && std::abs(s.center.y - 450045.0) < 100);
+    // 5187 로 강제하면 같은 지점이 옮겨져야 한다: 경도 2° 차이만큼 X 가 크게 달라진다(변환이 실제로 일어난다).
+    StrataSurvey s187;
+    QVERIFY2(loadStrataSurvey(src, "EPSG:5187", &s187, &err), qPrintable(err));
+    QVERIFY(std::abs(s187.center.x - s.center.x) > 100000);
+    double rx = s187.center.x, ry = s187.center.y;
+    QVERIFY(transformPoint("EPSG:5187", "EPSG:5186", &rx, &ry));
+    QVERIFY(std::abs(rx - s.center.x) < 0.01 && std::abs(ry - s.center.y) < 0.01);
+    // 5179 로 옮긴 뒤 되돌린 값과 같아야 한다.
+    StrataSurvey s179;
+    QVERIFY2(loadStrataSurvey(src, "EPSG:5179", &s179, &err), qPrintable(err));
+    double bx = s179.center.x, by = s179.center.y;
+    QVERIFY(transformPoint("EPSG:5179", "EPSG:5186", &bx, &by));
+    QVERIFY(std::abs(bx - s.center.x) < 0.01 && std::abs(by - s.center.y) < 0.01);
+    // 원본은 그대로: 내용 해시 같고 -wal/-shm 도 안 남는다.
+    QCOMPARE(sha(src), before);
+    QVERIFY(!QFile::exists(src + "-wal") && !QFile::exists(src + "-shm"));
+    QVERIFY(!loadStrataSurvey(cache_.path() + "/없는파일.gpkg", "EPSG:5187", &s, &err));
+    QVERIFY(!err.isEmpty());
   }
 
   void satelliteTilesCoverTheWindow() {

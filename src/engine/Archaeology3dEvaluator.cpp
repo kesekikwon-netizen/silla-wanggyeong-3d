@@ -200,6 +200,7 @@ std::vector<ProfilePoint> Archaeology3dEvaluator::terrainProfile(const Pt& a, co
 
 Evaluation Archaeology3dEvaluator::evaluate(const Pt& site, const std::vector<Pt>& sitePolygon, const std::vector<double>& radiiM) const {
   Evaluation ev;
+  ev.crs = dem_->crs;
   ev.site = site;
   ev.sitePolygon = sitePolygon;
   ev.terrain = terrainAt(site);
@@ -271,6 +272,15 @@ Evaluation Archaeology3dEvaluator::evaluate(const Pt& site, const std::vector<Pt
     v.distanceM = d;
     v.visible = lineOfSight(site, 1.7, f->point, 3.0, &v.blockedAtM);
     ev.visibility.push_back(std::move(v));
+  }
+  {
+    int osmB = 0, osmH = 0, khs = 0, shp = 0;
+    for (const GeoFeature& f : features_) {
+      if (f.source == QLatin1String("OSM")) (f.kind == FeatureKind::Building ? osmB : osmH)++;
+      else if (f.source == QLatin1String("KHS")) ++khs;
+      else ++shp;
+    }
+    ev.notes << u(u"평가에 쓴 자료: OSM 건물 %1동·유산 지물 %2건, 국가유산청 %3건, Strata SHP %4건. 이 목록에 없는 유산·건물은 \"없음\"이 아니라 \"자료에 없음\"이다.").arg(osmB).arg(osmH).arg(khs).arg(shp);
   }
   ev.notes << u(u"시야·거리는 지형(DEM 30 m)만으로 계산했고 건물·수목은 넣지 않았다.");
   ev.notes << u(u"지형 분류는 DEM 형태(Weiss 2001)만으로 가른 참고값이며 지질·하천 자료는 쓰지 않았다.");

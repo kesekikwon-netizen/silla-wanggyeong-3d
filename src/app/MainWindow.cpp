@@ -28,8 +28,11 @@
 #include "SheetComposer.h"
 
 namespace {
-const QString kWorkCrs = QStringLiteral("EPSG:5187");
-const QString kCrsLabel = QStringLiteral("EPSG:5187 (KGD2002 동부원점)");
+QString crsLabelFor(const QString& crs) {
+  if (crs == QLatin1String("EPSG:5186")) return QStringLiteral("EPSG:5186 (KGD2002 중부원점)");
+  if (crs == QLatin1String("EPSG:5187")) return QStringLiteral("EPSG:5187 (KGD2002 동부원점)");
+  return crs;
+}
 
 // DEM 읽기·재배열·분트리·BVH 만들기와 건물·유적 받기는 전부 UI 스레드 밖에서 한다.
 MainWindow::LoadResult buildScene(MainWindow::Options opt) {
@@ -37,13 +40,13 @@ MainWindow::LoadResult buildScene(MainWindow::Options opt) {
   timer.start();
   MainWindow::LoadResult out;
   double x = opt.lon, y = opt.lat;
-  if (!strata3d::transformPoint(QStringLiteral("EPSG:4326"), kWorkCrs, &x, &y, &out.error)) return out;
+  if (!strata3d::transformPoint(QStringLiteral("EPSG:4326"), opt.workCrs, &x, &y, &out.error)) return out;
   strata3d::DemRequest req;
   req.centerX = x;
   req.centerY = y;
   req.halfExtentM = opt.halfExtentM;
   req.pixelSizeM = opt.pixelSizeM;
-  req.workCrs = kWorkCrs;
+  req.workCrs = opt.workCrs;
   req.cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QStringLiteral("/dem");
   if (!opt.demPath.isEmpty()) req.sources = {opt.demPath};
   strata3d::DemGrid grid;
@@ -59,12 +62,13 @@ MainWindow::LoadResult buildScene(MainWindow::Options opt) {
     fr.centerX = x;
     fr.centerY = y;
     fr.halfExtentM = std::min(opt.featureRadiusM, opt.halfExtentM);
-    fr.workCrs = kWorkCrs;
+    fr.workCrs = opt.workCrs;
     fr.cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QStringLiteral("/vector");
     QString err;
     // 한 곳이 실패해도 나머지로 계속한다. 실패 사유는 화면에 그대로 알린다.
     if (!strata3d::loadOsmFeatures(fr, all.get(), &err)) out.warnings << err;
-    if (!strata3d::loadKhsHeritage(fr, all.get(), &err)) out.warnings << err;
+    if (!strata3d::loadKhsHeritageNearby(fr, all.get(), &err)) out.warnings << err;
+    else if (!err.isEmpty()) out.warnings << QStringLiteral("국가유산청 일부 시도 실패: ") + err;
     QStringList skipped;
     strata3d::loadLocalVectors(fr, strata3d::strataHeritageShpPaths(), all.get(), &skipped);
     out.mesh = strata3d::buildSceneMesh(grid, *all);
@@ -83,7 +87,7 @@ MainWindow::SatelliteLoad buildSatellite(MainWindow::Options opt, double centerX
   sr.centerX = centerX;
   sr.centerY = centerY;
   sr.halfExtentM = halfExtentM;
-  sr.workCrs = kWorkCrs;
+  sr.workCrs = opt.workCrs;
   sr.texels = opt.satelliteTexels;
   sr.cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QStringLiteral("/tiles");
   strata3d::SatelliteResult r;
@@ -203,11 +207,18 @@ MainWindow::MainWindow(const Options& options, QWidget* parent) : QMainWindow(pa
     if (!lastLoad_.tree) {
       status_->setText(QStringLiteral("불러오기 실패: ") + lastLoad_.error);
       emit loadFinished(false, lastLoad_.error);
+      if (surveyPending_) { surveyPending_ = false; emit surveyOpened(false, lastLoad_.error); }
+      emit sceneCompleted(false, lastLoad_.error);
       return;
     }
     viewport_->setTerrain(lastLoad_.tree);
     if (lastLoad_.mesh) viewport_->setScene(lastLoad_.mesh);
     const strata3d::DemGrid& g = lastLoad_.tree->grid();
+    sceneComplete_ = false;
+    if (survey_) {
+      surveyOverlay_ = strata3d::buildSurveyOverlay(g, *survey_);
+      viewport_->setOverlay(surveyOverlay_);
+    }
     QString msg = QStringLiteral("%1×%2 칸, 표고 %3~%4 m, %5초")
                       .arg(g.width).arg(g.height).arg(g.zMin, 0, 'f', 1).arg(g.zMax, 0, 'f', 1)
                       .arg(lastLoad_.seconds, 0, 'f', 1);
@@ -224,6 +235,10 @@ MainWindow::MainWindow(const Options& options, QWidget* parent) : QMainWindow(pa
     if (options_.loadSatellite) {
       const double cx = g.centerX(), cy = g.centerY(), half = g.width * g.pixelSize * 0.5;
       satWatcher_.setFuture(QtConcurrent::run(buildSatellite, options_, cx, cy, half));
+    } else {
+      sceneComplete_ = true;
+      if (surveyPending_) { surveyPending_ = false; emit surveyOpened(true, QStringLiteral("조사 %1 열림").arg(survey_ ? survey_->path : QString())); }
+      emit sceneCompleted(true, summary_);
     }
   });
   connect(&satWatcher_, &QFutureWatcher<SatelliteLoad>::finished, this, [this] {
@@ -231,6 +246,9 @@ MainWindow::MainWindow(const Options& options, QWidget* parent) : QMainWindow(pa
     if (s.image.isNull()) {
       summary_ += QStringLiteral(" | 위성 실패: ") + s.error;
       emit satelliteFinished(false, s.error);
+      sceneComplete_ = true;
+      if (surveyPending_) { surveyPending_ = false; emit surveyOpened(true, QStringLiteral("조사 열림(위성 없이): ") + s.error); }
+      emit sceneCompleted(false, s.error);
       return;
     }
     imageryName_ = s.source;
@@ -238,6 +256,9 @@ MainWindow::MainWindow(const Options& options, QWidget* parent) : QMainWindow(pa
     const QString m = QStringLiteral("위성 %1 %2×%3 + 중심 %4×%5, %6초").arg(s.source).arg(s.image.width()).arg(s.image.height()).arg(s.detail.width()).arg(s.detail.height()).arg(s.seconds, 0, 'f', 1);
     summary_ += QStringLiteral(" | ") + m;
     emit satelliteFinished(true, m);
+    sceneComplete_ = true;
+    if (surveyPending_) { surveyPending_ = false; emit surveyOpened(true, QStringLiteral("조사 %1 열림").arg(survey_ ? survey_->path : QString())); }
+    emit sceneCompleted(true, summary_);
   });
 }
 
@@ -279,7 +300,10 @@ void MainWindow::showEvaluation() {
   lastEvaluation_ = evalWatcher_.result();
   hasEvaluation_ = true;
   report_->setHtml(evaluationHtml(lastEvaluation_));
-  viewport_->setOverlay(strata3d::buildEvaluationOverlay(lastLoad_.evaluator->dem(), lastEvaluation_));
+  auto overlay = std::make_shared<strata3d::SceneMesh>();
+  if (surveyOverlay_) strata3d::appendMesh(overlay.get(), *surveyOverlay_);
+  strata3d::appendMesh(overlay.get(), *strata3d::buildEvaluationOverlay(lastLoad_.evaluator->dem(), lastEvaluation_));
+  viewport_->setOverlay(overlay);
   emit evaluationFinished(true, lastEvaluation_.summary);
 }
 
@@ -293,7 +317,7 @@ bool MainWindow::exportSheet(const QString& pngPath, const QString& pdfPath) {
   info.title = QStringLiteral("경주 입체지형 · 고고학 3D 평가");
   info.visibleWidthM = viewport_->visibleWidthAtTargetM(1.0f);
   info.yawDegFromNorth = viewport_->yawDegrees();
-  info.crsLabel = kCrsLabel;
+  info.crsLabel = crsLabelFor(g.crs);
   info.demName = QStringLiteral("Copernicus GLO-30 (%1 m 격자로 재배열)").arg(g.pixelSize, 0, 'f', 0);
   info.imageryName = imageryName_;
   info.zMin = g.zMin;
@@ -317,4 +341,51 @@ bool MainWindow::exportSheet(const QString& pngPath, const QString& pdfPath) {
   bool ok = sheet.save(pngPath);
   if (ok && !pdfPath.isEmpty()) ok = saveSheetPdf(sheet, pdfPath, info.title);
   return ok;
+}
+
+void MainWindow::openSurvey(const QString& gpkgPath) {
+  strata3d::StrataSurvey s;
+  QString err;
+  if (!strata3d::loadStrataSurvey(gpkgPath, QStringLiteral("auto"), &s, &err)) {
+    emit surveyOpened(false, err);
+    return;
+  }
+  double lon = s.center.x, lat = s.center.y;
+  if (!strata3d::transformPoint(s.workCrs, QStringLiteral("EPSG:4326"), &lon, &lat, &err)) {
+    emit surveyOpened(false, err);
+    return;
+  }
+  survey_ = std::move(s);
+  surveyOverlay_.reset();
+  hasEvaluation_ = false;
+  options_.workCrs = survey_->workCrs;
+  options_.lon = lon;
+  options_.lat = lat;
+  surveyPending_ = true;
+  loadScene();
+}
+
+void MainWindow::evaluateSurvey() {
+  if (!survey_) {
+    emit evaluationFinished(false, QStringLiteral("열린 조사가 없습니다."));
+    return;
+  }
+  if (!lastLoad_.evaluator) {
+    emit evaluationFinished(false, QStringLiteral("지형이 아직 없습니다."));
+    return;
+  }
+  const std::vector<strata3d::Pt>* ring = nullptr;
+  for (const auto* set : {&survey_->surveyAreas, &survey_->trenches, &survey_->featurePolys})
+    if (!set->empty()) { ring = &set->front(); break; }
+  strata3d::Pt site = survey_->center;
+  std::vector<strata3d::Pt> poly;
+  if (ring && ring->size() >= 3) {
+    poly = *ring;
+    double sx = 0, sy = 0;
+    for (const auto& p : poly) { sx += p.x; sy += p.y; }
+    site = {sx / double(poly.size()), sy / double(poly.size())};
+  }
+  report_->setHtml(QStringLiteral("<p>조사지 평가 계산 중…</p>"));
+  const auto ev = lastLoad_.evaluator;
+  evalWatcher_.setFuture(QtConcurrent::run([ev, site, poly] { return ev->evaluate(site, poly); }));
 }
