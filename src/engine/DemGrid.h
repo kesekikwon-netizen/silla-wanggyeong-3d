@@ -22,6 +22,9 @@ struct DemGrid {
 
   bool valid() const { return width > 1 && height > 1 && z.size() == size_t(width) * height; }
   float at(int col, int row) const { return z[size_t(row) * width + col]; }
+  // 격자 한가운데의 세계 좌표. 화면용 지역 좌표(미터)의 원점이다.
+  double centerX() const { return originX + width * pixelSize * 0.5; }
+  double centerY() const { return originY - height * pixelSize * 0.5; }
   // 세계 좌표 → 격자 좌표(소수). 칸 가운데가 아니라 칸 모서리 기준이다.
   double colAt(double x) const { return (x - originX) / pixelSize; }
   double rowAt(double y) const { return (originY - y) / pixelSize; }

@@ -4,4 +4,7 @@
 namespace TerrainShaders {
 extern const char* const kVertex;
 extern const char* const kFragment;
+// 건물·유적(정점: 위치, 법선, 색)
+extern const char* const kSceneVertex;
+extern const char* const kSceneFragment;
 }  // namespace TerrainShaders

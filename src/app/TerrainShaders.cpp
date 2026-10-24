@@ -89,4 +89,35 @@ void main() {
 }
 )GLSL";
 
+const char* const kSceneVertex = R"GLSL(
+#version 330 core
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec3 aNormal;
+layout(location = 2) in vec4 aColor;
+uniform mat4 uViewProj;
+out vec3 vNormal;
+out vec4 vColor;
+void main() {
+  vNormal = aNormal;
+  vColor = aColor;
+  gl_Position = uViewProj * vec4(aPos, 1.0);
+}
+)GLSL";
+
+const char* const kSceneFragment = R"GLSL(
+#version 330 core
+in vec3 vNormal;
+in vec4 vColor;
+uniform vec3 uSunDir;
+out vec4 oColor;
+void main() {
+  vec3 n = normalize(vNormal);
+  if (!gl_FrontFacing) n = -n;
+  float lambert = max(dot(n, normalize(uSunDir)), 0.0);
+  float hemi = 0.5 + 0.5 * n.z;
+  vec3 c = vColor.rgb * (0.30 * hemi + 0.70 * lambert);
+  oColor = vec4(pow(c, vec3(1.0 / 2.2)), 1.0);
+}
+)GLSL";
+
 }  // namespace TerrainShaders

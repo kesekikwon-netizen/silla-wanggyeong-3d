@@ -47,7 +47,7 @@ void KaGlTerrainViewport::setZScale(float zScale) {
   update();
 }
 
-bool KaGlTerrainViewport::buildProgram() {
+unsigned KaGlTerrainViewport::buildProgram(const char* vsSrc, const char* fsSrc) {
   auto compile = [this](GLenum type, const char* src, unsigned* out) {
     const unsigned sh = glCreateShader(type);
     glShaderSource(sh, 1, &src, nullptr);
@@ -64,24 +64,61 @@ bool KaGlTerrainViewport::buildProgram() {
     return true;
   };
   unsigned vs = 0, fs = 0;
-  if (!compile(GL_VERTEX_SHADER, TerrainShaders::kVertex, &vs) ||
-      !compile(GL_FRAGMENT_SHADER, TerrainShaders::kFragment, &fs))
-    return false;
-  program_ = glCreateProgram();
-  glAttachShader(program_, vs);
-  glAttachShader(program_, fs);
-  glLinkProgram(program_);
+  if (!compile(GL_VERTEX_SHADER, vsSrc, &vs) || !compile(GL_FRAGMENT_SHADER, fsSrc, &fs)) return 0;
+  const unsigned prog = glCreateProgram();
+  glAttachShader(prog, vs);
+  glAttachShader(prog, fs);
+  glLinkProgram(prog);
   glDeleteShader(vs);
   glDeleteShader(fs);
   int ok = 0;
-  glGetProgramiv(program_, GL_LINK_STATUS, &ok);
+  glGetProgramiv(prog, GL_LINK_STATUS, &ok);
   if (!ok) {
     char log[2048];
-    glGetProgramInfoLog(program_, sizeof(log), nullptr, log);
+    glGetProgramInfoLog(prog, sizeof(log), nullptr, log);
     qCritical("셰이더 링크 실패: %s", log);
-    return false;
+    glDeleteProgram(prog);
+    return 0;
   }
-  return true;
+  return prog;
+}
+
+void KaGlTerrainViewport::setScene(std::shared_ptr<const strata3d::SceneMesh> scene) {
+  pendingScene_ = std::move(scene);
+  sceneChanged_ = true;
+  update();
+}
+
+void KaGlTerrainViewport::setSceneVisible(bool visible) {
+  sceneVisible_ = visible;
+  update();
+}
+
+void KaGlTerrainViewport::uploadScene() {
+  sceneChanged_ = false;
+  const auto scene = std::move(pendingScene_);
+  pendingScene_.reset();
+  if (!sceneVao_) {
+    glGenVertexArrays(1, &sceneVao_);
+    glGenBuffers(1, &sceneVbo_);
+    glGenBuffers(1, &sceneEbo_);
+  }
+  glBindVertexArray(sceneVao_);
+  glBindBuffer(GL_ARRAY_BUFFER, sceneVbo_);
+  const size_t vb = scene ? scene->vertices.size() * sizeof(float) : 0;
+  glBufferData(GL_ARRAY_BUFFER, GLsizeiptr(vb), scene ? scene->vertices.data() : nullptr, GL_STATIC_DRAW);
+  const GLsizei stride = strata3d::SceneMesh::kFloatsPerVertex * sizeof(float);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(3 * sizeof(float)));
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(6 * sizeof(float)));
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sceneEbo_);
+  const size_t ib = scene ? scene->indices.size() * sizeof(uint32_t) : 0;
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, GLsizeiptr(ib), scene ? scene->indices.data() : nullptr, GL_STATIC_DRAW);
+  sceneIndexCount_ = scene ? int(scene->indices.size()) : 0;
+  glBindVertexArray(0);
 }
 
 void KaGlTerrainViewport::buildTemplate() {
@@ -128,7 +165,9 @@ void KaGlTerrainViewport::initializeGL() {
                 .arg(QString::fromLatin1(reinterpret_cast<const char*>(glGetString(GL_VENDOR))),
                      QString::fromLatin1(reinterpret_cast<const char*>(glGetString(GL_RENDERER))),
                      QString::fromLatin1(reinterpret_cast<const char*>(glGetString(GL_VERSION))));
-  if (!buildProgram()) return;
+  program_ = buildProgram(TerrainShaders::kVertex, TerrainShaders::kFragment);
+  sceneProgram_ = buildProgram(TerrainShaders::kSceneVertex, TerrainShaders::kSceneFragment);
+  if (!program_ || !sceneProgram_) return;
   buildTemplate();
   glEnable(GL_DEPTH_TEST);
 }
@@ -185,6 +224,7 @@ QVector3D KaGlTerrainViewport::eyePosition() const {
 void KaGlTerrainViewport::paintGL() {
   if (!program_) return;
   if (pendingUpload_) uploadTerrain();
+  if (sceneChanged_) uploadScene();
   glClearColor(0.74f, 0.80f, 0.88f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   if (!tree_ || !heightTex_) return;
@@ -230,6 +270,15 @@ void KaGlTerrainViewport::paintGL() {
   glBufferData(GL_ARRAY_BUFFER, GLsizeiptr(instanceData_.size() * sizeof(float)), instanceData_.data(), GL_STREAM_DRAW);
   glDrawElementsInstanced(GL_TRIANGLES, templateIndexCount_, GL_UNSIGNED_INT, nullptr, GLsizei(chunks.size()));
   glBindVertexArray(0);
+
+  if (sceneVisible_ && sceneIndexCount_ > 0) {
+    glUseProgram(sceneProgram_);
+    glUniformMatrix4fv(glGetUniformLocation(sceneProgram_, "uViewProj"), 1, GL_FALSE, vp.constData());
+    glUniform3f(glGetUniformLocation(sceneProgram_, "uSunDir"), -0.55f, 0.55f, 0.62f);
+    glBindVertexArray(sceneVao_);
+    glDrawElements(GL_TRIANGLES, sceneIndexCount_, GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
+  }
   ++stats_.frames;
   emit frameRendered();
 }

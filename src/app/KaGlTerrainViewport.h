@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 
+#include "SceneMesh.h"
 #include "TerrainLodTree.h"
 
 // OpenGL 3.3 Core 지형 뷰포트. 높이는 R32F 텍스처, 조각은 하나의 33×33 틀을 인스턴싱한다.
@@ -27,6 +28,8 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   ~KaGlTerrainViewport() override;
 
   void setTerrain(std::shared_ptr<const strata3d::TerrainLodTree> tree);
+  void setScene(std::shared_ptr<const strata3d::SceneMesh> scene);
+  void setSceneVisible(bool visible);
   void setMode(Mode mode);
   void setZScale(float zScale);
   // 지형을 올린 직후의 카메라(도, 도, 미터). 재현 가능한 화면을 얻으려고 쓴다.
@@ -49,9 +52,10 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
 
  private:
   void uploadTerrain();
+  void uploadScene();
   void resetCamera();
   QVector3D eyePosition() const;
-  bool buildProgram();
+  unsigned buildProgram(const char* vertexSrc, const char* fragmentSrc);
   void buildTemplate();
 
   std::shared_ptr<const strata3d::TerrainLodTree> tree_;
@@ -77,6 +81,15 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   unsigned templateEbo_ = 0;
   unsigned instanceVbo_ = 0;
   unsigned heightTex_ = 0;
+  // 건물·유적
+  std::shared_ptr<const strata3d::SceneMesh> pendingScene_;
+  bool sceneChanged_ = false;
+  bool sceneVisible_ = true;
+  unsigned sceneProgram_ = 0;
+  unsigned sceneVao_ = 0;
+  unsigned sceneVbo_ = 0;
+  unsigned sceneEbo_ = 0;
+  int sceneIndexCount_ = 0;
   int templateIndexCount_ = 0;
   std::vector<float> instanceData_;
 };
