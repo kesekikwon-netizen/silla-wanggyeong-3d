@@ -19,6 +19,6 @@ std::shared_ptr<const SceneMesh> buildSurveyOverlay(const DemGrid& dem, const St
 void appendMesh(SceneMesh* dst, const SceneMesh& src);
 
 // 시굴 트렌치 같은 선형 조사지의 지형 단면 선을 지형에 붙는 띠로(주황).
-std::shared_ptr<const SceneMesh> buildProfileOverlay(const DemGrid& dem, const std::vector<ProfilePoint>& profile);
+std::shared_ptr<const SceneMesh> buildProfileOverlay(const DemGrid& dem, const std::vector<ProfilePoint>& profile, float widthM = 5.0f);
 
 }  // namespace strata3d

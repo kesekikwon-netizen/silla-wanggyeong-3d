@@ -12,11 +12,11 @@ std::shared_ptr<const SceneMesh> buildEvaluationOverlay(const DemGrid& dem, cons
   return mesh;
 }
 
-std::shared_ptr<const SceneMesh> buildProfileOverlay(const DemGrid& dem, const std::vector<ProfilePoint>& profile) {
+std::shared_ptr<const SceneMesh> buildProfileOverlay(const DemGrid& dem, const std::vector<ProfilePoint>& profile, float widthM) {
   auto mesh = std::make_shared<SceneMesh>();
   std::vector<Pt> line;
   for (const ProfilePoint& p : profile) line.push_back({p.x, p.y});
-  appendDrapedRibbon(mesh.get(), dem, line, false, 5.0f, {1.0f, 0.55f, 0.05f, 1}, 3.5f);
+  appendDrapedRibbon(mesh.get(), dem, line, false, widthM, {1.0f, 0.55f, 0.05f, 1}, 3.5f);
   return mesh;
 }
 

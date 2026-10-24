@@ -142,17 +142,34 @@ float KaGlTerrainViewport::visibleWidthAtTargetM(float aspect) const {
   return 2.0f * distance_ * std::tan(qDegreesToRadians(45.0f) * 0.5f) * aspect;
 }
 
-void KaGlTerrainViewport::mouseDoubleClickEvent(QMouseEvent* e) {
-  if (!tree_ || e->button() != Qt::LeftButton) return;
-  // 화면 점 → 시선(역투영). 마지막으로 그린 투영·시점 행렬을 쓴다.
-  const float nx = 2.0f * float(e->position().x()) / float(width()) - 1.0f;
-  const float ny = 1.0f - 2.0f * float(e->position().y()) / float(height());
+// 화면 점 → 시선(역투영). 마지막으로 그린 투영·시점 행렬을 쓴다.
+bool KaGlTerrainViewport::pickRay(const QPointF& pos, QVector3D* origin, QVector3D* direction) const {
+  const float nx = 2.0f * float(pos.x()) / float(width()) - 1.0f;
+  const float ny = 1.0f - 2.0f * float(pos.y()) / float(height());
   bool ok = false;
   const QMatrix4x4 inv = lastViewProj_.inverted(&ok);
-  if (!ok) return;
+  if (!ok) return false;
   const QVector4D p0 = inv * QVector4D(nx, ny, -1.0f, 1.0f), p1 = inv * QVector4D(nx, ny, 1.0f, 1.0f);
-  const QVector3D a = p0.toVector3DAffine(), b = p1.toVector3DAffine();
-  emit pickRequested(lastEye_, (b - a).normalized());
+  *origin = lastEye_;
+  *direction = (p1.toVector3DAffine() - p0.toVector3DAffine()).normalized();
+  return true;
+}
+
+void KaGlTerrainViewport::mouseDoubleClickEvent(QMouseEvent* e) {
+  if (!tree_ || e->button() != Qt::LeftButton || trenchMode_) return;  // 트렌치 모드에서는 더블클릭 평가를 쓰지 않는다
+  QVector3D o, d;
+  if (pickRay(e->position(), &o, &d)) emit pickRequested(o, d);
+}
+
+void KaGlTerrainViewport::setTrenchMode(bool on) {
+  trenchMode_ = on;
+  setCursor(on ? Qt::CrossCursor : Qt::ArrowCursor);
+}
+
+void KaGlTerrainViewport::mouseReleaseEvent(QMouseEvent* e) {
+  if (!trenchMode_ || !tree_ || e->button() != Qt::LeftButton || dragged_) return;
+  QVector3D o, d;
+  if (pickRay(e->position(), &o, &d)) emit trenchPointRequested(o, d);
 }
 
 QImage KaGlTerrainViewport::renderToImage(int w, int h) {
@@ -434,11 +451,15 @@ void KaGlTerrainViewport::drawFrame(int w, int h, unsigned targetFbo) {
   pipeline_.finish(proj, params_, targetFbo, w, h);
 }
 
-void KaGlTerrainViewport::mousePressEvent(QMouseEvent* e) { lastMouse_ = e->pos(); }
+void KaGlTerrainViewport::mousePressEvent(QMouseEvent* e) {
+  lastMouse_ = pressPos_ = e->pos();
+  dragged_ = false;
+}
 
 void KaGlTerrainViewport::mouseMoveEvent(QMouseEvent* e) {
   const QPoint d = e->pos() - lastMouse_;
   lastMouse_ = e->pos();
+  if ((e->pos() - pressPos_).manhattanLength() > 5) dragged_ = true;
   if (e->buttons() & Qt::LeftButton) {
     yawDeg_ += d.x() * 0.4f;
     pitchDeg_ = std::clamp(pitchDeg_ + d.y() * 0.4f, 5.0f, 89.0f);

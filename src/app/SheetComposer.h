@@ -6,7 +6,8 @@
 
 struct SheetInfo {
   QString title;
-  double visibleWidthM = 0;      // 화면 가운데에서 보이는 지상 폭
+  bool hasTrench = false;        // 시굴 트렌치 띠가 그려져 있으면 범례에 넣는다
+  double visibleWidthM = 0;     // 화면 가운데에서 보이는 지상 폭
   double yawDegFromNorth = 0;    // 시점 방위(북 0° 시계 방향)
   QString crsLabel;              // 예: "EPSG:5187 (동부원점)"
   QString demName;

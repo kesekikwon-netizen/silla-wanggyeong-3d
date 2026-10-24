@@ -7,14 +7,17 @@
 #include <QDoubleSpinBox>
 #include <QElapsedTimer>
 #include <QFileDialog>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QPushButton>
 #include <QStandardPaths>
 #include <QStatusBar>
 #include <QTextBrowser>
 #include <QToolBar>
+#include <QVBoxLayout>
 #include <QtConcurrent>
 #include <algorithm>
+#include <cmath>
 
 #include "CrsTransform.h"
 #include "DemProvider.h"
@@ -24,6 +27,7 @@
 #include "KhsProvider.h"
 #include "LocalVectorProvider.h"
 #include "OsmProvider.h"
+#include "ProfilePlot.h"
 #include "SatelliteProvider.h"
 #include "SheetComposer.h"
 
@@ -188,6 +192,15 @@ MainWindow::MainWindow(const Options& options, QWidget* parent) : QMainWindow(pa
   auto* reload = new QPushButton(QStringLiteral("다시 불러오기"), bar);
   bar->addWidget(reload);
   connect(reload, &QPushButton::clicked, this, &MainWindow::loadScene);
+  bar->addSeparator();
+  trenchBtn_ = new QPushButton(QStringLiteral("시굴 트렌치 그리기"), bar);
+  trenchBtn_->setCheckable(true);
+  trenchBtn_->setToolTip(QStringLiteral("켜고 지형 위 두 점을 차례로 누릅니다(Esc: 취소). 끌면 카메라가 돕니다."));
+  bar->addWidget(trenchBtn_);
+  connect(trenchBtn_, &QPushButton::toggled, this, &MainWindow::setTrenchMode);
+  auto* clearTrenchBtn = new QPushButton(QStringLiteral("트렌치 지우기"), bar);
+  bar->addWidget(clearTrenchBtn);
+  connect(clearTrenchBtn, &QPushButton::clicked, this, &MainWindow::clearTrench);
 
   auto* dock = new QDockWidget(QStringLiteral("고고학 3D 평가"), this);
   report_ = new QTextBrowser(dock);
@@ -196,10 +209,23 @@ MainWindow::MainWindow(const Options& options, QWidget* parent) : QMainWindow(pa
   dock->setWidget(report_);
   addDockWidget(Qt::RightDockWidgetArea, dock);
 
+  auto* profileDock = new QDockWidget(QStringLiteral("시굴 트렌치 단면"), this);
+  auto* profileBox = new QWidget(profileDock);
+  auto* profileLayout = new QVBoxLayout(profileBox);
+  profileLayout->setContentsMargins(6, 6, 6, 6);
+  trenchInfo_ = new QLabel(QStringLiteral("트렌치 없음. 「시굴 트렌치 그리기」를 켜고 지형 위 두 점을 누르세요."), profileBox);
+  trenchInfo_->setWordWrap(true);
+  plot_ = new ProfilePlot(profileBox);
+  profileLayout->addWidget(trenchInfo_);
+  profileLayout->addWidget(plot_, 1);
+  profileDock->setWidget(profileBox);
+  addDockWidget(Qt::BottomDockWidgetArea, profileDock);
+
   status_ = new QLabel(this);
   statusBar()->addWidget(status_, 1);
   connect(viewport_, &KaGlTerrainViewport::frameRendered, this, &MainWindow::updateStatus);
   connect(viewport_, &KaGlTerrainViewport::pickRequested, this, &MainWindow::onPick);
+  connect(viewport_, &KaGlTerrainViewport::trenchPointRequested, this, &MainWindow::onTrenchPoint);
   connect(&evalWatcher_, &QFutureWatcher<strata3d::Evaluation>::finished, this, &MainWindow::showEvaluation);
 
   connect(&watcher_, &QFutureWatcher<LoadResult>::finished, this, [this] {
@@ -215,10 +241,10 @@ MainWindow::MainWindow(const Options& options, QWidget* parent) : QMainWindow(pa
     if (lastLoad_.mesh) viewport_->setScene(lastLoad_.mesh);
     const strata3d::DemGrid& g = lastLoad_.tree->grid();
     sceneComplete_ = false;
-    if (survey_) {
-      surveyOverlay_ = strata3d::buildSurveyOverlay(g, *survey_);
-      viewport_->setOverlay(surveyOverlay_);
-    }
+    clearTrench();  // 새 지형이면 이전 트렌치 좌표는 뜻이 없다
+    evalOverlay_.reset();
+    if (survey_) surveyOverlay_ = strata3d::buildSurveyOverlay(g, *survey_);
+    refreshOverlay();
     QString msg = QStringLiteral("%1×%2 칸, 표고 %3~%4 m, %5초")
                       .arg(g.width).arg(g.height).arg(g.zMin, 0, 'f', 1).arg(g.zMax, 0, 'f', 1)
                       .arg(lastLoad_.seconds, 0, 'f', 1);
@@ -300,11 +326,107 @@ void MainWindow::showEvaluation() {
   lastEvaluation_ = evalWatcher_.result();
   hasEvaluation_ = true;
   report_->setHtml(evaluationHtml(lastEvaluation_));
-  auto overlay = std::make_shared<strata3d::SceneMesh>();
-  if (surveyOverlay_) strata3d::appendMesh(overlay.get(), *surveyOverlay_);
-  strata3d::appendMesh(overlay.get(), *strata3d::buildEvaluationOverlay(lastLoad_.evaluator->dem(), lastEvaluation_));
-  viewport_->setOverlay(overlay);
+  evalOverlay_ = strata3d::buildEvaluationOverlay(lastLoad_.evaluator->dem(), lastEvaluation_);
+  refreshOverlay();
   emit evaluationFinished(true, lastEvaluation_.summary);
+}
+
+void MainWindow::refreshOverlay() {
+  auto overlay = std::make_shared<strata3d::SceneMesh>();
+  for (const auto& part : {surveyOverlay_, evalOverlay_, trenchOverlay_})
+    if (part) strata3d::appendMesh(overlay.get(), *part);
+  viewport_->setOverlay(overlay);
+}
+
+void MainWindow::setTrenchMode(bool on) {
+  viewport_->setTrenchMode(on);
+  if (trenchBtn_ && trenchBtn_->isChecked() != on) trenchBtn_->setChecked(on);
+  trenchA_.reset();
+  if (on) trenchInfo_->setText(QStringLiteral("시작점을 지형 위에서 누르세요."));
+}
+
+void MainWindow::keyPressEvent(QKeyEvent* e) {
+  if (e->key() == Qt::Key_Escape && viewport_->trenchMode()) {
+    trenchA_.reset();
+    setTrenchMode(false);
+    return;
+  }
+  QMainWindow::keyPressEvent(e);
+}
+
+void MainWindow::onTrenchPoint(const QVector3D& origin, const QVector3D& direction) {
+  if (!lastLoad_.evaluator) return;
+  strata3d::TerrainBvh::Hit hit;
+  if (!lastLoad_.evaluator->terrain().rayCast(origin, direction, 1.0e6f, &hit)) return;  // 하늘을 눌렀다
+  const strata3d::DemGrid& g = lastLoad_.evaluator->dem();
+  const strata3d::Pt p{g.centerX() + hit.point.x(), g.centerY() + hit.point.y()};
+  if (!trenchA_) {
+    trenchA_ = p;
+    trenchProfile_.clear();
+    plot_->clear();
+    auto m = std::make_shared<strata3d::SceneMesh>();
+    strata3d::appendPole(m.get(), g, p, 3.0f, 40.0f, {1.0f, 0.95f, 0.1f, 1});
+    trenchOverlay_ = m;
+    refreshOverlay();
+    trenchInfo_->setText(QStringLiteral("시작점 X %1, Y %2 — 끝점을 누르세요.").arg(p.x, 0, 'f', 1).arg(p.y, 0, 'f', 1));
+    return;
+  }
+  const strata3d::Pt a = *trenchA_;
+  trenchA_.reset();
+  setTrench(a.x, a.y, p.x, p.y);
+}
+
+void MainWindow::clearTrench() {
+  trenchA_.reset();
+  trenchProfile_.clear();
+  trenchOverlay_.reset();
+  trenchSummary_.clear();
+  if (plot_) plot_->clear();
+  if (trenchInfo_) trenchInfo_->setText(QStringLiteral("트렌치 없음. 「시굴 트렌치 그리기」를 켜고 지형 위 두 점을 누르세요."));
+  if (viewport_) refreshOverlay();
+  emit trenchChanged(QString());
+}
+
+void MainWindow::setTrench(double ax, double ay, double bx, double by) {
+  if (!lastLoad_.evaluator) return;
+  const strata3d::DemGrid& g = lastLoad_.evaluator->dem();
+  const double len = std::hypot(bx - ax, by - ay);
+  if (len < 1.0) {
+    trenchInfo_->setText(QStringLiteral("두 점이 너무 가깝습니다(1 m 미만). 다시 누르세요."));
+    return;
+  }
+  const double step = std::clamp(len / 80.0, 1.0, g.pixelSize * 0.5);
+  trenchProfile_ = lastLoad_.evaluator->terrainProfile({ax, ay}, {bx, by}, step);
+  if (trenchProfile_.size() < 2) {
+    trenchInfo_->setText(QStringLiteral("트렌치가 지형 밖입니다."));
+    trenchProfile_.clear();
+    return;
+  }
+  double zMin = trenchProfile_.front().elevationM, zMax = zMin, steepest = 0;
+  for (size_t i = 0; i < trenchProfile_.size(); ++i) {
+    zMin = std::min(zMin, trenchProfile_[i].elevationM);
+    zMax = std::max(zMax, trenchProfile_[i].elevationM);
+    if (i > 0) {
+      const double dd = trenchProfile_[i].distanceM - trenchProfile_[i - 1].distanceM;
+      if (dd > 0) steepest = std::max(steepest, std::abs(trenchProfile_[i].elevationM - trenchProfile_[i - 1].elevationM) / dd);
+    }
+  }
+  double bearing = qRadiansToDegrees(std::atan2(bx - ax, by - ay));  // 북 기준 시계방향
+  if (bearing < 0) bearing += 360.0;
+  const double mean = (trenchProfile_.back().elevationM - trenchProfile_.front().elevationM) / trenchProfile_.back().distanceM;
+  trenchSummary_ = QStringLiteral("시굴 트렌치 길이 %1 m · 방위 %2° · 시점 %3 m → 종점 %4 m(평균 기울기 %5%) · 최고 %6 m · 최저 %7 m · 국지 최대 기울기 %8%")
+                       .arg(trenchProfile_.back().distanceM, 0, 'f', 1).arg(bearing, 0, 'f', 0)
+                       .arg(trenchProfile_.front().elevationM, 0, 'f', 1).arg(trenchProfile_.back().elevationM, 0, 'f', 1)
+                       .arg(mean * 100, 0, 'f', 1).arg(zMax, 0, 'f', 1).arg(zMin, 0, 'f', 1).arg(steepest * 100, 0, 'f', 1);
+  trenchInfo_->setText(trenchSummary_ + QStringLiteral("\n지표면(Copernicus GLO-30, %1 m 격자) 단면이며 층서가 아닙니다. 수 m 규모의 트렌치는 격자 해상도 밖입니다.").arg(g.pixelSize, 0, 'f', 0));
+  plot_->setProfile(trenchProfile_);
+  auto m = std::make_shared<strata3d::SceneMesh>();
+  strata3d::appendMesh(m.get(), *strata3d::buildProfileOverlay(g, trenchProfile_, 10.0f));
+  strata3d::appendPole(m.get(), g, {ax, ay}, 3.0f, 40.0f, {1.0f, 0.95f, 0.1f, 1});
+  strata3d::appendPole(m.get(), g, {bx, by}, 3.0f, 40.0f, {1.0f, 0.95f, 0.1f, 1});
+  trenchOverlay_ = m;
+  refreshOverlay();
+  emit trenchChanged(trenchSummary_);
 }
 
 bool MainWindow::exportSheet(const QString& pngPath, const QString& pdfPath) {
@@ -324,6 +446,8 @@ bool MainWindow::exportSheet(const QString& pngPath, const QString& pdfPath) {
   info.zMax = g.zMax;
   info.elevationRamp = (mode_ == 1);
   info.generated = QDateTime::currentDateTime().toString(QStringLiteral("yyyy-MM-dd HH:mm"));
+  info.hasTrench = !trenchSummary_.isEmpty();
+  if (!trenchSummary_.isEmpty()) info.lines << trenchSummary_ + QStringLiteral(" (지표면 단면)");
   if (hasEvaluation_) {
     info.lines << lastEvaluation_.summary;
     for (const strata3d::RadiusResult& rr : lastEvaluation_.radii) {
@@ -389,3 +513,4 @@ void MainWindow::evaluateSurvey() {
   const auto ev = lastLoad_.evaluator;
   evalWatcher_.setFuture(QtConcurrent::run([ev, site, poly] { return ev->evaluate(site, poly); }));
 }
+

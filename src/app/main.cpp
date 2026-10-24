@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QImage>
+#include <QMouseEvent>
 #include <QSurfaceFormat>
 #include <QTextStream>
 #include <QTimer>
@@ -97,7 +98,9 @@ int main(int argc, char** argv) {
   QCommandLineOption modeOpt(QStringLiteral("mode"), QStringLiteral("보기 방식 0 점토 1 표고 2 경사 3 위성."), QStringLiteral("n"));
   QCommandLineOption noBridge(QStringLiteral("no-bridge"), QStringLiteral("Strata 연동 파이프를 열지 않는다."));
   QCommandLineOption bridgePipe(QStringLiteral("bridge-pipe"), QStringLiteral("연동 파이프 이름(기본 strata-3d-bridge-v1)."), QStringLiteral("name"));
-  parser.addOptions({smoke, report, image, cam, dem, lon, lat, noFeat, noSat, evalCenter, sheetOut, noBridge, bridgePipe, noInitial, noAo, modeOpt});
+  QCommandLineOption trenchClicks(QStringLiteral("trench-clicks"), QStringLiteral("스모크: 트렌치 모드를 켜고 뷰포트 비율 좌표(0~1)에서 실제 마우스 클릭 두 번."), QStringLiteral("x1,y1,x2,y2"));
+  QCommandLineOption windowShot(QStringLiteral("window-shot"), QStringLiteral("스모크 끝에 KaTheme 가 적용된 전체 창을 PNG 로 저장."), QStringLiteral("file.png"));
+  parser.addOptions({smoke, report, image, cam, dem, lon, lat, noFeat, noSat, evalCenter, sheetOut, noBridge, bridgePipe, noInitial, noAo, modeOpt, trenchClicks, windowShot});
   parser.process(app);
 
   MainWindow::Options opt;
@@ -139,6 +142,8 @@ int main(int argc, char** argv) {
   bool evalReady = !parser.isSet(evalCenter);
   bool evalStarted = false;
   QString evalText;
+  bool trenchClicked = false;
+  int trenchFrames = 0;
   auto maybeEvaluate = [&] {
     if (evalReady || evalStarted || !satReady || !w.lastLoad().tree) return;
     evalStarted = true;
@@ -171,8 +176,31 @@ int main(int argc, char** argv) {
       vp->update();
       return;
     }
+    if (parser.isSet(trenchClicks)) {
+      if (!trenchClicked) {  // 사람이 누르는 것과 같은 길(마우스 이벤트 → 레이캐스트)로 트렌치를 찍는다
+        trenchClicked = true;
+        const QStringList f = parser.value(trenchClicks).split(QLatin1Char(','));
+        if (f.size() != 4) { finish(1, QStringLiteral("--trench-clicks 는 x1,y1,x2,y2")); return; }
+        w.setTrenchMode(true);
+        for (int i = 0; i < 2; ++i) {
+          const QPointF at(f[2 * i].toDouble() * vp->width(), f[2 * i + 1].toDouble() * vp->height());
+          for (auto type : {QEvent::MouseButtonPress, QEvent::MouseButtonRelease}) {
+            QMouseEvent ev(type, at, vp->mapToGlobal(at), Qt::LeftButton, type == QEvent::MouseButtonPress ? Qt::LeftButton : Qt::NoButton, Qt::NoModifier);
+            QCoreApplication::sendEvent(vp, &ev);
+          }
+        }
+        w.setTrenchMode(false);
+        if (w.trenchProfile().size() < 2) { finish(1, QStringLiteral("트렌치 클릭이 지형에 닿지 않았습니다(하늘?)")); return; }
+        trenchFrames = 0;
+      }
+      if (++trenchFrames < 4) {  // 겹침이 올라가 다시 그려질 때까지
+        vp->update();
+        return;
+      }
+    }
     const QImage frame = vp->grabFramebuffer();
     if (parser.isSet(image)) frame.save(parser.value(image));
+    if (parser.isSet(windowShot)) w.grab().save(parser.value(windowShot));
     const FrameCheck c = checkFrame(frame);
     QString text = loadText + QStringLiteral(" | ") + c.text + QStringLiteral(" | ") + vp->glInfo();
     if (!evalText.isEmpty()) text += QStringLiteral(" | 평가: ") + evalText;

@@ -87,6 +87,8 @@ add_executable(strata-3d WIN32
   src/app/main.cpp
   src/app/MainWindow.cpp
   src/app/MainWindow.h
+  src/app/ProfilePlot.cpp
+  src/app/ProfilePlot.h
   src/app/KaGlTerrainViewport.cpp
   src/app/KaGlTerrainViewport.h
   src/app/SheetComposer.cpp

@@ -126,8 +126,9 @@ QImage composeSheet(const QImage& view, const SheetInfo& info) {
     y += 28 * s;
   }
   struct Key { QColor c; QString text; };
-  const Key keys[] = {{QColor(26, 115, 242), QStringLiteral("반경 500 m")}, {QColor(140, 64, 217), QStringLiteral("반경 1000 m")},
-                      {QColor(217, 31, 31), QStringLiteral("국보·보물 표지")}, {QColor(230, 90, 20), QStringLiteral("사적 표지")}};
+  QList<Key> keys = {{QColor(26, 115, 242), QStringLiteral("반경 500 m")}, {QColor(140, 64, 217), QStringLiteral("반경 1000 m")},
+                     {QColor(217, 31, 31), QStringLiteral("국보·보물 표지")}, {QColor(230, 90, 20), QStringLiteral("사적 표지")}};
+  if (info.hasTrench) keys.append({QColor(255, 140, 13), QStringLiteral("시굴 트렌치(노란 기둥: 양 끝)")});
   for (const Key& k : keys) {
     p.setBrush(k.c);
     p.setPen(Qt::NoPen);

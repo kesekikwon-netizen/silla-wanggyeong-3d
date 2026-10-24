@@ -49,6 +49,9 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   void setZScale(float zScale);
   // 지형을 올린 직후의 카메라(도, 도, 미터). 재현 가능한 화면을 얻으려고 쓴다.
   void setCameraPreset(float yawDeg, float pitchDeg, float distanceM);
+  // 켜면 끌지 않은 왼쪽 클릭이 trenchPointRequested 로 나간다(카메라 돌리기는 그대로).
+  void setTrenchMode(bool on);
+  bool trenchMode() const { return trenchMode_; }
   const FrameStats& stats() const { return stats_; }
   bool hasTerrain() const { return bool(tree_); }
   QString glInfo() const { return glInfo_; }
@@ -56,6 +59,8 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
  signals:
   // 더블클릭한 화면 점에서 나가는 시선(지역 미터 좌표, 방향은 정규화)
   void pickRequested(const QVector3D& origin, const QVector3D& direction);
+  // 트렌치 그리기 모드에서 끌지 않고 한 번 누른 화면 점의 시선
+  void trenchPointRequested(const QVector3D& origin, const QVector3D& direction);
   void frameRendered();
   void terrainUploaded();
 
@@ -65,6 +70,7 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   void resizeGL(int w, int h) override;
   void mousePressEvent(QMouseEvent* e) override;
   void mouseMoveEvent(QMouseEvent* e) override;
+  void mouseReleaseEvent(QMouseEvent* e) override;
   void wheelEvent(QWheelEvent* e) override;
   void mouseDoubleClickEvent(QMouseEvent* e) override;
 
@@ -77,6 +83,7 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   void uploadMesh(GlMesh* gm, const std::shared_ptr<const strata3d::SceneMesh>& mesh);
   void drawFrame(int w, int h, unsigned targetFbo);
   void resetCamera();
+  bool pickRay(const QPointF& pos, QVector3D* origin, QVector3D* direction) const;
   QVector3D eyePosition() const;
   unsigned buildProgram(const char* vertexSrc, const char* fragmentSrc);
   void buildTemplate();
@@ -94,6 +101,9 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   float pitchDeg_ = 38.0f;
   float distance_ = 1000.0f;
   QPoint lastMouse_;
+  QPoint pressPos_;
+  bool dragged_ = false;
+  bool trenchMode_ = false;
   bool hasPreset_ = false;
   float presetYaw_ = 0, presetPitch_ = 0, presetDistance_ = 0;
 

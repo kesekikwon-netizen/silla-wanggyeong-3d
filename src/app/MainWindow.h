@@ -13,7 +13,9 @@
 #include "TerrainLodTree.h"
 
 class KaGlTerrainViewport;
+class ProfilePlot;
 class QLabel;
+class QPushButton;
 class QTextBrowser;
 
 class MainWindow : public QMainWindow {
@@ -55,6 +57,9 @@ class MainWindow : public QMainWindow {
   const strata3d::Evaluation* lastEvaluation() const { return hasEvaluation_ ? &lastEvaluation_ : nullptr; }
   const strata3d::StrataSurvey* survey() const { return survey_ ? &*survey_ : nullptr; }
   bool sceneComplete() const { return sceneComplete_; }
+  ProfilePlot* profilePlot() const { return plot_; }
+  // 그려 둔 시굴 트렌치의 단면(점 두 개를 찍기 전에는 비어 있다)
+  const std::vector<strata3d::ProfilePoint>& trenchProfile() const { return trenchProfile_; }
   const QString& imageryName() const { return imageryName_; }
 
  public slots:
@@ -67,11 +72,16 @@ class MainWindow : public QMainWindow {
   void evaluateSurvey();
   // 3072×3072 입체지형 도면(PNG, pdfPath 가 비어 있지 않으면 PDF 도)을 저장한다.
   bool exportSheet(const QString& pngPath, const QString& pdfPath = QString());
+  // 시굴 트렌치: 지형에서 두 점(작업 좌표계)을 이어 단면과 3D 띠를 만든다. 화면에서 찍는 것과 같은 길이다.
+  void setTrench(double ax, double ay, double bx, double by);
+  void clearTrench();
+  void setTrenchMode(bool on);
 
  signals:
   void loadFinished(bool ok, const QString& message);
   void satelliteFinished(bool ok, const QString& message);
   void evaluationFinished(bool ok, const QString& message);
+  void trenchChanged(const QString& summary);
   void surveyOpened(bool ok, const QString& message);
   // 지형·건물·유적과 (켜져 있으면) 위성영상까지 모두 올라왔다.
   void sceneCompleted(bool ok, const QString& message);
@@ -80,8 +90,18 @@ class MainWindow : public QMainWindow {
   void updateStatus();
   void onPick(const QVector3D& origin, const QVector3D& direction);
   void showEvaluation();
+  void onTrenchPoint(const QVector3D& origin, const QVector3D& direction);
+  void refreshOverlay();  // 조사 + 평가 + 트렌치 겹침을 한 메시로 합쳐 올린다
+  void keyPressEvent(QKeyEvent* e) override;
 
   Options options_;
+  ProfilePlot* plot_ = nullptr;
+  QLabel* trenchInfo_ = nullptr;
+  QPushButton* trenchBtn_ = nullptr;
+  std::optional<strata3d::Pt> trenchA_;  // 첫 점만 찍은 상태
+  std::vector<strata3d::ProfilePoint> trenchProfile_;
+  QString trenchSummary_;
+  std::shared_ptr<const strata3d::SceneMesh> evalOverlay_, trenchOverlay_;
   KaGlTerrainViewport* viewport_ = nullptr;
   QLabel* status_ = nullptr;
   QTextBrowser* report_ = nullptr;
