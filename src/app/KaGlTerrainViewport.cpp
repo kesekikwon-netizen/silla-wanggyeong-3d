@@ -8,7 +8,9 @@
 #include <algorithm>
 #include <cmath>
 
+#include "AgxView.h"
 #include "Frustum.h"
+#include "NishitaSky.h"
 #include "TerrainShaders.h"
 
 namespace {
@@ -26,6 +28,7 @@ KaGlTerrainViewport::KaGlTerrainViewport(QWidget* parent) : QOpenGLWidget(parent
 KaGlTerrainViewport::~KaGlTerrainViewport() {
   if (!context()) return;
   makeCurrent();
+  pipeline_.release();
   if (program_) glDeleteProgram(program_);
   if (heightTex_) glDeleteTextures(1, &heightTex_);
   unsigned bufs[3] = {templateVbo_, templateEbo_, instanceVbo_};
@@ -155,12 +158,11 @@ void KaGlTerrainViewport::mouseDoubleClickEvent(QMouseEvent* e) {
 QImage KaGlTerrainViewport::renderToImage(int w, int h) {
   makeCurrent();
   QOpenGLFramebufferObjectFormat fmt;
-  fmt.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-  fmt.setSamples(4);
+  fmt.setAttachment(QOpenGLFramebufferObject::NoAttachment);  // 장면은 HDR 파이프라인의 자체 FBO 에 그리고 마지막 합성만 여기에 쓴다
+  fmt.setSamples(0);
   QOpenGLFramebufferObject fbo(w, h, fmt);
   fbo.bind();
-  glViewport(0, 0, w, h);
-  drawFrame(w, h);
+  drawFrame(w, h, fbo.handle());
   fbo.release();
   const QImage img = fbo.toImage(false);
   doneCurrent();
@@ -217,6 +219,29 @@ void KaGlTerrainViewport::initializeGL() {
   if (!program_ || !sceneProgram_) return;
   buildTemplate();
   glEnable(GL_DEPTH_TEST);
+  strata3d::AgxView agx;
+  QString err;
+  if (!agx.loadCube(strata3d::AgxView::defaultCubePath(), &err) || !pipeline_.init(this, agx.lut(), agx.size(), &err)) {
+    glInfo_ += QStringLiteral(" | 후처리 초기화 실패: ") + err;
+    qCritical("%s", qPrintable(err));
+    return;
+  }
+  // 태양 직사광(투과율 반영)과 하늘 환경광(위쪽 반구 평균) — 하늘과 같은 NishitaSky 식
+  const strata3d::NishitaSky sky(params_.eyeAltitudeM, params_.sunIrradiance);
+  const QVector3D sd = params_.sunDir.normalized();
+  sunColor_ = sky.sunTransmittance(sd) * sunStrength_;
+  QVector3D sum(0, 0, 0);
+  float wsum = 0;
+  for (int i = 0; i < 4; ++i) {
+    for (int el : {20, 50, 80}) {
+      const float az = float(i) * 1.5707963f, e = float(el) * 0.0174533f;
+      const QVector3D d(std::cos(e) * std::cos(az), std::cos(e) * std::sin(az), std::sin(e));
+      sum += sky.radiance(d, sd) * std::sin(e);
+      wsum += std::sin(e);
+    }
+  }
+  ambient_ = sum / wsum * 3.14159265f * 0.5f;  // 위쪽 반구에서 오는 조도 / π 근사
+  if (!sky_ok_) sky_ok_ = true;
 }
 
 void KaGlTerrainViewport::resizeGL(int, int) {}
@@ -270,12 +295,14 @@ QVector3D KaGlTerrainViewport::eyePosition() const {
 
 void KaGlTerrainViewport::paintGL() {
   if (!program_) return;
-  drawFrame(width(), height());
+  // 화면 배율(예: 150%)이 있으면 실제 프레임버퍼는 위젯 크기보다 크다 — 장치 픽셀로 그린다
+  const qreal dpr = devicePixelRatioF();
+  drawFrame(int(std::lround(width() * dpr)), int(std::lround(height() * dpr)), defaultFramebufferObject());
   ++stats_.frames;
   emit frameRendered();
 }
 
-void KaGlTerrainViewport::drawFrame(int w, int h) {
+void KaGlTerrainViewport::drawFrame(int w, int h, unsigned targetFbo) {
   if (pendingUpload_) uploadTerrain();
   if (sceneChanged_) {
     sceneChanged_ = false;
@@ -317,9 +344,15 @@ void KaGlTerrainViewport::drawFrame(int w, int h) {
     pendingDetail_ = QImage();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
   }
-  glClearColor(0.74f, 0.80f, 0.88f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  if (!tree_ || !heightTex_) return;
+  if (!pipeline_.ready()) return;
+  if (!tree_ || !heightTex_) {
+    glBindFramebuffer(GL_FRAMEBUFFER, targetFbo);
+    glViewport(0, 0, w, h);
+    glClearColor(0.74f, 0.80f, 0.88f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    return;
+  }
+  pipeline_.beginScene(w, h);
 
   const strata3d::DemGrid& g = tree_->grid();
   const float extent = float(std::max(g.width, g.height) * g.pixelSize);
@@ -353,7 +386,12 @@ void KaGlTerrainViewport::drawFrame(int w, int h) {
   glUniform1f(glGetUniformLocation(program_, "uSkirt"), kSkirtFraction);
   glUniform1f(glGetUniformLocation(program_, "uZMin"), g.zMin);
   glUniform1f(glGetUniformLocation(program_, "uZMax"), g.zMax);
-  glUniform3f(glGetUniformLocation(program_, "uSunDir"), -0.55f, 0.55f, 0.62f);  // 북서쪽 위(등고선 판독 관례)
+  const QVector3D sd = params_.sunDir.normalized();
+  const auto rot = view.toGenericMatrix<3, 3>();
+  glUniform3f(glGetUniformLocation(program_, "uSunDir"), sd.x(), sd.y(), sd.z());
+  glUniformMatrix3fv(glGetUniformLocation(program_, "uViewRot"), 1, GL_FALSE, rot.constData());
+  glUniform3f(glGetUniformLocation(program_, "uSunColor"), sunColor_.x(), sunColor_.y(), sunColor_.z());
+  glUniform3f(glGetUniformLocation(program_, "uAmbient"), ambient_.x(), ambient_.y(), ambient_.z());
   const Mode mode = (mode_ == Mode::Satellite && !satTex_) ? Mode::Elevation : mode_;
   glUniform1i(glGetUniformLocation(program_, "uMode"), int(mode));
   glActiveTexture(GL_TEXTURE2);
@@ -378,7 +416,10 @@ void KaGlTerrainViewport::drawFrame(int w, int h) {
 
   glUseProgram(sceneProgram_);
   glUniformMatrix4fv(glGetUniformLocation(sceneProgram_, "uViewProj"), 1, GL_FALSE, vp.constData());
-  glUniform3f(glGetUniformLocation(sceneProgram_, "uSunDir"), -0.55f, 0.55f, 0.62f);
+  glUniform3f(glGetUniformLocation(sceneProgram_, "uSunDir"), sd.x(), sd.y(), sd.z());
+  glUniformMatrix3fv(glGetUniformLocation(sceneProgram_, "uViewRot"), 1, GL_FALSE, rot.constData());
+  glUniform3f(glGetUniformLocation(sceneProgram_, "uSunColor"), sunColor_.x(), sunColor_.y(), sunColor_.z());
+  glUniform3f(glGetUniformLocation(sceneProgram_, "uAmbient"), ambient_.x(), ambient_.y(), ambient_.z());
   if (sceneVisible_ && sceneMesh_.count > 0) {
     glBindVertexArray(sceneMesh_.vao);
     glDrawElements(GL_TRIANGLES, sceneMesh_.count, GL_UNSIGNED_INT, nullptr);
@@ -388,6 +429,9 @@ void KaGlTerrainViewport::drawFrame(int w, int h) {
     glDrawElements(GL_TRIANGLES, overlayMesh_.count, GL_UNSIGNED_INT, nullptr);
   }
   glBindVertexArray(0);
+  pipeline_.drawSky(vp, params_);
+  params_.ambientOcclusion = aoEnabled_;
+  pipeline_.finish(proj, params_, targetFbo, w, h);
 }
 
 void KaGlTerrainViewport::mousePressEvent(QMouseEvent* e) { lastMouse_ = e->pos(); }

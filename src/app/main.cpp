@@ -93,9 +93,11 @@ int main(int argc, char** argv) {
   QCommandLineOption evalCenter(QStringLiteral("eval-center"), QStringLiteral("불러온 뒤 지형 한가운데(첨성대 부근)를 평가한다."));
   QCommandLineOption sheetOut(QStringLiteral("sheet-out"), QStringLiteral("스모크 끝에 입체지형 도면 PNG(+같은 이름 PDF)를 저장."), QStringLiteral("file.png"));
   QCommandLineOption noInitial(QStringLiteral("no-initial-scene"), QStringLiteral("시작할 때 경주 기본 장면을 불러오지 않는다(연동으로 조사를 받을 때)."));
+  QCommandLineOption noAo(QStringLiteral("no-ao"), QStringLiteral("환경 차폐(GTAO)를 끈다."));
+  QCommandLineOption modeOpt(QStringLiteral("mode"), QStringLiteral("보기 방식 0 점토 1 표고 2 경사 3 위성."), QStringLiteral("n"));
   QCommandLineOption noBridge(QStringLiteral("no-bridge"), QStringLiteral("Strata 연동 파이프를 열지 않는다."));
   QCommandLineOption bridgePipe(QStringLiteral("bridge-pipe"), QStringLiteral("연동 파이프 이름(기본 strata-3d-bridge-v1)."), QStringLiteral("name"));
-  parser.addOptions({smoke, report, image, cam, dem, lon, lat, noFeat, noSat, evalCenter, sheetOut, noBridge, bridgePipe, noInitial});
+  parser.addOptions({smoke, report, image, cam, dem, lon, lat, noFeat, noSat, evalCenter, sheetOut, noBridge, bridgePipe, noInitial, noAo, modeOpt});
   parser.process(app);
 
   MainWindow::Options opt;
@@ -106,6 +108,8 @@ int main(int argc, char** argv) {
   opt.loadSatellite = !parser.isSet(noSat);
 
   MainWindow w(opt);
+  if (parser.isSet(noAo)) w.viewport()->setAmbientOcclusion(false);
+  if (parser.isSet(modeOpt)) w.viewport()->setMode(KaGlTerrainViewport::Mode(parser.value(modeOpt).toInt()));
   if (parser.isSet(cam)) {
     const QStringList c = parser.value(cam).split(QLatin1Char(','));
     if (c.size() == 3) w.viewport()->setCameraPreset(c[0].toFloat(), c[1].toFloat(), c[2].toFloat());

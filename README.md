@@ -1,29 +1,41 @@
 # strata-3d
 
-Strata(`ka-hgis`)와 같은 OSGeo4W 위에서 빌드되는 C++20 / Qt 6 / OpenGL 3.3 Core 데스크톱 3D 지형 앱과 엔진.
-웹·Node·Three.js 는 쓰지 않는다. 지침: `CLAUDE_CODE_MASTER_PLAN.md`.
+Strata(`ka-hgis`)와 같은 OSGeo4W 위에서 빌드되는 C++20 / Qt 6 / OpenGL 3.3 Core 데스크톱 3D 지형 앱(`strata-3d.exe`)과 엔진(`strata_3d_engine`).
+웹·Node·Three.js 는 쓰지 않는다. 지침: `CLAUDE_CODE_MASTER_PLAN.md`. 제3자 고지: `THIRD_PARTY_NOTICES.md`.
 
-## 지금 되는 것 (2026-10-24)
+## 되는 것 (2026-10-24, 시험으로 확인)
 
-- `strata_3d_engine` (`src/engine/`, UI 없음)
-  - `DemProvider`: GDAL(GDALWarp)로 실측 DEM 창을 EPSG:5187 미터 격자로 읽는다. 기본 원본은 Copernicus GLO-30 COG(`/vsicurl/`). 결과는 GeoTIFF 로 캐시한다.
-  - `CrsTransform`: GDAL/PROJ(OSR) 좌표 변환. 직접 투영식 없음.
-  - `TerrainLodTree` + `Frustum`: 4분트리 거리 구간 LOD 선택과 절두체 컬링(CDLOD 방식, 직접 작성).
-- `strata-3d` (`src/app/`): `QOpenGLWidget` GL 3.3 Core 뷰포트. 높이는 R32F 텍스처, 조각은 인스턴싱, 가장자리 치마.
-  보기: 점토 / 표고 색띠 / 경사도. `KaTheme`는 hgis 소스를 그대로 컴파일해 공유한다.
-- 시험 `test_strata_3d`: 실제 Copernicus 창을 받아 CRS 정의, 값 범위, 캐시 왕복, LOD 틈·겹침 없음, 컬링을 확인한다. **네트워크가 막히면 건너뛰지 않고 실패한다.**
+| 영역 | 내용 | 확인 |
+|---|---|---|
+| 실측 DEM | GDAL(GDALWarp)로 Copernicus GLO-30 COG(`/vsicurl/`)를 작업 좌표계(5186/5187) 미터 격자로. GeoTIFF 캐시 | GDAL 명령줄 값과 대조 |
+| 지형 | R32F 높이 텍스처 + 인스턴싱 4분트리 LOD + 치마 + 절두체 컬링, 소벨 평활 법선 | 틈·겹침 없음 시험 |
+| 위성 실사 | Google XYZ(키가 유효하면 VWorld) 전체 4096 px + 중심 ±3 km 4096 px | 화면 PNG, 영상과 벡터 정합 |
+| 건물·유적 | OSM 외곽선(높이 태그 없으면 「미상」 6 m 추정, 옅은 색), 국가유산청 전국 지정유산, Strata SHP 캐시 | OSM–국가유산청 첨성대 1.06 m 일치 |
+| 공간 가속 | 14-DOP BVH(Blender BLI_kdopbvh 와 같은 축 표), k-d 트리 | 전수 검사와 동일 결과, 약 2,600배 빠름 |
+| 고고학 평가 | 500/1000 m 둥근 버퍼, 이격거리·방위, 경사·향·TPI·Weiss 분류, 지형 단면, 시선 | 반경 500.0 m(Miter 돌출 없음), 측지 거리와 0.2 % |
+| 렌더 | Nishita 하늘 → Blender GTAO 이식 → AgX 합성의 HDR 파이프라인 | AgX: OCIO 기준표 1006색 최대 오차 1.7e-5 |
+| 도면 | 3072² 캡처 + 제목·축척·방위·범례·출처·좌표계·평가 요약 → PNG, A3 PDF | 파일 크기·내용 확인 |
+| Strata 연동 | 로컬 파이프 JSON(openSurvey/evaluate/profile/renderSheet), 상태 파일 | 실제 앱을 띄운 e2e 시험 |
 
-## 아직 없는 것
+## 한계 (숨기지 않는다)
 
-위성 정사영상, 건물·유적 벡터(경주 자료가 이 PC에 없음), BVH 레이캐스트·근접 탐색, 고고학 평가, `composeSheet` 도면, Strata 연동(IPC),
-Nishita 대기/AgX/GTAO 셰이더. Blender 역공학 자료는 `docs/rea/`에 있으나 아직 이 코드가 그것을 이식한 것은 아니다.
+- **VWorld**: 이 PC에 저장된 키 두 개는 서비스가 `INCORRECT_KEY`로 거절한다. 유효한 키가 있으면 위성이 VWorld 로 자동 전환되지만, 건물 WFS 는 키가 없어 확인하지 못해 구현하지 않았다.
+- **건물 높이**: OSM 에서 높이 태그가 있는 것은 5%도 안 된다. 나머지는 추정 높이이고 화면에서 옅게 구분한다. 유적은 표지 기둥과 경계 띠이며 복원 모델이 아니다.
+- **DEM**: 30 m 격자(국토지리정보원 1:5,000 표고가 아님). 근접 지형은 부드럽다.
+- **평가**: 지형·좌표·지정유산 목록으로만 계산한다. 층서·유물은 만들지 않는다. 「자료에 없음」은 「없음」이 아니다.
+- **하늘 색**: 기하·밀도·위상 상수는 Blender 4.2.3 실행 파일에서 확인했지만 파장 계수는 Nishita 논문 RGB 값이다(`docs/sky-constants.md`).
+- **GTAO**: Blender 원문의 이식이되 HiZ 광선 추적 대신 선형 깊이 밉, 청색 소음 대신 IGN 을 쓴다. 효과는 측정되지만(평균 밝기 −1/255, 2 % 픽셀) 건물 밀집부에서도 미묘하다.
+- **hgis 쪽**: `KaTerrain3dStudio` 의 호출 버튼은 만들지 않았다(hgis 의 커밋 검문·300줄 제한을 따라 따로 해야 한다). 클라이언트는 `src/bridge/StrataBridgeClient.*` 이고 규격은 `docs/bridge-protocol.md`.
+- **BVH**: Blender 의 알고리즘 설계와 축 표, 분기 노드 수 식을 따랐지만 바이트 단위 이식은 아니다.
 
 ## 빌드·시험
 
 ```powershell
-.\scripts\build-now.ps1 -Test            # 첫 구성 + Release 빌드 + ctest
-. .\scripts\dev-env.ps1                   # 같은 셸에서 PATH/GDAL/PROJ 설정
-Start-Process build\Release\strata-3d.exe -ArgumentList "--smoke-quit","--smoke-image","out.png" -Wait -PassThru
+.\scripts\build-now.ps1 -Test              # 첫 구성 + Release 빌드 + ctest
+. .\scripts\dev-env.ps1                     # 같은 셸에서 PATH/GDAL/PROJ 설정
+.\scripts\shot.ps1 -Out out.png -Cam "200,32,1500"   # 화면 한 장(스모크) 저장
+build\Release\strata-3d.exe --smoke-quit --eval-center --sheet-out 도면.png
 ```
 
-`HGIS_ROOT`(기본 `../hgis`)의 `KaTheme*.cpp`, `data/theme/` 를 쓴다.
+시험은 실제 네트워크(Copernicus, Google 타일, Overpass, 국가유산청)를 쓴다. 막히면 건너뛰지 않고 실패한다.
+`HGIS_ROOT`(기본 `../hgis`)의 `KaTheme*.cpp`, `data/theme/` 를 그대로 컴파일해 디자인을 공유한다.

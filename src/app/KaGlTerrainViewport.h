@@ -9,6 +9,7 @@
 #include <memory>
 #include <vector>
 
+#include "HdrPipeline.h"
 #include "SceneMesh.h"
 #include "TerrainLodTree.h"
 
@@ -32,6 +33,8 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   void setTerrain(std::shared_ptr<const strata3d::TerrainLodTree> tree);
   void setScene(std::shared_ptr<const strata3d::SceneMesh> scene);
   void setSceneVisible(bool visible);
+  void setAmbientOcclusion(bool on) { aoEnabled_ = on; update(); }
+  bool ambientOcclusion() const { return aoEnabled_; }
   // 평가 결과 띠·기둥(버퍼 고리 등). nullptr 이면 지운다.
   void setOverlay(std::shared_ptr<const strata3d::SceneMesh> overlay);
   // 위젯 크기와 상관없이 지정한 크기로 한 장 그린다(FBO). 도면용 고해상도 캡처.
@@ -72,7 +75,7 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   };
   void uploadTerrain();
   void uploadMesh(GlMesh* gm, const std::shared_ptr<const strata3d::SceneMesh>& mesh);
-  void drawFrame(int w, int h);
+  void drawFrame(int w, int h, unsigned targetFbo);
   void resetCamera();
   QVector3D eyePosition() const;
   unsigned buildProgram(const char* vertexSrc, const char* fragmentSrc);
@@ -115,6 +118,13 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   GlMesh overlayMesh_;
   std::shared_ptr<const strata3d::SceneMesh> pendingOverlay_;
   bool overlayChanged_ = false;
+  HdrPipeline pipeline_;
+  HdrPipeline::Params params_;
+  QVector3D sunColor_{1, 1, 1};
+  QVector3D ambient_{0.2f, 0.2f, 0.2f};
+  float sunStrength_ = 1.0f;
+  bool aoEnabled_ = true;
+  bool sky_ok_ = false;
   QMatrix4x4 lastViewProj_;
   QVector3D lastEye_;
   int templateIndexCount_ = 0;

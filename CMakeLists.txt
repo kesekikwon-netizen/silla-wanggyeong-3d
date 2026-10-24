@@ -61,7 +61,8 @@ add_library(strata_3d_engine STATIC
   src/engine/EvaluationOverlay.cpp
   src/engine/EvaluationJson.cpp
   src/engine/StrataSurvey.cpp
-  src/engine/AgxView.cpp)
+  src/engine/AgxView.cpp
+  src/engine/NishitaSky.cpp)
 target_include_directories(strata_3d_engine PUBLIC ${CMAKE_SOURCE_DIR}/src/engine ${S3D_GDAL_INCLUDES})
 target_link_directories(strata_3d_engine PUBLIC ${S3D_GDAL_LIBDIRS})
 target_link_libraries(strata_3d_engine PUBLIC Qt6::Core Qt6::Gui ${S3D_GDAL_LIB})
@@ -95,6 +96,10 @@ add_executable(strata-3d WIN32
   src/bridge/StrataBridgeClient.h
   src/app/SheetComposer.h
   src/app/TerrainShaders.cpp
+  src/app/PostShaders.cpp
+  src/app/PostShaders.h
+  src/app/HdrPipeline.cpp
+  src/app/HdrPipeline.h
   src/app/TerrainShaders.h)
 target_include_directories(strata-3d PRIVATE ${CMAKE_SOURCE_DIR}/src/app ${CMAKE_SOURCE_DIR}/src/bridge ${HGIS_ROOT}/src/app ${CMAKE_BINARY_DIR}/generated)
 target_link_libraries(strata-3d PRIVATE strata_3d_engine Qt6::Widgets Qt6::OpenGLWidgets Qt6::OpenGL Qt6::Network Qt6::Concurrent)

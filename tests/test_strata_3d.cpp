@@ -19,6 +19,7 @@
 #include "Frustum.h"
 #include "Kdop14Bvh.h"
 #include "KdTree3.h"
+#include "NishitaSky.h"
 #include "KhsProvider.h"
 #include "TerrainBvh.h"
 #include "LocalVectorProvider.h"
@@ -496,6 +497,37 @@ class TestStrata3d : public QObject {
     QVERIFY(!QFile::exists(src + "-wal") && !QFile::exists(src + "-shm"));
     QVERIFY(!loadStrataSurvey(cache_.path() + "/없는파일.gpkg", "EPSG:5187", &s, &err));
     QVERIFY(!err.isEmpty());
+  }
+
+  void nishitaSkyBehavesPhysically() {
+    const float d2r = float(M_PI) / 180.0f;
+    auto sun = [d2r](float elevDeg) { return QVector3D(std::cos(elevDeg * d2r), 0.0f, std::sin(elevDeg * d2r)); };
+    QCOMPARE(NishitaSky::ozoneDensity(10000.0f), 0.0f);
+    QCOMPARE(NishitaSky::ozoneDensity(25000.0f), 1.0f);
+    QCOMPARE(NishitaSky::ozoneDensity(40000.0f), 0.0f);
+    QVERIFY(std::abs(NishitaSky::ozoneDensity(17500.0f) - 0.5f) < 1e-6f);
+    // 위상 함수는 구면 적분이 1 이다.
+    double ir = 0, im = 0;
+    const int n = 20000;
+    for (int i = 0; i < n; ++i) {
+      const double c = -1.0 + 2.0 * (i + 0.5) / n;
+      ir += NishitaSky::rayleighPhase(float(c)) * 2.0 * M_PI * (2.0 / n);
+      im += NishitaSky::miePhase(float(c)) * 2.0 * M_PI * (2.0 / n);
+    }
+    qInfo() << "위상 적분 레일리" << ir << "Mie" << im;
+    QVERIFY(std::abs(ir - 1.0) < 0.002 && std::abs(im - 1.0) < 0.02);
+    const NishitaSky sky;
+    const QVector3D noonT = sky.sunTransmittance(sun(60.0f)), lowT = sky.sunTransmittance(sun(2.0f));
+    qInfo() << "태양 투과율 60°" << noonT << "2°" << lowT;
+    QVERIFY(noonT.z() > 0.5f && noonT.x() > noonT.z() - 0.001f);
+    QVERIFY(lowT.x() / std::max(lowT.z(), 1e-6f) > 5.0f);  // 일몰 붉어짐
+    const QVector3D zen = sky.radiance(QVector3D(0, 0, 1), sun(60.0f));
+    qInfo() << "정오 천정 복사휘도" << zen;
+    QVERIFY(zen.z() > zen.x() * 1.5f && zen.x() > 0 && std::isfinite(zen.z()));  // 파란 하늘
+    const QVector3D hor = sky.radiance(QVector3D(0.9f, 0, 0.05f), sun(30.0f)), zen30 = sky.radiance(QVector3D(0, 0, 1), sun(30.0f));
+    QVERIFY(hor.y() > zen30.y());  // 지평선 쪽이 더 밝고 옅다
+    const QVector3D night = sky.radiance(QVector3D(0, 0, 1), sun(-10.0f));
+    QVERIFY(night.y() < zen.y() * 0.05f);
   }
 
   void agxMatchesBlenderOcioReference() {
