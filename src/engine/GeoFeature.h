@@ -23,6 +23,7 @@ struct GeoFeature {
   QString category;    // 예: "국보", "사적", "building=house"
   QString source;      // "OSM" | "KHS" | "SHP"
   std::vector<Pt> ring;  // 외곽 고리(닫힘 점 제외). 점 지물은 비어 있다.
+  std::vector<std::vector<Pt>> holes;  // 다각형 구멍(보호구역 등은 구멍이 있다; 구역 안/밖 판정에 쓴다)
   Pt point;              // 점 지물 위치 / 다각형 대표점
   double heightM = 0;
   HeightSource heightSource = HeightSource::Unknown;

@@ -7,6 +7,7 @@
 
 #include "BangriGridEngine.h"
 #include "DemGrid.h"
+#include "EvidenceTier.h"
 #include "SceneMesh.h"
 #include "SillaMoundReconstructor.h"
 
@@ -14,8 +15,8 @@ namespace strata3d {
 
 struct GyeongjuHeritageSiteMeta {
   QString id;           // 예: "hwangnyongsa", "cheomseongdae", "daereungwon_hwangnam"
-  QString name;         // 예: "황룡사 9층목탑 · 대가람 (사적 제6호)"
-  QString category;     // 예: "사적 제6호", "국보 제31호"
+  QString name;         // 화면 이름, 지정번호 없음(HeritageNaming). 예: "황룡사 9층목탑 · 대가람"
+  QString category;     // 지정 종목, 지정번호 없음. 예: "사적", "국보"
   QString subtitle;     // 예: "중금당·동서금당·강당·남문·회랑 실제 유구 위치"
   double lat = 0.0;     // WGS84 위도
   double lon = 0.0;     // WGS84 경도
@@ -27,6 +28,8 @@ struct GyeongjuHeritageSiteMeta {
   bool importantLabel = true;
   uint32_t blenderVertexCount = 0;
   uint32_t blenderTriangleCount = 0;
+  // 3D 모델의 근거 등급. 지금 번들은 모두 유형 틀로 만든 도식(D)이다(docs/BLUEPRINT.md 4장).
+  EvidenceTier tier = EvidenceTier::Schematic;
 };
 
 struct UserDrawnLine3D {
@@ -123,6 +126,10 @@ class BangriTerrainValidator {
       bool include3dCityArchitecture = true,
       bool includeRoadGrid = false,
       const std::vector<QString>* enabledHeritageIds = nullptr);
+
+  // 번들의 유형 틀 모델(등급 D)만 지형 위에 올린다. 색은 한 가지 회색, 지형 밖 유적은 뺀다.
+  // enabledIds 가 nullptr 이 아니면 그 목록의 유적만.
+  static std::shared_ptr<SceneMesh> buildSchematicModels(const DemGrid& dem, const std::vector<QString>* enabledIds = nullptr);
 
   // 사용자가 지형 위에서 클릭한 두 점(a, b)으로부터 3D 사용자 정의 격자 제원을 계산한다.
   static UserDrawnGrid3D makeGridFromTwoPoints(

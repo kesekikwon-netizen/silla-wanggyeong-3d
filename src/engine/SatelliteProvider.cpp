@@ -14,7 +14,7 @@ namespace strata3d {
 
 namespace {
 
-QString wmsXml(const QString& serverUrl, const QString& cachePath) {
+QString wmsXml(const QString& serverUrl) {
   // 웹 메르카토르 전 세계, 타일 단계 20까지. ${x},${y},${z} 는 GDAL 이 채운다(위가 원점).
   QString xml = QStringLiteral(
       "<GDAL_WMS>"
@@ -24,9 +24,9 @@ QString wmsXml(const QString& serverUrl, const QString& cachePath) {
       "<TileLevel>20</TileLevel><TileCountX>1</TileCountX><TileCountY>1</TileCountY><YOrigin>top</YOrigin></DataWindow>"
       "<Projection>EPSG:3857</Projection><BlockSizeX>256</BlockSizeX><BlockSizeY>256</BlockSizeY><BandsCount>3</BandsCount>"
       "<MaxConnections>12</MaxConnections><UserAgent>strata-3d/0.1 (archaeology GIS desktop app)</UserAgent>"
+      "<Referer>https://localhost</Referer>"  // VWorld 키 인증(Strata 와 같은 값). 없으면 INCORRECT_KEY
       "<ZeroBlockHttpCodes>204,404</ZeroBlockHttpCodes><ZeroBlockOnServerException>true</ZeroBlockOnServerException>")
       .arg(serverUrl.toHtmlEscaped());
-  if (!cachePath.isEmpty()) xml += QStringLiteral("<Cache><Path>%1</Path><Depth>2</Depth></Cache>").arg(cachePath.toHtmlEscaped());
   xml += QStringLiteral("</GDAL_WMS>");
   return xml;
 }
@@ -35,26 +35,16 @@ QString wmsXml(const QString& serverUrl, const QString& cachePath) {
 
 bool loadSatelliteImage(const SatelliteRequest& req, SatelliteResult* out, QString* errorOut) {
   GDALAllRegister();
-  SatelliteSource src = req.source;
   QString vkey = req.vworldKey;
-  if (src == SatelliteSource::Auto) {
-    if (vkey.isEmpty()) vkey = loadVworldApiKey();
-    src = (!vkey.isEmpty() && checkVworldApiKey(vkey)) ? SatelliteSource::Vworld : SatelliteSource::Google;
+  if (vkey.isEmpty()) vkey = loadVworldApiKey();
+  QString reason;
+  if (!checkVworldApiKey(vkey, &reason)) {
+    if (errorOut) *errorOut = QStringLiteral("위성 영상을 받지 않았습니다: %1").arg(reason);
+    return false;
   }
-  QString url, name;
-  if (src == SatelliteSource::Vworld) {
-    url = QStringLiteral("https://api.vworld.kr/req/wmts/1.0.0/%1/Satellite/${z}/${y}/${x}.jpeg").arg(vkey);
-    name = QStringLiteral("VWorld Satellite WMTS");
-  } else {
-    url = QStringLiteral("https://mt1.google.com/vt/lyrs=s&x=${x}&y=${y}&z=${z}");
-    name = QStringLiteral("Google Satellite XYZ");
-  }
-  QString cachePath;
-  if (!req.cacheDir.isEmpty()) {
-    cachePath = QDir(req.cacheDir).filePath(src == SatelliteSource::Vworld ? QStringLiteral("wms-vworld") : QStringLiteral("wms-google"));
-    QDir().mkpath(cachePath);
-  }
-  const QByteArray xml = wmsXml(url, cachePath).toUtf8();
+  const QString url = QStringLiteral("https://api.vworld.kr/req/wmts/1.0.0/%1/Satellite/${z}/${y}/${x}.jpeg").arg(vkey);
+  const QString name = QStringLiteral("VWorld Satellite WMTS");
+  const QByteArray xml = wmsXml(url).toUtf8();
   std::unique_ptr<GDALDataset> srcDs(GDALDataset::Open(xml.constData(), GDAL_OF_RASTER | GDAL_OF_READONLY));
   if (!srcDs) {
     if (errorOut) *errorOut = QStringLiteral("위성 타일 원본(%1)을 열지 못했습니다.").arg(name);

@@ -21,13 +21,23 @@ if (-not (Get-Command cmake -ErrorAction SilentlyContinue)) {
     }
   }
 }
+# Strata 3D 앱은 Strata 의 ka_core(QGIS)를 링크한다: qgis-dev 의 DLL·플러그인·웹 브라우저 경로가 hgis 와 같아야 한다.
+$qgis = Join-Path $OSGEO "apps\qgis-dev"
+if (-not (Test-Path $qgis)) { throw "qgis-dev missing under $OSGEO" }
+$env:QGIS_PREFIX_PATH = $qgis
 $bins = @(
+  (Join-Path $qgis "bin"),
   (Join-Path $OSGEO "apps\Qt6\bin"),
   (Join-Path $OSGEO "apps\gdal-dev\bin"),
+  (Join-Path $OSGEO "apps\pdal-dev\bin"),
   (Join-Path $OSGEO "bin")
 )
 $env:PATH = ($bins + $env:PATH) -join ";"
-$env:QT_PLUGIN_PATH = Join-Path $OSGEO "apps\Qt6\plugins"
+$env:QT_PLUGIN_PATH = (Join-Path $OSGEO "apps\Qt6\plugins") + ";" + (Join-Path $qgis "qtplugins")
+$env:QGIS_PLUGIN_PATH = Join-Path $qgis "plugins"
+$env:QTWEBENGINEPROCESS_PATH = Join-Path $OSGEO 'apps/Qt6/bin/QtWebEngineProcess.exe'
+$env:QTWEBENGINE_RESOURCES_PATH = Join-Path $OSGEO 'apps/Qt6/resources'
+$env:QTWEBENGINE_LOCALES_PATH = Join-Path $OSGEO 'apps/Qt6/translations/qtwebengine_locales'
 $gdalData = Join-Path $OSGEO "apps\gdal-dev\share\gdal"
 if (Test-Path $gdalData) { $env:GDAL_DATA = $gdalData }
 $proj = Join-Path $OSGEO "share\proj"

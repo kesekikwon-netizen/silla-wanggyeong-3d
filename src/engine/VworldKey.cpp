@@ -61,7 +61,8 @@ bool checkVworldApiKey(const QString& key, QString* reasonOut) {
       "https://api.vworld.kr/req/data?service=data&version=2.0&request=GetFeature&format=json&size=1&page=1"
       "&geometry=false&attribute=true&crs=EPSG:4326&data=LT_C_ADSIGG_INFO&attrFilter=full_nm:like:%1&key=%2")
       .arg(QString::fromUtf8(QUrl::toPercentEncoding(QString::fromUtf16(u"경주"))), key);
-  const HttpResult r = httpGet(url, {}, 30);
+  // VWorld 는 키를 Referer 머리글로 인증한다. 없으면 같은 키도 INCORRECT_KEY(hgis BasemapOps.cpp:1196, 2026-09-06 실측).
+  const HttpResult r = httpGet(url, {QStringLiteral("Referer: https://localhost")}, 30);
   if (!r.ok) {
     if (reasonOut) *reasonOut = QStringLiteral("VWorld 서버에 연결하지 못했습니다: %1").arg(r.error.left(100));
     return false;

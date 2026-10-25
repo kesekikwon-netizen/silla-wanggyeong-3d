@@ -34,6 +34,7 @@ class BangriDockPanel : public QWidget {
   bool gridOverlayEnabled() const;
   bool architecture3dEnabled() const;
   bool calloutLabelsEnabled() const;
+  void setCalloutLabelsEnabled(bool on);  // 체크 상자와 화면을 같이 바꾼다
   bool topBannerEnabled() const;
   bool bareEarthMode() const;
   bool reconstructMounds() const;

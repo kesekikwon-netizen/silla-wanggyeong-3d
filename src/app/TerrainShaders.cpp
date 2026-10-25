@@ -49,6 +49,11 @@ uniform int uHasDetail;
 uniform mat3 uViewRot;     // 지역 좌표 → 뷰 공간 회전
 uniform vec3 uSunColor;    // 태양 직사광(투과율 반영, 선형)
 uniform vec3 uAmbient;     // 하늘 환경광(선형)
+uniform sampler2D uDrape;        // 지형에 입히는 구역·유산 면(RGBA, a = 비침). 위성과 같은 uv
+uniform sampler2D uDrapeDetail;  // 가운데 고해상도 창
+uniform vec4 uDrapeRect;
+uniform int uHasDrape;
+uniform int uHasDrapeDetail;
 layout(location = 0) out vec4 oColor;   // rgb 선형 복사휘도, a 환경광 비율(환경 차폐가 곱해질 몫)
 layout(location = 1) out vec4 oNormal;  // 뷰 공간 법선(0.5 배 + 0.5), a=1 이면 표면
 
@@ -109,6 +114,18 @@ void main() {
     radiance = albedo * (direct + amb);
     float dl = dot(direct, vec3(0.333)), al = dot(amb, vec3(0.333));
     ambFrac = al / max(dl + al, 1e-4);
+  }
+  if (uHasDrape == 1) {
+    vec2 uv = (vPix + 0.5) / vec2(uGrid);
+    vec4 d = texture(uDrape, uv);
+    if (uHasDrapeDetail == 1) {
+      vec2 duv = (uv - uDrapeRect.xy) / (uDrapeRect.zw - uDrapeRect.xy);
+      float edge = min(min(duv.x, 1.0 - duv.x), min(duv.y, 1.0 - duv.y));
+      d = mix(d, texture(uDrapeDetail, duv), smoothstep(0.0, 0.02, edge));
+    }
+    // 입힌 색에도 지형 음영을 얹어 기복이 보이게 한다
+    vec3 lit = pow(d.rgb, vec3(2.2)) * clamp(0.85 + 0.55 * (lambert - 0.6), 0.5, 1.2);
+    radiance = mix(radiance, lit, d.a);
   }
   oColor = vec4(radiance, ambFrac);
   oNormal = vec4(normalize(uViewRot * n) * 0.5 + 0.5, 1.0);

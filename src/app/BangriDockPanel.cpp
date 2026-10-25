@@ -72,7 +72,7 @@ BangriDockPanel::BangriDockPanel(QWidget* parent) : QWidget(parent) {
 
   // 2. 경주 전체 유적 블렌더 3D 모델 개별 켜기/끄기 목록 (사용자가 하나의 유적씩 켜고 끌 수 있음)
   auto* heritageBox = new QGroupBox(
-      QStringLiteral("② 경주 전체 유적 블렌더 3D 개별 켜기/끄기 (총 %1곳 · 체크: 표시 · 클릭: 카메라 이동)")
+      QStringLiteral("② 경주 유적 3D 모델(도식) 켜기/끄기 — 총 %1곳 · 체크: 표시 · 클릭: 그곳으로 이동")
           .arg(heritageCatalog_.size()),
       this);
   auto* heritageLayout = new QVBoxLayout(heritageBox);
@@ -110,7 +110,7 @@ BangriDockPanel::BangriDockPanel(QWidget* parent) : QWidget(parent) {
     item->setData(Qt::UserRole + 1, site.category + QStringLiteral(" ") + site.subtitle);
     item->setFlags(item->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     item->setCheckState(Qt::Checked);
-    item->setToolTip(QStringLiteral("%1\n· %2\n· 블렌더 3D 모델: 삼각형 %3개 (정점 %4개)\n· 체크박스를 끄면 이 유적만 화면에서 숨겨집니다.")
+    item->setToolTip(QStringLiteral("%1\n· %2\n· 3D 모델(도식, 유형 틀): 삼각형 %3개 (정점 %4개)\n· 체크박스를 끄면 이 유적만 화면에서 숨겨집니다.")
                          .arg(site.name, site.subtitle)
                          .arg(site.blenderTriangleCount)
                          .arg(site.blenderVertexCount));
@@ -330,7 +330,7 @@ BangriDockPanel::BangriDockPanel(QWidget* parent) : QWidget(parent) {
   checkGrid->setContentsMargins(0, 0, 0, 0);
   checkGrid->setSpacing(3);
 
-  arch3dCheck_ = new QCheckBox(QStringLiteral("경주 유적 블렌더 3D 건축 복원 표시"), modeBox);
+  arch3dCheck_ = new QCheckBox(QStringLiteral("경주 유적 3D 모델(도식) 표시"), modeBox);
   arch3dCheck_->setChecked(true);
   moundCheck_ = new QCheckBox(QStringLiteral("대릉원·봉황대·오릉 왕릉 3D 봉분 표시"), modeBox);
   moundCheck_->setChecked(true);
@@ -605,6 +605,10 @@ bool BangriDockPanel::architecture3dEnabled() const {
   return arch3dCheck_ && arch3dCheck_->isChecked();
 }
 
+void BangriDockPanel::setCalloutLabelsEnabled(bool on) {
+  if (labelsCheck_) labelsCheck_->setChecked(on);  // toggled → emitTerrainMode 로 화면도 바뀐다
+}
+
 bool BangriDockPanel::calloutLabelsEnabled() const {
   return labelsCheck_ && labelsCheck_->isChecked();
 }
@@ -873,13 +877,13 @@ void BangriDockPanel::updateVerificationSummary(const BangriSheetData& d) {
            .arg(d.preset.name.toHtmlEscaped(), d.preset.modernRegion.toHtmlEscaped());
 
   h += QStringLiteral(
-           "<p style='margin-top:0px;'><b>■ 위성 실사 1:1 정밀 매칭 경주 신라 핵심 유적 3D 복원</b><br>"
-           "가상 가옥과 불필요한 내부 구획선을 모두 제거하고, 실제 위성사진 유구 위치와 실제 모양 그대로 경주의 대표 유적을 복원했습니다.</p>"
+           "<p style='margin-top:0px;'><b>■ 경주 신라 핵심 유적 3D 모델 — 등급 D 도식</b><br>"
+           "위치는 국가유산청 좌표에 맞췄지만, 건물·탑의 모양은 유형 틀로 만든 도식입니다. 실측이나 보고서 치수로 세운 복원이 아니며 화면에서 회색으로 보입니다.</p>"
            "<ul>"
-           "<li><b>황룡사 대가람 (사적 제6호)</b>: 실제 심초석 위치(35.83718°N, 129.23313°E)에 세운 <b>황룡사 9층목탑(높이 80m)</b>과 중금당·동금당·서금당·강당·중문·남문·외곽 회랑</li>"
-           "<li><b>분황사 및 구황동 원지 (국보 제30호·사적 제548호)</b>: 안산암 벽돌 <b>분황사 모전석탑</b>과 네 귀퉁이 돌사자, 보광전, 구황동 신라 왕경 원지(연못·섬)</li>"
-           "<li><b>동궁과 월지 (안압지·사적 제18호)</b>: 실제 굴곡진 호안 석축 연못과 <b>삼신산 3개 섬(대도·중도·소도)</b>, 서안 <b>임해전 제1·2·3건물</b></li>"
-           "<li><b>월성 (반월성·사적 제16호) & 석빙고</b>: 실제 <b>초승달 모양 성곽</b>과 북편 계단식 <b>월성 해자</b>, 왕궁 정전군, <b>석빙고(보물 제66호)</b></li>"
+           "<li><b>황룡사 대가람</b>: 심초석 부근(35.83718°N, 129.23313°E)에 세운 도식 <b>황룡사 9층목탑(높이 80m)</b>과 중금당·동금당·서금당·강당·중문·남문·외곽 회랑</li>"
+           "<li><b>분황사 및 구황동 원지</b>: 안산암 벽돌 <b>분황사 모전석탑</b>과 네 귀퉁이 돌사자, 보광전, 구황동 신라 왕경 원지(연못·섬)</li>"
+           "<li><b>동궁과 월지 (안압지)</b>: 실제 굴곡진 호안 석축 연못과 <b>삼신산 3개 섬(대도·중도·소도)</b>, 서안 <b>임해전 제1·2·3건물</b></li>"
+           "<li><b>월성 (반월성) & 석빙고</b>: 실제 <b>초승달 모양 성곽</b>과 북편 계단식 <b>월성 해자</b>, 왕궁 정전군, <b>석빙고(보물)</b></li>"
            "<li><b>첨성대·월정교·계림·향교</b>: 27단 곡선 원통형 <b>국보 첨성대</b>, 남천 위 주형교각과 남북 중층 문루를 갖춘 <b>월정교</b>, <b>계림·내물왕릉·경주향교·최부자댁</b></li>"
            "<li><b>신라 왕릉군 (%1기)</b>: <b>황남대총 남북 쌍분(높이 23m)</b>, <b>천마총</b>, <b>미추왕릉</b>, <b>봉황대</b>, <b>금관총</b>, <b>오릉</b> 실제 위치 3D 봉분</li>"
            "</ul>")

@@ -17,4 +17,7 @@ docs/rea/blender-4.2.3-rea-evidence-bundle.json
 *.log
 .DS_Store
 out/
-research/
+/research/
+
+# 확인용 작은 빌드(spikes/*/build)
+spikes/*/build/

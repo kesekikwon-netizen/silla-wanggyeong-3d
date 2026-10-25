@@ -52,16 +52,31 @@ void addRing(const OGRLinearRing* ring, const CrsTransformer& toWork, GeoFeature
 
 bool loadLocalVectors(const FeatureRequest& req, const QStringList& paths, std::vector<GeoFeature>* out,
                       QStringList* skippedOut) {
+  std::vector<LocalVectorSource> sources;
+  for (const QString& p : paths) sources.push_back({p, QString(), QFileInfo(p).completeBaseName(), QString()});
+  return loadLocalVectorSources(req, sources, out, skippedOut);
+}
+
+bool loadLocalVectorSources(const FeatureRequest& req, const std::vector<LocalVectorSource>& sources,
+                            std::vector<GeoFeature>* out, QStringList* skippedOut) {
   GDALAllRegister();
   QSet<QString> seen;
-  for (const QString& path : paths) {
-    char* openOpts[] = {const_cast<char*>("ENCODING=CP949"), nullptr};
-    std::unique_ptr<GDALDataset> ds(GDALDataset::Open(path.toUtf8().constData(), GDAL_OF_VECTOR | GDAL_OF_READONLY, nullptr, openOpts, nullptr));
+  for (const LocalVectorSource& src : sources) {
+    const QString& path = src.path;
+    // 국가유산청 SHP 는 CP949. GPKG(Strata 가 저장한 heritage.gpkg 등)는 UTF-8 이라 열기 옵션을 주지 않는다.
+    const bool shp = path.endsWith(QStringLiteral(".shp"), Qt::CaseInsensitive);
+    char* shpOpts[] = {const_cast<char*>("ENCODING=CP949"), nullptr};
+    std::unique_ptr<GDALDataset> ds(GDALDataset::Open(path.toUtf8().constData(), GDAL_OF_VECTOR | GDAL_OF_READONLY, nullptr,
+                                                      shp ? shpOpts : nullptr, nullptr));
     if (!ds || ds->GetLayerCount() < 1) {
       if (skippedOut) *skippedOut << path;
       continue;
     }
-    OGRLayer* layer = ds->GetLayer(0);
+    OGRLayer* layer = src.subLayer.isEmpty() ? ds->GetLayer(0) : ds->GetLayerByName(src.subLayer.toUtf8().constData());
+    if (!layer) {
+      if (skippedOut) *skippedOut << path + QStringLiteral("|") + src.subLayer;
+      continue;
+    }
     const OGRSpatialReference* srs = layer->GetSpatialRef();
     if (!srs) {
       if (skippedOut) *skippedOut << path;
@@ -86,40 +101,72 @@ bool loadLocalVectors(const FeatureRequest& req, const QStringList& paths, std::
       }
     }
     layer->SetSpatialFilterRect(lx0, ly0, lx1, ly1);
-    const QString category = QFileInfo(path).completeBaseName();
-    const QString nameField = pickNameField(layer->GetLayerDefn());
+    const QString category = src.category.isEmpty() ? QFileInfo(path).completeBaseName() : src.category;
+    QString nameField = src.nameField;
+    if (nameField.isEmpty() || layer->GetLayerDefn()->GetFieldIndex(nameField.toUtf8().constData()) < 0)
+      nameField = pickNameField(layer->GetLayerDefn());
+    const int zoneField = layer->GetLayerDefn()->GetFieldIndex(QString::fromUtf16(u"구역명").toUtf8().constData());
+    const int heritageField = zoneField >= 0 ? layer->GetLayerDefn()->GetFieldIndex(QString::fromUtf16(u"국가유산명").toUtf8().constData()) : -1;
     layer->ResetReading();
     while (OGRFeature* raw = layer->GetNextFeature()) {
       const std::unique_ptr<OGRFeature, void (*)(OGRFeature*)> feat(raw, [](OGRFeature* f) { OGRFeature::DestroyFeature(f); });
       const OGRGeometry* g = feat->GetGeometryRef();
       if (!g) continue;
-      GeoFeature f;
-      f.source = QStringLiteral("SHP");
-      f.category = category;
-      if (!nameField.isEmpty()) f.name = QString::fromUtf8(feat->GetFieldAsString(nameField.toUtf8().constData()));
+      GeoFeature base;
+      base.source = QStringLiteral("SHP");
+      base.category = category;
+      if (!nameField.isEmpty()) base.name = QString::fromUtf8(feat->GetFieldAsString(nameField.toUtf8().constData()));
+      // 현상변경허용기준은 같은 구역 도형이 유산마다 따로 등록된다(경주 조사에서 확인: 도형 4개 = 유산 91건 × 구역).
+      // 유산 이름과 구역명을 함께 가져야 서로 다른 기준을 하나로 합치지 않는다.
+      if (zoneField >= 0) base.attrs.insert(QStringLiteral("구역명"), QString::fromUtf8(feat->GetFieldAsString(zoneField)));
+      if (heritageField >= 0 && nameField != QString::fromUtf16(u"국가유산명")) {
+        const QString h = QString::fromUtf8(feat->GetFieldAsString(heritageField));
+        if (!h.isEmpty()) base.name = h;
+      }
       const OGRwkbGeometryType t = wkbFlatten(g->getGeometryType());
+      // 다중 다각형(보호구역이 여러 조각인 경우 등)은 조각마다 지물 하나로 담는다. 첫 조각만 쓰면 나머지 조각과의 겹침을 놓친다.
+      std::vector<GeoFeature> parts;
       if (t == wkbPolygon || t == wkbMultiPolygon) {
-        const OGRPolygon* poly = t == wkbPolygon ? g->toPolygon() : g->toMultiPolygon()->getGeometryRef(0)->toPolygon();
-        f.kind = FeatureKind::HeritageArea;
-        addRing(poly->getExteriorRing(), toWork, &f);
-        if (f.ring.size() < 3) continue;
-        double sx = 0, sy = 0;
-        for (const Pt& p : f.ring) { sx += p.x; sy += p.y; }
-        f.point = {sx / double(f.ring.size()), sy / double(f.ring.size())};
+        const int n = t == wkbPolygon ? 1 : g->toMultiPolygon()->getNumGeometries();
+        for (int k = 0; k < n; ++k) {
+          const OGRPolygon* poly = t == wkbPolygon ? g->toPolygon() : g->toMultiPolygon()->getGeometryRef(k)->toPolygon();
+          GeoFeature f = base;
+          f.kind = FeatureKind::HeritageArea;
+          addRing(poly->getExteriorRing(), toWork, &f);
+          if (f.ring.size() < 3) continue;
+          for (int h = 0; h < poly->getNumInteriorRings(); ++h) {
+            GeoFeature hole;
+            addRing(poly->getInteriorRing(h), toWork, &hole);
+            if (hole.ring.size() >= 3) f.holes.push_back(std::move(hole.ring));
+          }
+          double sx = 0, sy = 0;
+          for (const Pt& p : f.ring) { sx += p.x; sy += p.y; }
+          f.point = {sx / double(f.ring.size()), sy / double(f.ring.size())};
+          f.id = n > 1 ? QStringLiteral("shp:%1/%2.%3").arg(category).arg(qint64(feat->GetFID())).arg(k)
+                       : QStringLiteral("shp:%1/%2").arg(category).arg(qint64(feat->GetFID()));
+          parts.push_back(std::move(f));
+        }
       } else if (t == wkbPoint) {
         double x = g->toPoint()->getX(), y = g->toPoint()->getY();
         if (!toWork.transform(&x, &y)) continue;
+        GeoFeature f = base;
         f.kind = FeatureKind::HeritagePoint;
         f.point = {x, y};
-      } else {
-        continue;
+        f.id = QStringLiteral("shp:%1/%2").arg(category).arg(qint64(feat->GetFID()));
+        parts.push_back(std::move(f));
       }
-      if (std::abs(f.point.x - req.centerX) > req.halfExtentM || std::abs(f.point.y - req.centerY) > req.halfExtentM) continue;
-      const QString key = QStringLiteral("%1|%2|%3|%4").arg(category).arg(f.name).arg(f.point.x, 0, 'f', 1).arg(f.point.y, 0, 'f', 1);
-      if (seen.contains(key)) continue;
-      seen.insert(key);
-      f.id = QStringLiteral("shp:%1/%2").arg(category).arg(qint64(feat->GetFID()));
-      out->push_back(std::move(f));
+      for (GeoFeature& f : parts) {
+        // 다각형은 외곽 상자가 창과 겹치면 담는다(중심이 창 밖인 큰 보호구역·현상변경허용기준을 놓치지 않게)
+        double x0 = f.point.x, x1 = f.point.x, y0 = f.point.y, y1 = f.point.y;
+        for (const Pt& q : f.ring) { x0 = std::min(x0, q.x); x1 = std::max(x1, q.x); y0 = std::min(y0, q.y); y1 = std::max(y1, q.y); }
+        if (x1 < req.centerX - req.halfExtentM || x0 > req.centerX + req.halfExtentM || y1 < req.centerY - req.halfExtentM ||
+            y0 > req.centerY + req.halfExtentM)
+          continue;
+        const QString key = QStringLiteral("%1|%2|%3|%4|%5").arg(category, f.name, f.attrs.value(QStringLiteral("구역명"))).arg(f.point.x, 0, 'f', 1).arg(f.point.y, 0, 'f', 1);
+        if (seen.contains(key)) continue;
+        seen.insert(key);
+        out->push_back(std::move(f));
+      }
     }
   }
   return true;

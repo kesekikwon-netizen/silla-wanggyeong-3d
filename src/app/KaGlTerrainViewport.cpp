@@ -14,6 +14,9 @@
 
 #include "AgxView.h"
 #include "Frustum.h"
+#include <QKeyEvent>
+
+#include "HeritageNaming.h"
 #include "KaTheme.h"
 #include "KaThemeFonts.h"
 #include "NishitaSky.h"
@@ -154,6 +157,14 @@ void KaGlTerrainViewport::setSatellite(const QImage& rgb, const QImage& detail, 
   update();
 }
 
+void KaGlTerrainViewport::setDrape(const QImage& image, const QImage& detail, double detailHalfM) {
+  pendingDrape_ = image.isNull() ? QImage() : image.convertToFormat(QImage::Format_RGBA8888);
+  pendingDrapeDetail_ = detail.isNull() ? QImage() : detail.convertToFormat(QImage::Format_RGBA8888);
+  drapeHalfM_ = detail.isNull() ? 0.0 : detailHalfM;
+  drapeChanged_ = true;
+  update();
+}
+
 void KaGlTerrainViewport::setSceneVisible(bool visible) {
   sceneVisible_ = visible;
   update();
@@ -162,6 +173,12 @@ void KaGlTerrainViewport::setSceneVisible(bool visible) {
 void KaGlTerrainViewport::setOverlay(std::shared_ptr<const strata3d::SceneMesh> overlay) {
   pendingOverlay_ = std::move(overlay);
   overlayChanged_ = true;
+  update();
+}
+
+void KaGlTerrainViewport::setSchematic(std::shared_ptr<const strata3d::SceneMesh> schematic) {
+  pendingSchematic_ = std::move(schematic);
+  schematicChanged_ = true;
   update();
 }
 
@@ -208,6 +225,10 @@ bool KaGlTerrainViewport::pickRay(const QPointF& pos, QVector3D* origin, QVector
 }
 
 void KaGlTerrainViewport::mouseDoubleClickEvent(QMouseEvent* e) {
+  if (tree_ && e->button() == Qt::LeftButton && drawMode_ == DrawMode::Sketch) {
+    emit sketchFinishRequested();
+    return;
+  }
   if (!tree_ || e->button() != Qt::LeftButton || drawMode_ != DrawMode::None) return;
   QVector3D o, d;
   if (pickRay(e->position(), &o, &d)) emit pickRequested(o, d);
@@ -224,7 +245,22 @@ void KaGlTerrainViewport::setDrawMode(DrawMode mode) {
 }
 
 void KaGlTerrainViewport::mouseReleaseEvent(QMouseEvent* e) {
-  if (drawMode_ == DrawMode::None || !tree_ || dragged_) return;
+  if (!tree_ || dragged_) return;
+  if (drawMode_ == DrawMode::None) {
+    if (e->button() != Qt::LeftButton) return;
+    for (const auto& [box, id] : placedLabelBoxes_) {
+      if (!id.isEmpty() && box.contains(e->position().toPoint())) {
+        emit calloutClicked(id);
+        return;
+      }
+    }
+    QVector3D o, d;
+    if (!pickRay(e->position(), &o, &d)) return;
+    // 목표점 거리에서 화면 1 px 의 지상 길이(수직 시야 45°)
+    const double pixelM = 2.0 * double(distance_) * std::tan(qDegreesToRadians(22.5)) / std::max(1, height());
+    emit selectRequested(o, d, pixelM);
+    return;
+  }
   if (e->button() == Qt::RightButton) {
     emit mapDrawCancelRequested();
     return;
@@ -394,7 +430,7 @@ void KaGlTerrainViewport::paintGL() {
   // 화면 배율(예: 150%)이 있으면 실제 프레임버퍼는 위젯 크기보다 크다 — 장치 픽셀로 그린다
   const qreal dpr = devicePixelRatioF();
   drawFrame(int(std::lround(width() * dpr)), int(std::lround(height() * dpr)), defaultFramebufferObject());
-  if (showCalloutLabels_ && !calloutLabels_.empty() && tree_) {
+  if (tree_) {  // 등급 범례·방위·높이 배율은 이름표를 꺼도 늘 보인다
     QPainter painter(this);
     paintHudAnnotations(&painter, width(), height());
   }
@@ -425,30 +461,29 @@ void KaGlTerrainViewport::paintHudAnnotations(QPainter* p, int w, int h) const {
 
   std::vector<QRect> placedRects;
 
-  // 1. 좌측 상단: 경주 주요 유적 3D 복원 안내 배너 (사용자 글씨·창 크기 배율 반영)
+  // 1. 좌측 상단: 자료 등급 범례(docs/BLUEPRINT.md 4장). 실측과 도식이 섞여 보이지 않게 늘 같이 보인다.
   if (showTopBanner_) {
-    const int bannerW = int(470 * boxScale);
-    const int bannerH = int(112 * boxScale);
+    const int bannerW = int(330 * boxScale);
+    const int bannerH = int(92 * boxScale);
     const QRect bannerRect(int(12 * boxScale), int(12 * boxScale), bannerW, bannerH);
-    p->setPen(QPen(QColor(255, 215, 110, 200), 1.5));
-    p->setBrush(QColor(18, 22, 28, 208));
+    p->setPen(QPen(QColor(194, 192, 182), 1.0));
+    p->setBrush(QColor(250, 249, 245, 236));
     p->drawRoundedRect(bannerRect, 7, 7);
 
-    p->setFont(makeFont(13, true));
-    p->setPen(QColor(255, 225, 130));
+    p->setFont(makeFont(12, true));
+    p->setPen(QColor(20, 20, 19));
     p->drawText(bannerRect.adjusted(int(10 * boxScale), int(6 * boxScale), -8, 0),
                 Qt::AlignTop | Qt::AlignLeft,
-                QStringLiteral("경주 신라 왕경 핵심 유적 3D 실측 복원 안내 (Ctrl+휠: 글씨·창 크기 조절)"));
+                QStringLiteral("자료 등급"));
 
     struct GuideRow {
       QColor dot;
       QString text;
     };
     const GuideRow rows[] = {
-        {QColor(210, 65, 45), QStringLiteral("대사찰·석탑 : 황룡사 9층목탑(80m)·중금당·회랑, 분황사 모전석탑, 황복사지 3층석탑")},
-        {QColor(35, 135, 225), QStringLiteral("왕궁·정원·교량 : 월성(초승달 성곽·해자·석빙고), 동궁과 월지(3섬·임해전), 월정교")},
-        {QColor(175, 135, 65), QStringLiteral("천문·왕경유적 : 국보 첨성대, 계림·내물왕릉, 경주향교·최부자댁, 성덕대왕신종")},
-        {QColor(65, 175, 75), QStringLiteral("신라 왕릉군 : 대릉원(황남대총 쌍분·천마총·미추왕릉), 봉황대, 금관총, 오릉")},
+        {QColor(20, 20, 19), QStringLiteral("A 실측 — 지형·위성·지정 위치·내 조사 자료")},
+        {QColor(143, 66, 41), QStringLiteral("B 근거 — 보고서 치수·쪽수를 확인한 모델")},
+        {QColor(150, 149, 144), QStringLiteral("D 도식 — 유형 틀 3D 모델(회색 선화), 실측 아님")},
     };
 
     p->setFont(makeFont(10, false));
@@ -458,7 +493,7 @@ void KaGlTerrainViewport::paintHudAnnotations(QPainter* p, int w, int h) const {
       p->setBrush(gr.dot);
       p->drawEllipse(QPointF(bannerRect.left() + 15 * boxScale, ry + 6 * boxScale),
                      4.0 * boxScale, 4.0 * boxScale);
-      p->setPen(QColor(242, 244, 248));
+      p->setPen(QColor(20, 20, 19));
       p->drawText(QRect(bannerRect.left() + int(25 * boxScale), ry,
                         bannerRect.width() - int(30 * boxScale), int(18 * boxScale)),
                   Qt::AlignVCenter | Qt::AlignLeft, gr.text);
@@ -467,15 +502,86 @@ void KaGlTerrainViewport::paintHudAnnotations(QPainter* p, int w, int h) const {
     placedRects.push_back(bannerRect.adjusted(-6, -6, 6, 6));
   }
 
-  // 2. 3D 공간 좌표 -> 2D 화면 투영 후 말풍선 라벨 그리기 (사용자 글씨·창 크기 배율 반영)
-  QFont catFont = makeFont(10, true);
-  QFont titleFont = makeFont(12, true);
-  QFont subFont = makeFont(10, false);
-  QFontMetrics fmCat(catFont);
-  QFontMetrics fmTitle(titleFont);
-  QFontMetrics fmSub(subFont);
+  // 오른쪽 위: 방위와 시점(방위각·고도각), 오른쪽 아래: 높이 배율. 원근 화면에는 축척이 하나로 정해지지 않으므로
+  // 축척 막대는 두지 않는다(설계도 v3 2장). 높이를 과장하면 숫자가 늘 보여야 한다.
+  {
+    auto chip = [&](const QString& text, bool top) {
+      p->setFont(makeFont(11, false));
+      const QFontMetrics cm(p->font());
+      const int cw = cm.horizontalAdvance(text) + int(20 * boxScale), ch = cm.height() + int(10 * boxScale);
+      const int m = int(12 * boxScale);
+      const QRect r(w - cw - m, top ? m : h - ch - m, cw, ch);
+      p->setPen(QPen(QColor(194, 192, 182), 1.0));
+      p->setBrush(QColor(250, 249, 245, 236));
+      p->drawRoundedRect(r, 7, 7);
+      p->setPen(QColor(20, 20, 19));
+      p->drawText(r, Qt::AlignCenter, text);
+      placedRects.push_back(r.adjusted(-6, -6, 6, 6));
+    };
+    // yaw 0 = 눈이 목표의 남쪽에 있어 북쪽을 본다(eyePosition). 시점 방위 = 보는 방향의 방위각(북 0°, 시계방향) = -yaw.
+    double look = std::fmod(360.0 - double(yawDeg_), 360.0);
+    if (look < 0) look += 360.0;
+    chip(QStringLiteral("N ↑ · 시점 방위 %1° · 고도 %2°").arg(look, 0, 'f', 0).arg(double(pitchDeg_), 0, 'f', 0), true);
+    chip(QStringLiteral("높이 ×%1").arg(double(zScale_), 0, 'f', 1), false);
+  }
+  // 왼쪽 아래: 지형에 입힌 구역·유산 면의 범례(분류 이름 = Strata 레이어 이름)
+  if (!zoneLegend_.empty()) {
+    p->setFont(makeFont(10, false));
+    const QFontMetrics lm(p->font());
+    const int rowH = lm.height() + int(4 * boxScale);
+    int textW = 0;
+    for (const auto& r : zoneLegend_) textW = std::max(textW, lm.horizontalAdvance(r.category));
+    const int sw = int(18 * boxScale), pad = int(10 * boxScale);
+    const QRect box(int(12 * boxScale), h - int(12 * boxScale) - (rowH * int(zoneLegend_.size()) + 2 * pad),
+                    pad * 3 + sw + textW, rowH * int(zoneLegend_.size()) + 2 * pad);
+    p->setPen(QPen(QColor(194, 192, 182), 1.0));
+    p->setBrush(QColor(250, 249, 245, 236));
+    p->drawRoundedRect(box, 7, 7);
+    int y = box.top() + pad;
+    for (const auto& r : zoneLegend_) {
+      const QRect s(box.left() + pad, y + (rowH - int(12 * boxScale)) / 2, sw, int(12 * boxScale));
+      QColor fill = r.style.fill;
+      fill.setAlpha(std::max(fill.alpha() * 3, fill.alpha() > 0 ? 90 : 0));  // 범례에서는 면 색이 읽히게 조금 진하게
+      p->setBrush(fill);
+      p->setPen(QPen(r.style.stroke, 1.6));
+      p->drawRect(s);
+      p->setPen(QColor(20, 20, 19));
+      p->drawText(QRect(s.right() + pad, y, textW + pad, rowH), Qt::AlignVCenter | Qt::AlignLeft, r.category);
+      y += rowH;
+    }
+    placedRects.push_back(box.adjusted(-6, -6, 6, 6));
+  }
+  // 조사구역 같은 「비워 둘 자리」: 화면 상자를 막아 이름표가 그 위에 앉지 않게 한다(화면 절반보다 크면 막지 않음)
+  for (const auto& ring : keepClear_) {
+    QRectF r;
+    bool any = false;
+    for (const auto& q : ring) {
+      float gz = 0.5f * (g.zMin + g.zMax);
+      g.sample(q.x, q.y, &gz);
+      const QVector4D clip = lastViewProj_ * QVector4D(float(q.x - cx), float(q.y - cy), gz * zScale_, 1.0f);
+      if (clip.w() <= 0.1f) continue;
+      const QVector3D ndc = clip.toVector3DAffine();
+      const QPointF sp((ndc.x() * 0.5f + 0.5f) * float(w), (1.0f - (ndc.y() * 0.5f + 0.5f)) * float(h));
+      r = any ? r.united(QRectF(sp, QSizeF(1, 1))) : QRectF(sp, QSizeF(1, 1));
+      any = true;
+    }
+    if (any && r.width() * r.height() < 0.5 * w * h) placedRects.push_back(r.toAlignedRect().adjusted(-6, -6, 6, 6));
+  }
+  if (!showCalloutLabels_) {
+    placedLabelBoxes_.clear();
+    p->restore();
+    return;
+  }
 
-  // 카메라 목표점(target_)에 가까운 유적 이름표를 우선 배치하여 311개 전체 유적 중 현재 화면에 맞는 라벨이 깔끔하게 표시되도록 정렬
+  // 2. 유적 이름표: 유적 이름만(지정번호·종목·부제 없음), 조용한 도판(종이 바탕·먹 글씨·가는 지시선).
+  //    가까운 것부터 자리를 잡고, 8방향 어디에도 겹치지 않는 자리가 없으면 그리지 않는다(글자가 서로 가리지 않게).
+  //    크기는 Ctrl+휠 / Ctrl+= / Ctrl+- 또는 오른쪽 「글씨 크기」로 바꾼다(hudFontScale_).
+  const QFont nameFont = makeFont(12, false);
+  const QFontMetrics fm(nameFont);
+  const QColor paper = KaTheme::tokens().surface;
+  const QColor ink = KaTheme::tokens().ink;
+  const QColor rule = KaTheme::tokens().border;
+
   std::vector<size_t> order(calloutLabels_.size());
   for (size_t i = 0; i < order.size(); ++i) order[i] = i;
   const double tgtWorldX = cx + double(target_.x());
@@ -488,118 +594,64 @@ void KaGlTerrainViewport::paintHudAnnotations(QPainter* p, int w, int h) const {
     return da < db;
   });
 
-  int drawnLabels = 0;
+  // 핀 자리도 막아 둔다(이름표가 다른 유적의 핀을 덮지 않게)
+  std::vector<QRect> pins;
+  struct Placed { QRect box; QPoint pin; QString text; QColor dot; QString id; };
+  std::vector<Placed> placed;
+  const int padX = std::max(4, int(std::lround(7 * fontScale)));
+  const int padY = std::max(2, int(std::lround(3 * fontScale)));
+  const int lift = int(std::lround(18 * fontScale));
   for (size_t idx : order) {
-    if (drawnLabels >= 28) break;  // 한 화면 최대 28개 말풍선으로 가독성 유지
+    if (placed.size() >= 80) break;
     const CalloutLabel3D& lbl = calloutLabels_[idx];
+    const QString text = strata3d::siteNameOnly(lbl.title);
+    if (text.isEmpty()) continue;
     float groundZ = 0.5f * (g.zMin + g.zMax);
-    if (!g.sample(lbl.worldX, lbl.worldY, &groundZ)) {
-      const double clampedX = std::clamp(lbl.worldX, g.originX, g.originX + (g.width - 1) * g.pixelSize);
-      const double clampedY = std::clamp(lbl.worldY, g.originY - (g.height - 1) * g.pixelSize, g.originY);
-      g.sample(clampedX, clampedY, &groundZ);
-    }
-
-    const QVector3D localAnchor(float(lbl.worldX - cx),
-                                float(lbl.worldY - cy),
-                                (groundZ + lbl.heightAboveGroundM) * zScale_);
+    if (!g.sample(lbl.worldX, lbl.worldY, &groundZ)) continue;  // 지형 밖 유적은 이름표를 달지 않는다
+    const QVector3D localAnchor(float(lbl.worldX - cx), float(lbl.worldY - cy), (groundZ + lbl.heightAboveGroundM) * zScale_);
     const QVector4D clip = lastViewProj_ * QVector4D(localAnchor, 1.0f);
-    if (clip.w() <= 0.1f) continue;  // 카메라 뒤쪽
+    if (clip.w() <= 0.1f) continue;
     const QVector3D ndc = clip.toVector3DAffine();
-    if (ndc.x() < -0.96f || ndc.x() > 0.96f || ndc.y() < -0.94f || ndc.y() > 0.94f || ndc.z() > 1.0f) {
-      continue;
+    if (ndc.x() < -0.98f || ndc.x() > 0.98f || ndc.y() < -0.98f || ndc.y() > 0.98f || ndc.z() > 1.0f) continue;
+    const QPoint pin(int((ndc.x() * 0.5f + 0.5f) * float(w)), int((1.0f - (ndc.y() * 0.5f + 0.5f)) * float(h)));
+
+    const int bw = fm.horizontalAdvance(text) + 2 * padX, bh = fm.height() + 2 * padY;
+    const QPoint offs[] = {{-bw / 2, -lift - bh}, {lift / 2, -lift / 2 - bh}, {-bw - lift / 2, -lift / 2 - bh}, {lift, -bh / 2},
+                           {-bw - lift, -bh / 2}, {-bw / 2, lift}, {lift / 2, lift / 2}, {-bw - lift / 2, lift / 2}};
+    const QRect pinRect(pin.x() - 5, pin.y() - 5, 10, 10);
+    bool ok = false;
+    QRect box;
+    for (const QPoint& o : offs) {
+      box = QRect(pin + o, QSize(bw, bh));
+      if (box.left() < 4 || box.top() < 4 || box.right() > w - 4 || box.bottom() > h - 4) continue;
+      const QRect pad = box.adjusted(-3, -2, 3, 2);
+      bool hit = false;
+      for (const QRect& r : placedRects) if (r.intersects(pad)) { hit = true; break; }
+      if (!hit) for (const Placed& q : placed) if (q.box.intersects(pad)) { hit = true; break; }
+      if (!hit) for (const QRect& r : pins) if (r.intersects(pad)) { hit = true; break; }
+      if (!hit) { ok = true; break; }
     }
+    if (!ok) continue;
+    pins.push_back(pinRect);
+    placed.push_back({box, pin, text, lbl.badgeColor, lbl.featureId});
+  }
 
-    const int sx = int((ndc.x() * 0.5f + 0.5f) * float(w));
-    const int sy = int((1.0f - (ndc.y() * 0.5f + 0.5f)) * float(h));
-
-    const bool drawSub = !lbl.subtitle.isEmpty() && hudBoxScale_ >= 0.68f;
-    const int padX = int(10 * boxScale);
-    const int catW = fmCat.horizontalAdvance(lbl.category) + int(10 * boxScale);
-    const int titleW = fmTitle.horizontalAdvance(lbl.title);
-    const int subW = drawSub ? fmSub.horizontalAdvance(lbl.subtitle) : 0;
-    const int contentW = std::max(catW + titleW + int(18 * boxScale), subW + int(16 * boxScale));
-    const int boxW = std::max(int(90 * boxScale), int(contentW * (0.65 + 0.35 * (hudBoxScale_ / std::max(0.45f, hudFontScale_)))) + padX);
-    const int row1H = std::max(fmTitle.height() + int(6 * boxScale), int(22 * boxScale));
-    const int row2H = drawSub ? (fmSub.height() + int(4 * boxScale)) : 0;
-    const int boxH = row1H + row2H + int(6 * boxScale);
-
-    // 지시선 위로 살짝 띄운 기본 위치, 겹치면 위/좌/우로 오프셋 탐색
-    const int pinOffset = int(22 * boxScale);
-    QRect candidate(sx - boxW / 2, sy - pinOffset - boxH, boxW, boxH);
-    bool Placed = false;
-    const QPoint offsets[] = {
-        {0, 0}, {0, -int(30 * boxScale)}, {int(42 * boxScale), -int(12 * boxScale)},
-        {-int(42 * boxScale), -int(12 * boxScale)}, {0, int(36 * boxScale)}};
-    for (const QPoint& off : offsets) {
-      QRect tryRect = candidate.translated(off);
-      tryRect.moveLeft(std::clamp(tryRect.left(), 6, std::max(6, w - boxW - 6)));
-      tryRect.moveTop(std::clamp(tryRect.top(), 6, std::max(6, h - boxH - 6)));
-      bool overlap = false;
-      for (const QRect& ex : placedRects) {
-        if (ex.intersects(tryRect.adjusted(-3, -3, 3, 3))) {
-          overlap = true;
-          break;
-        }
-      }
-      if (!overlap) {
-        candidate = tryRect;
-        Placed = true;
-        break;
-      }
-    }
-    if (!Placed) continue;
-    placedRects.push_back(candidate);
-    ++drawnLabels;
-
-    // 3D 목표점 동그라미 핀 + 지시선
-    const QPoint boxConnect(std::clamp(sx, candidate.left() + 8, candidate.right() - 8),
-                            candidate.bottom() < sy ? candidate.bottom() : candidate.top());
-    p->setPen(QPen(QColor(0, 0, 0, 185), 2.8));
-    p->drawLine(QPoint(sx, sy), boxConnect);
-    p->setPen(QPen(lbl.badgeColor.lighter(135), 1.6));
-    p->drawLine(QPoint(sx, sy), boxConnect);
-
-    p->setPen(QPen(QColor(255, 255, 255), 1.6));
-    p->setBrush(lbl.badgeColor);
-    p->drawEllipse(QPointF(sx, sy), 4.0 * boxScale, 4.0 * boxScale);
-
-    // 배지 배경 카드
-    p->setPen(QPen(lbl.badgeColor.lighter(130), 1.5));
-    p->setBrush(QColor(20, 24, 31, 218));
-    p->drawRoundedRect(candidate, 5, 5);
-
-    // 좌측 카테고리 태그 알약
-    const QRect pillRect(candidate.left() + int(5 * boxScale),
-                         candidate.top() + int(4 * boxScale),
-                         catW,
-                         row1H - int(4 * boxScale));
-    p->setPen(Qt::NoPen);
-    p->setBrush(lbl.badgeColor);
-    p->drawRoundedRect(pillRect, 4, 4);
-
-    p->setFont(catFont);
-    p->setPen(QColor(255, 255, 255));
-    p->drawText(pillRect, Qt::AlignCenter, lbl.category);
-
-    // 제목
-    p->setFont(titleFont);
-    p->setPen(QColor(255, 250, 235));
-    p->drawText(QRect(pillRect.right() + int(6 * boxScale),
-                      candidate.top() + int(3 * boxScale),
-                      candidate.width() - catW - int(14 * boxScale),
-                      row1H),
-                Qt::AlignVCenter | Qt::AlignLeft, lbl.title);
-
-    // 부제목(쉬운 설명)
-    if (drawSub) {
-      p->setFont(subFont);
-      p->setPen(QColor(205, 215, 228));
-      p->drawText(QRect(candidate.left() + int(7 * boxScale),
-                        candidate.top() + row1H + int(1 * boxScale),
-                        candidate.width() - int(12 * boxScale),
-                        row2H),
-                  Qt::AlignVCenter | Qt::AlignLeft, lbl.subtitle);
-    }
+  placedLabelBoxes_.clear();
+  p->setFont(nameFont);
+  for (const Placed& q : placed) {
+    placedLabelBoxes_.emplace_back(q.box, q.id);
+    const QPoint join(std::clamp(q.pin.x(), q.box.left() + 2, q.box.right() - 2),
+                      q.pin.y() < q.box.top() ? q.box.top() : (q.pin.y() > q.box.bottom() ? q.box.bottom() : q.pin.y()));
+    p->setPen(QPen(ink, 1.0));
+    p->drawLine(q.pin, join);
+    p->setPen(QPen(paper, 1.4));
+    p->setBrush(q.dot);
+    p->drawEllipse(QPointF(q.pin), 3.2 * fontScale, 3.2 * fontScale);
+    p->setPen(QPen(rule, 1.0));
+    p->setBrush(QColor(paper.red(), paper.green(), paper.blue(), 236));
+    p->drawRoundedRect(q.box, 3, 3);
+    p->setPen(ink);
+    p->drawText(q.box, Qt::AlignCenter, q.text);
   }
 
   p->restore();
@@ -616,6 +668,11 @@ void KaGlTerrainViewport::drawFrame(int w, int h, unsigned targetFbo) {
     overlayChanged_ = false;
     uploadMesh(&overlayMesh_, pendingOverlay_);
     pendingOverlay_.reset();
+  }
+  if (schematicChanged_) {
+    schematicChanged_ = false;
+    uploadMesh(&schematicMesh_, pendingSchematic_);
+    pendingSchematic_.reset();
   }
   if (!pendingSat_.isNull()) {
     if (satTex_) glDeleteTextures(1, &satTex_);
@@ -646,6 +703,27 @@ void KaGlTerrainViewport::drawFrame(int w, int h, unsigned targetFbo) {
     glTexParameterf(GL_TEXTURE_2D, 0x84FE, 8.0f);
     pendingDetail_ = QImage();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+  }
+  if (drapeChanged_) {
+    drapeChanged_ = false;
+    auto upload = [this](unsigned* tex, QImage* img) {
+      if (*tex) glDeleteTextures(1, tex);
+      *tex = 0;
+      if (img->isNull()) return;
+      glGenTextures(1, tex);
+      glBindTexture(GL_TEXTURE_2D, *tex);
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, img->width(), img->height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, img->constBits());
+      glGenerateMipmap(GL_TEXTURE_2D);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      glTexParameterf(GL_TEXTURE_2D, 0x84FE, 8.0f);
+      *img = QImage();
+    };
+    upload(&drapeTex_, &pendingDrape_);
+    upload(&drapeDetailTex_, &pendingDrapeDetail_);
   }
   if (!pipeline_.ready()) return;
   if (!tree_ || !heightTex_) {
@@ -704,6 +782,16 @@ void KaGlTerrainViewport::drawFrame(int w, int h, unsigned targetFbo) {
   const float half = detailTex_ ? float(detailHalfM_ / span) : 0.0f;  // uv 에서 절반 폭(창은 DEM 한가운데)
   glUniform4f(glGetUniformLocation(program_, "uDetailRect"), 0.5f - half, 0.5f - half, 0.5f + half, 0.5f + half);
   glUniform1i(glGetUniformLocation(program_, "uHasDetail"), detailTex_ ? 1 : 0);
+  glActiveTexture(GL_TEXTURE3);
+  glBindTexture(GL_TEXTURE_2D, drapeTex_);
+  glUniform1i(glGetUniformLocation(program_, "uDrape"), 3);
+  glActiveTexture(GL_TEXTURE4);
+  glBindTexture(GL_TEXTURE_2D, drapeDetailTex_);
+  glUniform1i(glGetUniformLocation(program_, "uDrapeDetail"), 4);
+  glUniform1i(glGetUniformLocation(program_, "uHasDrape"), drapeTex_ ? 1 : 0);
+  glUniform1i(glGetUniformLocation(program_, "uHasDrapeDetail"), drapeDetailTex_ ? 1 : 0);
+  const float dhalf = drapeDetailTex_ ? float(drapeHalfM_ / span) : 0.0f;
+  glUniform4f(glGetUniformLocation(program_, "uDrapeRect"), 0.5f - dhalf, 0.5f - dhalf, 0.5f + dhalf, 0.5f + dhalf);
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, satTex_);
   glUniform1i(glGetUniformLocation(program_, "uSat"), 1);
@@ -732,6 +820,12 @@ void KaGlTerrainViewport::drawFrame(int w, int h, unsigned targetFbo) {
     glBindVertexArray(overlayMesh_.vao);
     glDrawElements(GL_TRIANGLES, overlayMesh_.count, GL_UNSIGNED_INT, nullptr);
   }
+  if (schematicMesh_.count > 0) {  // 도식 모델은 선화: 면을 칠하면 실측 건물처럼 읽힌다
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glBindVertexArray(schematicMesh_.vao);
+    glDrawElements(GL_TRIANGLES, schematicMesh_.count, GL_UNSIGNED_INT, nullptr);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
   glBindVertexArray(0);
   pipeline_.drawSky(vp, params_);
   params_.ambientOcclusion = aoEnabled_;
@@ -755,15 +849,29 @@ void KaGlTerrainViewport::mouseMoveEvent(QMouseEvent* e) {
     const float k = distance_ * 0.0015f;
     target_ += QVector3D(std::cos(yaw), std::sin(yaw), 0) * (-d.x() * k) + QVector3D(-std::sin(yaw), std::cos(yaw), 0) * (d.y() * k);
   } else {
-    if ((drawMode_ == DrawMode::UserLine || drawMode_ == DrawMode::UserGrid) && tree_) {
+    if (tree_) {
       QVector3D o, dir;
-      if (pickRay(e->position(), &o, &dir)) {
-        emit mapHoverRay(int(drawMode_), o, dir);
-      }
+      if (pickRay(e->position(), &o, &dir)) emit mapHoverRay(int(drawMode_), o, dir);
     }
     return;
   }
   update();
+}
+
+void KaGlTerrainViewport::keyPressEvent(QKeyEvent* e) {
+  if (e->modifiers() & Qt::ControlModifier) {
+    float s = hudFontScale_;
+    if (e->key() == Qt::Key_Equal || e->key() == Qt::Key_Plus) s += 0.08f;
+    else if (e->key() == Qt::Key_Minus) s -= 0.08f;
+    else if (e->key() == Qt::Key_0) s = 0.85f;
+    else return QOpenGLWidget::keyPressEvent(e);
+    hudFontScale_ = std::clamp(s, 0.45f, 2.40f);
+    hudBoxScale_ = hudFontScale_;
+    emit hudScaleChanged(hudFontScale_, hudBoxScale_);
+    update();
+    return;
+  }
+  QOpenGLWidget::keyPressEvent(e);
 }
 
 void KaGlTerrainViewport::wheelEvent(QWheelEvent* e) {

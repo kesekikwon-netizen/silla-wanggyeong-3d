@@ -26,7 +26,13 @@ struct SceneMesh {
 };
 
 struct SceneStyle {
-  float unknownHeightM = 6.0f;  // 높이 태그가 없는 건물을 세울 때의 추정 높이(실측 아님)
+  // 건물은 바닥 외곽선(지형에 붙는 띠)만 그린다. 높이는 OSM 태그일 뿐 측량이 아니고, 태그가 없으면
+  // 추정 높이로 세워야 하므로 세우지 않는다(설계도 v3 10장). false 면 예전처럼 세운다(시험용).
+  bool footprintOnly = true;
+  float footprintWidthM = 1.2f;
+  // 유산·구역 면은 지형 텍스처에 칠한다(DrapeRaster). true 면 띠로 세우지 않고 세기만 한다.
+  bool drapeAreas = true;
+  float unknownHeightM = 6.0f;  // footprintOnly=false 일 때 높이 태그가 없는 건물의 추정 높이(실측 아님)
   float markerHeightM = 45.0f;  // 점 지물 표지 기둥 높이
   float markerWidthM = 5.0f;
   float ribbonWidthM = 3.0f;

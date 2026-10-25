@@ -16,4 +16,14 @@ QStringList strataHeritageShpPaths();
 bool loadLocalVectors(const FeatureRequest& req, const QStringList& paths, std::vector<GeoFeature>* out,
                       QStringList* skippedOut = nullptr);
 
+// 읽을 레이어 하나: 파일, 그 안의 레이어(비면 첫 레이어), 분류 이름(GeoFeature::category), 이름 필드(비면 자동).
+struct LocalVectorSource {
+  QString path;
+  QString subLayer;
+  QString category;
+  QString nameField;
+};
+bool loadLocalVectorSources(const FeatureRequest& req, const std::vector<LocalVectorSource>& sources,
+                            std::vector<GeoFeature>* out, QStringList* skippedOut = nullptr);
+
 }  // namespace strata3d

@@ -20,6 +20,7 @@ struct NearbyItem {
   QString bearingName;    // 16방위
   double elevationM = 0;  // 지물 대표점의 DEM 표고
   double deltaElevM = 0;  // 조사지 대비
+  Pt point;               // 지물 대표점(작업 좌표계)
 };
 
 struct TerrainMetrics {
@@ -43,19 +44,13 @@ struct RadiusResult {
   int buildings = 0;
 };
 
-struct VisibilityItem {
-  QString name, category;
-  double distanceM = 0;
-  bool visible = false;
-  double blockedAtM = 0;  // 가려졌다면 시선이 지형에 닿은 거리
-};
-
+// 시선·가시권은 계산하지 않는다(2026-10-25 사용자 결정: 옛 지형·건물 높이·수목을 모르는 채 내는 값은 추정이라
+// 고고학 근거로 쓸 수 없다). docs/research/TECH_2026.md 3.2.
 struct Evaluation {
   Pt site;
   std::vector<Pt> sitePolygon;
   TerrainMetrics terrain;
   std::vector<RadiusResult> radii;
-  std::vector<VisibilityItem> visibility;
   QStringList notes;  // 계산에 쓰지 못한 것, 가정 등
   QString crs;        // 이 결과의 좌표계(DEM 격자와 같다)
   QString summary;    // 한국어 요약(계산값만 서술)
@@ -76,8 +71,9 @@ class Archaeology3dEvaluator {
                       const std::vector<double>& radiiM = {500.0, 1000.0}) const;
   // 두 점 사이 지형 단면(시굴 트렌치의 지표면 윤곽). step 간격 표본.
   std::vector<ProfilePoint> terrainProfile(const Pt& a, const Pt& b, double stepM) const;
-  // 눈(지상 높이 포함)에서 목표까지 시선이 지형에 가리는지. 가리면 닿은 거리.
-  bool lineOfSight(const Pt& from, double fromAboveGround, const Pt& to, double toAboveGround, double* blockedAtM) const;
+
+  // 한 점의 경사·향·TPI·Weiss 지형 분류
+  TerrainMetrics terrainMetricsAt(const Pt& p) const { return terrainAt(p); }
 
   const TerrainBvh& terrain() const { return *bvh_; }
   const DemGrid& dem() const { return *dem_; }
@@ -92,6 +88,7 @@ class Archaeology3dEvaluator {
   KdTree3 tree_;
   double maxReachM_ = 0;
   std::vector<float> tpiSmall_, tpiLarge_;
+  std::vector<float> slopeDeg_;  // Strata DemAnalyzer::slopeDegrees 결과(칸마다)
   double sdSmall_ = 1, sdLarge_ = 1;
 };
 

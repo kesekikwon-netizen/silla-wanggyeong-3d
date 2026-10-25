@@ -67,6 +67,17 @@ std::shared_ptr<const SceneMesh> buildSceneMesh(const DemGrid& dem, const std::v
         base = std::min(base, ground[i]);
       }
       if (!inside) { ++mesh->skipped; continue; }
+      if (style.footprintOnly) {
+        if (!appendDrapedRibbon(mesh.get(), dem, ring, true, style.footprintWidthM, {0.36f, 0.36f, 0.35f, 1}, 0.4f)) {
+          ++mesh->skipped;
+          continue;
+        }
+        ++mesh->buildings;
+        if (f.heightSource == HeightSource::Measured) ++mesh->heightMeasured;
+        else if (f.heightSource == HeightSource::FromLevels) ++mesh->heightFromLevels;
+        else ++mesh->heightUnknown;
+        continue;
+      }
       const float height = f.heightSource == HeightSource::Unknown ? style.unknownHeightM : float(f.heightM);
       const float top = base + std::max(height, 2.0f);
       const Color col = buildingColor(f);
@@ -86,6 +97,10 @@ std::shared_ptr<const SceneMesh> buildSceneMesh(const DemGrid& dem, const std::v
       else if (f.heightSource == HeightSource::FromLevels) ++mesh->heightFromLevels;
       else ++mesh->heightUnknown;
     } else if (f.kind == FeatureKind::HeritageArea) {
+      if (style.drapeAreas) {
+        ++mesh->heritageAreas;
+        continue;
+      }
       if (!appendDrapedRibbon(mesh.get(), dem, f.ring, true, style.ribbonWidthM, {0.90f, 0.20f, 0.18f, 1}, 1.0f)) {
         ++mesh->skipped;
         continue;

@@ -1,0 +1,14 @@
+<RCC>
+  <!-- Strata 3D 전용 단추 아이콘. Strata(hgis) icons-mockup.qrc 와 같은 Lucide 1.49.0(ISC, lucide/LICENSE-lucide.txt). -->
+  <qresource prefix="/strata-3d/icons">
+    <file alias="lucide/arrow-down-to-line.svg">lucide/arrow-down-to-line.svg</file>
+    <file alias="lucide/badge-check.svg">lucide/badge-check.svg</file>
+    <file alias="lucide/layers-2.svg">lucide/layers-2.svg</file>
+    <file alias="lucide/list-checks.svg">lucide/list-checks.svg</file>
+    <file alias="lucide/move-vertical.svg">lucide/move-vertical.svg</file>
+    <file alias="lucide/rotate-3d.svg">lucide/rotate-3d.svg</file>
+    <file alias="lucide/shield-check.svg">lucide/shield-check.svg</file>
+    <file alias="lucide/table-2.svg">lucide/table-2.svg</file>
+    <file alias="lucide/tag.svg">lucide/tag.svg</file>
+  </qresource>
+</RCC>

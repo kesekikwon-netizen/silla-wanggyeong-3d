@@ -440,18 +440,9 @@ class TestStrata3d : public QObject {
     QVERIFY(top.terrain.slopeDeg > basin.terrain.slopeDeg);
   }
 
-  void evaluatorVisibilityAndProfile() {
+  void evaluatorProfile() {
     QVERIFY(!khs_.empty());
     Archaeology3dEvaluator ev(dem_, khs_);
-    const Evaluation e = ev.evaluate({cx_, cy_}, {}, {1000.0});
-    int vis = 0;
-    for (const VisibilityItem& v : e.visibility) {
-      if (v.visible) ++vis;
-      else QVERIFY(v.blockedAtM > 0 && v.blockedAtM < v.distanceM);
-    }
-    qInfo() << "시야 대상" << int(e.visibility.size()) << "곳 중 보이는 곳" << vis;
-    QVERIFY(!e.visibility.empty());
-    QVERIFY(vis >= 1);  // 평지 안에서는 가까운 사적이 지형에 가리지 않는다
     const auto prof = ev.terrainProfile({cx_, cy_}, {cx_ + 600, cy_ + 300}, 10);
     QVERIFY(prof.size() > 50);
     float z0 = 0;
@@ -575,6 +566,7 @@ class TestStrata3d : public QObject {
     QString err;
     QVERIFY2(loadSatelliteImage(sr, &res, &err), qPrintable(err));
     qInfo() << "위성 출처" << res.sourceName << "대략 타일 단계" << res.zoomLevel;
+    QCOMPARE(res.sourceName, QStringLiteral("VWorld Satellite WMTS"));  // Google 은 약관상 쓰지 않는다
     QCOMPARE(res.image.width(), 1024);
     QCOMPARE(res.image.height(), 1024);
     // 단색이 아니고, 밝기가 다양하며, 검은 빈칸이 거의 없어야 한다.
@@ -598,12 +590,12 @@ class TestStrata3d : public QObject {
 
   void vworldKeyIsCheckedAgainstRealService() {
     const QString key = loadVworldApiKey();
-    if (key.isEmpty()) QSKIP("VWorld 키가 이 PC에 없다");
+    QVERIFY2(!key.isEmpty(), "Strata 설정에 VWorld 키가 없다");
     QString reason;
     const bool ok = checkVworldApiKey(key, &reason);
     qInfo() << "VWorld 키 확인:" << ok << reason;
     QVERIFY(!reason.contains(key));  // 키 값은 사유에 새지 않는다
-    if (!ok) QVERIFY(reason.contains("VWorld"));
+    QVERIFY2(ok, qPrintable(reason));  // Referer 를 붙이면 Strata 의 키가 통한다
   }
 
   void localStrataShpCacheReadsWithoutWriting() {
@@ -614,7 +606,12 @@ class TestStrata3d : public QObject {
     FeatureRequest fr = featureRequest(30000);
     QVERIFY(loadLocalVectors(fr, paths, &out, &skipped));
     qInfo() << "로컬 SHP 파일" << paths.size() << "건너뜀" << skipped.size() << "창 안 지물" << int(out.size());
-    for (const GeoFeature& f : out) QVERIFY(std::abs(f.point.x - cx_) <= 30000);
+    // 다각형은 외곽 상자가 창과 겹치면 담는다(중심이 창 밖인 큰 구역도 판정에 필요). 점은 창 안.
+    for (const GeoFeature& f : out) {
+      double x0 = f.point.x, x1 = f.point.x;
+      for (const Pt& q : f.ring) { x0 = std::min(x0, q.x); x1 = std::max(x1, q.x); }
+      QVERIFY(x1 >= cx_ - 30000 && x0 <= cx_ + 30000);
+    }
   }
 };
 

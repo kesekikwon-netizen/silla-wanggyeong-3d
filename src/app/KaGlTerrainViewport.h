@@ -11,6 +11,7 @@
 #include <memory>
 #include <vector>
 
+#include "DrapeRaster.h"
 #include "HdrPipeline.h"
 #include "SceneMesh.h"
 #include "TerrainLodTree.h"
@@ -21,7 +22,7 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   Q_OBJECT
  public:
   enum class Mode { Clay = 0, Elevation = 1, Slope = 2, Satellite = 3 };
-  enum class DrawMode { None = 0, Trench = 1, UserLine = 2, UserGrid = 3 };
+  enum class DrawMode { None = 0, Trench = 1, UserLine = 2, UserGrid = 3, Sketch = 4 };  // Sketch: 꼭짓점 여러 개(조사 레이어 그리기)
 
   struct FrameStats {
     int chunks = 0;
@@ -39,6 +40,7 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
     QString subtitle;  // 예: "신라 수도 중심 랜드마크"
     QColor badgeColor = QColor(200, 120, 20);
     bool important = true;
+    QString featureId;  // 고를 수 있는 지물이면 그 id(GeoFeature::id). 이름표를 누르면 calloutClicked 로 나간다
   };
 
   explicit KaGlTerrainViewport(QWidget* parent = nullptr);
@@ -51,6 +53,8 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   bool ambientOcclusion() const { return aoEnabled_; }
   // 평가 결과 띠·기둥(버퍼 고리 등). nullptr 이면 지운다.
   void setOverlay(std::shared_ptr<const strata3d::SceneMesh> overlay);
+  // 도식(D) 모델. 면을 칠하지 않고 회색 선화로만 그린다(실측 지물과 섞여 보이지 않게). nullptr 이면 지운다.
+  void setSchematic(std::shared_ptr<const strata3d::SceneMesh> schematic);
   // 3D 화면 위에 띄울 직관적 안내 이름표(유적·대로·왕릉·방리 블록 설명)
   void setCalloutLabels(std::vector<CalloutLabel3D> labels);
   void setShowCalloutLabels(bool show);
@@ -68,10 +72,19 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   // 위젯 크기와 상관없이 지정한 크기로 한 장 그린다(FBO). 도면용 고해상도 캡처.
   QImage renderToImage(int width, int height);
   float yawDegrees() const { return yawDeg_; }
+  float pitchDegrees() const { return pitchDeg_; }
+  float distanceM() const { return distance_; }
+  float zScale() const { return zScale_; }
   float visibleWidthAtTargetM(float aspect) const;
   // DEM 격자와 같은 범위의 위성 실사(행 0 = 북). 올리면 위성 보기로 바뀐다.
   // detail 은 같은 중심의 고해상도 창(한 변 절반 detailHalfM 미터). 비어 있으면 쓰지 않는다.
   void setSatellite(const QImage& rgb, const QImage& detail = QImage(), double detailHalfM = 0);
+  // 지형에 입히는 구역·유산 면(DrapeRaster). detail 은 같은 가운데의 고해상도 창. 빈 그림이면 지운다.
+  void setDrape(const QImage& image, const QImage& detail = QImage(), double detailHalfM = 0);
+  // 왼쪽 아래 구역 범례(지형에 입힌 분류와 색). 비우면 범례를 그리지 않는다.
+  // 이름표가 덮지 않을 자리(작업 좌표계 고리, 예: 조사구역). 화면에 그린 자리의 상자를 비워 둔다.
+  void setKeepClear(std::vector<std::vector<strata3d::Pt>> rings) { keepClear_ = std::move(rings); update(); }
+  void setZoneLegend(std::vector<strata3d::DrapeLegendRow> rows) { zoneLegend_ = std::move(rows); update(); }
   bool hasSatellite() const { return satTex_ != 0 || !pendingSat_.isNull(); }
   void setMode(Mode mode);
   void setZScale(float zScale);
@@ -89,14 +102,20 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
  signals:
   // 더블클릭한 화면 점에서 나가는 시선(지역 미터 좌표, 방향은 정규화)
   void pickRequested(const QVector3D& origin, const QVector3D& direction);
+  // 그리기 모드가 아닐 때 끌지 않고 한 번 누른 점의 시선(고르기). pixelM = 그 거리에서 화면 1 px 의 지상 길이(m)
+  void selectRequested(const QVector3D& origin, const QVector3D& direction, double pixelM);
+  // 이름표를 눌렀다(CalloutLabel3D::featureId)
+  void calloutClicked(const QString& featureId);
   // 트렌치 그리기 모드에서 끌지 않고 한 번 누른 화면 점의 시선
   void trenchPointRequested(const QVector3D& origin, const QVector3D& direction);
   // 사용자 3D 선 긋기 / 격자 만들기 모드에서 끌지 않고 누른 화면 점의 시선
   void mapDrawPointRequested(int drawMode, const QVector3D& origin, const QVector3D& direction);
-  // 사용자 3D 선 긋기 / 격자 만들기 모드에서 마우스 이동 시 실시간 미리보기 시선
+  // 마우스를 움직일 때(누르지 않은 채)의 시선. 그리기 모드면 미리보기, 아니어도 상태줄의 좌표·표고에 쓴다
   void mapHoverRay(int drawMode, const QVector3D& origin, const QVector3D& direction);
   // 그리기 중 우클릭 취소 요청
   void mapDrawCancelRequested();
+  // Sketch 모드에서 두 번 눌렀다(도형 마치기)
+  void sketchFinishRequested();
   void frameRendered();
   void terrainUploaded();
   void hudScaleChanged(float fontScale, float boxScale);
@@ -109,6 +128,7 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   void mouseMoveEvent(QMouseEvent* e) override;
   void mouseReleaseEvent(QMouseEvent* e) override;
   void wheelEvent(QWheelEvent* e) override;
+  void keyPressEvent(QKeyEvent* e) override;  // Ctrl+= / Ctrl+- / Ctrl+0: 이름표 크기
   void mouseDoubleClickEvent(QMouseEvent* e) override;
 
  private:
@@ -161,6 +181,12 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   double detailHalfM_ = 0;
   unsigned satTex_ = 0;
   unsigned detailTex_ = 0;
+  QImage pendingDrape_, pendingDrapeDetail_;
+  bool drapeChanged_ = false;
+  double drapeHalfM_ = 0;
+  unsigned drapeTex_ = 0, drapeDetailTex_ = 0;
+  std::vector<strata3d::DrapeLegendRow> zoneLegend_;
+  std::vector<std::vector<strata3d::Pt>> keepClear_;
   // 건물·유적
   std::shared_ptr<const strata3d::SceneMesh> pendingScene_;
   bool sceneChanged_ = false;
@@ -170,7 +196,11 @@ class KaGlTerrainViewport : public QOpenGLWidget, protected QOpenGLFunctions_3_3
   GlMesh overlayMesh_;
   std::shared_ptr<const strata3d::SceneMesh> pendingOverlay_;
   bool overlayChanged_ = false;
+  GlMesh schematicMesh_;
+  std::shared_ptr<const strata3d::SceneMesh> pendingSchematic_;
+  bool schematicChanged_ = false;
   std::vector<CalloutLabel3D> calloutLabels_;
+  mutable std::vector<std::pair<QRect, QString>> placedLabelBoxes_;  // 마지막으로 그린 이름표 자리와 지물 id(누르기 판정)
   bool showCalloutLabels_ = true;
   bool showTopBanner_ = true;
   float hudFontScale_ = 0.85f;

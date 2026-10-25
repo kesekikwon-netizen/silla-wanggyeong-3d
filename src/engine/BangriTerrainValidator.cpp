@@ -14,6 +14,7 @@
 #endif
 
 #include "CrsTransform.h"
+#include "HeritageNaming.h"
 #include "EvaluationOverlay.h"
 #include "Triangulate.h"
 
@@ -847,9 +848,9 @@ std::vector<GyeongjuHeritageSiteMeta> BangriTerrainValidator::gyeongjuHeritageCa
   for (const StaticSiteSpec& s : kSpecs) {
     GyeongjuHeritageSiteMeta m;
     m.id = QString::fromLatin1(s.id);
-    m.name = QString::fromUtf16(s.name);
-    m.category = QString::fromUtf16(s.category);
-    m.subtitle = QString::fromUtf16(s.subtitle);
+    m.name = displayHeritageName(QString::fromUtf16(s.name));
+    m.category = displayHeritageName(QString::fromUtf16(s.category));
+    m.subtitle = schematicModelWording(QString::fromUtf16(s.subtitle));
     m.lat = s.lat;
     m.lon = s.lon;
     m.focusYawDeg = s.focusYaw;
@@ -880,9 +881,9 @@ std::vector<GyeongjuHeritageSiteMeta> BangriTerrainValidator::gyeongjuHeritageCa
     if (already) continue;
     GyeongjuHeritageSiteMeta m;
     m.id = bm.id;
-    m.name = bm.name;
-    m.category = bm.category;
-    m.subtitle = bm.subtitle;
+    m.name = displayHeritageName(bm.name);
+    m.category = displayHeritageName(bm.category);
+    m.subtitle = schematicModelWording(bm.subtitle);
     m.lat = bm.lat;
     m.lon = bm.lon;
     m.focusYawDeg = bm.camYaw;
@@ -986,6 +987,8 @@ std::shared_ptr<SceneMesh> BangriTerrainValidator::buildValidatedGridOverlay(
           for (uint32_t idx : bm.indices) {
             mesh->indices.push_back(baseVertIdx + idx);
           }
+          // 유형 틀 모델이므로 도식(D)으로 칠한다: 실측 지물과 섞여 보이지 않게
+          applyTierStyle(mesh.get(), baseVertIdx, baseVertIdx + bm.vCount, defaultTierStyle(EvidenceTier::Schematic));
           ++mesh->heritagePoints;
         }
       }
@@ -1247,6 +1250,36 @@ std::shared_ptr<SceneMesh> BangriTerrainValidator::buildUserDrawingsOverlay(
                poleW * 1.15f, 26.0f, {1.0f, 0.30f, 0.25f, 1.0f});
   }
 
+  return mesh;
+}
+
+std::shared_ptr<SceneMesh> BangriTerrainValidator::buildSchematicModels(const DemGrid& dem, const std::vector<QString>* enabledIds) {
+  auto mesh = std::make_shared<SceneMesh>();
+  if (!dem.valid()) return mesh;
+  const CrsTransformer tr(QStringLiteral("EPSG:4326"), dem.crs);
+  if (!tr.valid()) return mesh;
+  const double cx = dem.centerX(), cy = dem.centerY();
+  // 유형 틀 모델(D)은 한 가지 회색으로 칠한다. 화면에서는 선화로 그린다(KaGlTerrainViewport::setSchematic).
+  constexpr float kGrey[4] = {0.42f, 0.42f, 0.40f, 1.0f};
+  for (const BlenderSiteBinaryMesh& bm : cachedBlenderHeritageMeshes()) {
+    if (enabledIds && std::find(enabledIds->begin(), enabledIds->end(), bm.id) == enabledIds->end()) continue;
+    if (bm.vCount == 0 || bm.iCount == 0) continue;
+    double ax = bm.lon, ay = bm.lat;
+    if (!tr.transform(&ax, &ay)) continue;
+    float az = 0;
+    if (!dem.sample(ax, ay, &az)) continue;  // 지형 밖 유적은 올리지 않는다
+    const uint32_t base = uint32_t(mesh->vertices.size() / SceneMesh::kFloatsPerVertex);
+    for (uint32_t iv = 0; iv < bm.vCount; ++iv) {
+      const float* v = &bm.vertices[size_t(iv) * 10];
+      const double wx = ax + double(v[0]), wy = ay + double(v[1]);
+      float gz = az;
+      dem.sample(wx, wy, &gz);
+      mesh->vertices.insert(mesh->vertices.end(),
+                            {float(wx - cx), float(wy - cy), gz + v[2], v[3], v[4], v[5], kGrey[0], kGrey[1], kGrey[2], kGrey[3]});
+    }
+    for (uint32_t idx : bm.indices) mesh->indices.push_back(base + idx);
+    ++mesh->heritagePoints;
+  }
   return mesh;
 }
 

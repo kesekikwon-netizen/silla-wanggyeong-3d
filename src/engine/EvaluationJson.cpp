@@ -27,10 +27,6 @@ QJsonObject evaluationToJson(const Evaluation& ev) {
                              {"buildings", r.buildings}, {"heritage", items}});
   }
   o["radii"] = radii;
-  QJsonArray vis;
-  for (const VisibilityItem& v : ev.visibility)
-    vis.append(QJsonObject{{"name", v.name}, {"category", v.category}, {"distance_m", v.distanceM}, {"visible", v.visible}, {"blocked_at_m", v.blockedAtM}});
-  o["visibility"] = vis;
   QJsonArray notes;
   for (const QString& n : ev.notes) notes.append(n);
   o["notes"] = notes;

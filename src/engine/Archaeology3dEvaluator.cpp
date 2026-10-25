@@ -1,5 +1,7 @@
 #include "Archaeology3dEvaluator.h"
 
+#include "DemAnalyzer.h"
+
 #include <ogr_geometry.h>
 
 #include <algorithm>
@@ -134,6 +136,13 @@ Archaeology3dEvaluator::Archaeology3dEvaluator(const DemGrid& dem, std::vector<G
   const Sat sat(dem);
   tpiGrid(dem, sat, kSmallCells, &tpiSmall_, &sdSmall_);
   tpiGrid(dem, sat, kLargeCells, &tpiLarge_, &sdLarge_);
+  // 경사는 Strata 와 같은 계산을 쓴다(hgis/src/core/DemAnalyzer, 같이 컴파일)
+  DemAnalyzer::RasterInfo info;
+  info.width = dem.width;
+  info.height = dem.height;
+  const double gt[6] = {dem.originX, dem.pixelSize, 0, dem.originY, 0, -dem.pixelSize};
+  std::copy(gt, gt + 6, info.geotransform);
+  DemAnalyzer::slopeDegrees(dem.z, info, 1.0, &slopeDeg_);
 }
 
 TerrainMetrics Archaeology3dEvaluator::terrainAt(const Pt& p) const {
@@ -151,7 +160,7 @@ TerrainMetrics Archaeology3dEvaluator::terrainAt(const Pt& p) const {
   const double gg = g.at(c - 1, r + 1), h = g.at(c, r + 1), i = g.at(c + 1, r + 1);
   const double dzE = ((cc + 2 * f + i) - (a + 2 * d + gg)) / (8 * ps);
   const double dzN = ((a + 2 * b + cc) - (gg + 2 * h + i)) / (8 * ps);
-  m.slopeDeg = std::atan(std::hypot(dzE, dzN)) * 180.0 / kPi;
+  m.slopeDeg = slopeDeg_[size_t(r) * g.width + c];  // Strata DemAnalyzer
   if (m.slopeDeg >= 1.0) {
     m.aspectDeg = std::atan2(-dzE, -dzN) * 180.0 / kPi;
     if (m.aspectDeg < 0) m.aspectDeg += 360.0;
@@ -166,22 +175,6 @@ TerrainMetrics Archaeology3dEvaluator::terrainAt(const Pt& p) const {
   m.zLarge = m.tpiLargeM / sdLarge_;
   m.landform = weiss(m.zSmall, m.zLarge, m.slopeDeg);
   return m;
-}
-
-bool Archaeology3dEvaluator::lineOfSight(const Pt& from, double fromAbove, const Pt& to, double toAbove, double* blockedAtM) const {
-  float z0 = 0, z1 = 0;
-  if (!dem_->sample(from.x, from.y, &z0) || !dem_->sample(to.x, to.y, &z1)) return false;
-  const QVector3D a = bvh_->toLocal(from.x, from.y, z0 + float(fromAbove));
-  const QVector3D b = bvh_->toLocal(to.x, to.y, z1 + float(toAbove));
-  const QVector3D d = b - a;
-  const float len = d.length();
-  if (len < 1e-3f) return true;
-  TerrainBvh::Hit hit;
-  if (bvh_->rayCast(a, d / len, len - 0.5f, &hit)) {
-    if (blockedAtM) *blockedAtM = hit.t;
-    return false;
-  }
-  return true;
 }
 
 std::vector<ProfilePoint> Archaeology3dEvaluator::terrainProfile(const Pt& a, const Pt& b, double stepM) const {
@@ -241,6 +234,7 @@ Evaluation Archaeology3dEvaluator::evaluate(const Pt& site, const std::vector<Pt
       it.source = f.source;
       it.kind = f.kind;
       it.distanceM = d;
+      it.point = f.point;
       it.bearingDeg = bearingFromTo(site, f.point);
       it.bearingName = bearingName16(it.bearingDeg);
       float z = 0;
@@ -254,25 +248,6 @@ Evaluation Archaeology3dEvaluator::evaluate(const Pt& site, const std::vector<Pt
     ev.radii.push_back(std::move(rr));
   }
 
-  // 시야: 가까운 국보·사적(지정유산 점) 12곳까지 지형에 가리는지(건물은 계산에 넣지 않음).
-  std::vector<std::pair<double, const GeoFeature*>> targets;
-  for (const GeoFeature& f : features_) {
-    if (f.kind != FeatureKind::HeritagePoint) continue;
-    if (!(f.category.contains(u(u"국보")) || f.category.contains(u(u"사적")))) continue;
-    const double d = std::hypot(f.point.x - site.x, f.point.y - site.y);
-    if (d > 2000.0 || d < 5.0) continue;
-    targets.push_back({d, &f});
-  }
-  std::sort(targets.begin(), targets.end());
-  if (targets.size() > 12) targets.resize(12);
-  for (const auto& [d, f] : targets) {
-    VisibilityItem v;
-    v.name = f->name;
-    v.category = f->category;
-    v.distanceM = d;
-    v.visible = lineOfSight(site, 1.7, f->point, 3.0, &v.blockedAtM);
-    ev.visibility.push_back(std::move(v));
-  }
   {
     int osmB = 0, osmH = 0, khs = 0, shp = 0;
     for (const GeoFeature& f : features_) {
@@ -282,7 +257,7 @@ Evaluation Archaeology3dEvaluator::evaluate(const Pt& site, const std::vector<Pt
     }
     ev.notes << u(u"평가에 쓴 자료: OSM 건물 %1동·유산 지물 %2건, 국가유산청 %3건, Strata SHP %4건. 이 목록에 없는 유산·건물은 \"없음\"이 아니라 \"자료에 없음\"이다.").arg(osmB).arg(osmH).arg(khs).arg(shp);
   }
-  ev.notes << u(u"시야·거리는 지형(DEM 30 m)만으로 계산했고 건물·수목은 넣지 않았다.");
+  ev.notes << u(u"거리·높이차는 현재 지형(DEM 30 m) 기준이다.");
   ev.notes << u(u"지형 분류는 DEM 형태(Weiss 2001)만으로 가른 참고값이며 지질·하천 자료는 쓰지 않았다.");
   if (ev.terrain.elevationM == 0 && ev.terrain.slopeDeg == 0) ev.notes << u(u"조사지가 DEM 범위 밖일 수 있다.");
 

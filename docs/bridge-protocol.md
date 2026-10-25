@@ -28,11 +28,11 @@ EPSG:5179 로 가정하지 않는다. `evaluation.crs` 가 응답 좌표의 좌�
 
 `terrain{elevation_m, slope_deg, aspect_deg, aspect_name, tpi_small_m, tpi_large_m, z_small, z_large, landform}`,
 `radii[{radius_m, buffer_area_m2, buffer_max_reach_m, buildings, heritage[{id,name,category,source,distance_m,bearing_deg,bearing_name,elevation_m,delta_elevation_m}]}]`,
-`visibility[{name,category,distance_m,visible,blocked_at_m}]`, `notes[]`, `summary`.
+`notes[]`, `summary`. (`visibility` 는 2026-10-25 에 뺐다: 시선·가시권은 추정이라 내보내지 않는다.)
 
 - 버퍼는 둥근 연결(사분면당 9분할)이다. 거리는 조사지(점·다각형)에서 지물까지 최단거리.
 - `notes` 의 「평가에 쓴 자료」줄이 근거 자료의 출처·건수다. **자료에 없는 유산·건물은 "없음"이 아니라 "자료에 없음"이다.**
-- 시야는 DEM(30 m) 지형만으로 계산했고 건물·수목은 넣지 않았다. 지형 분류는 DEM 형태(Weiss 2001)만으로 가른 참고값이다.
+- 거리·높이차는 현재 지형(DEM 30 m) 기준이다. 지형 분류는 DEM 형태(Weiss 2001)만으로 가른 참고값이다.
 
 ## 상태 파일
 
