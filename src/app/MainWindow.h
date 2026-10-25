@@ -82,6 +82,9 @@ class MainWindow : public QMainWindow {
   };
 
   explicit MainWindow(const Options& options, QWidget* parent = nullptr);
+  // 워커(지형·위성·평가·관계·지형 입히기)와 QGIS 그리기가 끝나기를 기다린 뒤 닫는다.
+  // 끝나기 전에 Qt 가 내려가면 일하던 스레드가 사라진 자원을 건드린다(new_survey_e2e 간헐 충돌, 2026-10-25).
+  ~MainWindow() override;
   KaGlTerrainViewport* viewport() const { return viewport_; }
   KaBeginnerRibbon* ribbon() const { return ribbon_; }
   // 리본 단추의 동작(RibbonSpec 의 id). 없으면 nullptr.

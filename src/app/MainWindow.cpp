@@ -31,6 +31,7 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QVBoxLayout>
+#include <QThreadPool>
 #include <QtConcurrent>
 #include <qgslayertree.h>
 #include <qgsproject.h>
@@ -1024,6 +1025,7 @@ void MainWindow::rebuildQgisDrape() {
     ms.setFlag(Qgis::MapSettingsFlag::Antialiasing, true);
     ms.setFlag(Qgis::MapSettingsFlag::DrawLabeling, false);  // 글자는 3D 이름표로(지형에 눕힌 글자는 읽기 어렵다)
     auto* job = new QgsMapRendererParallelJob(ms);
+    job->setParent(this);  // 창이 닫힐 때 찾아 멈추려고
     connect(job, &QgsMapRendererJob::finished, this, [this, job, gen, isDetail] {
       const QImage img = job->renderedImage();
       job->deleteLater();
@@ -2044,4 +2046,18 @@ void MainWindow::reloadKeepingView() {
   if (viewport_->currentTargetWorld(&x, &y))
     viewport_->focusOnWorld(x, y, viewport_->yawDegrees(), viewport_->pitchDegrees(), viewport_->distanceM());
   loadScene();
+}
+
+MainWindow::~MainWindow() {
+  ++qgisDrapeGeneration_;  // 끝난 QGIS 그리기가 더는 창을 건드리지 않게
+  for (QgsMapRendererJob* job : findChildren<QgsMapRendererJob*>()) {
+    disconnect(job, nullptr, this, nullptr);
+    job->cancelWithoutBlocking();
+  }
+  watcher_.waitForFinished();
+  satWatcher_.waitForFinished();
+  evalWatcher_.waitForFinished();
+  relWatcher_.waitForFinished();
+  drapeWatcher_.waitForFinished();
+  QThreadPool::globalInstance()->waitForDone();
 }

@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 
 #include <qgsapplication.h>
 
@@ -94,7 +95,11 @@ int main(int argc, char** argv) {
   // 충돌 기록(심볼 스택 + 미니덤프)은 Strata 로그와 섞이지 않게 3D 폴더에 둔다
   if (qEnvironmentVariableIsEmpty("KA_HGIS_LOG_DIR")) {
     const QString base = qEnvironmentVariable("LOCALAPPDATA");
-    if (!base.isEmpty()) qputenv("KA_HGIS_LOG_DIR", QDir(base).filePath(QStringLiteral("strata-3d/logs")).toUtf8());
+    // qputenv 는 ANSI 바이트로 넘겨 한글 사용자 폴더(예: 「권을」)가 깨진다: 넓은 문자 API 로 넣는다
+    if (!base.isEmpty()) {
+      const std::wstring dir = QDir::toNativeSeparators(QDir(base).filePath(QStringLiteral("strata-3d/logs"))).toStdWString();
+      _wputenv_s(L"KA_HGIS_LOG_DIR", dir.c_str());
+    }
   }
   KaCrashGuard::install();
   primeGeoEnvironment();
